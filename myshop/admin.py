@@ -1,5 +1,10 @@
 from django.contrib import admin
 from .models import Product
+from django import forms
+from .models import SiteSettings
+from django.urls import path
+from django.contrib import messages
+from django.shortcuts import render, redirect
 from .models import (
     Brand,
     Category,
@@ -12,13 +17,53 @@ from .models import (
     CartItem,
 )
 
+
+
+
+class SiteSettingsForm(forms.ModelForm):
+    class Meta:
+        model = SiteSettings
+        fields = ['logo', 'favicon', 'site_name']
+        widgets = {
+            'logo': forms.FileInput(attrs={'accept': 'image/*'}),
+            'favicon': forms.FileInput(attrs={'accept': 'image/*'}),
+        }
+
+class SiteSettingsAdmin(admin.ModelAdmin):
+    form = SiteSettingsForm
+    fieldsets = (
+        ('Logo & Branding', {
+            'fields': ('logo', 'favicon', 'site_name'),
+            'description': 'Upload your site logo (recommended size: 200x60px, PNG with transparency)'
+        }),
+    )
+    
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('upload-logo/', self.admin_site.admin_view(self.upload_logo), name='upload_logo'),
+        ]
+        return custom_urls + urls
+    
+    def upload_logo(self, request):
+        if request.method == 'POST' and request.FILES.get('logo'):
+            site_settings = SiteSettings.objects.first()
+            if not site_settings:
+                site_settings = SiteSettings.objects.create()
+            site_settings.logo = request.FILES['logo']
+            site_settings.save()
+            messages.success(request, 'Logo uploaded successfully!')
+            return redirect('admin:index')
+        return render(request, 'admin/upload_logo.html')
+
+admin.site.register(SiteSettings, SiteSettingsAdmin)
+
 # ======================================================
 # Product Image Inline
 # ======================================================
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
-
 
 # ======================================================
 # Product Admin

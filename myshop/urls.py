@@ -14,8 +14,9 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('login-redirect/', views.login_redirect, name='login_redirect'),
     path('profile/', views.profile, name='profile'),
-    #path('apple-products/', views.apple_products, name='apple_products'),
-    #path('brand/oppo/', views.oppo_products, name='oppo_products'),
+    path('admin/upload-logo/', views.upload_logo, name='upload_logo'),
+    
+    
 
     # User dashboard
     path('dashboard/', views.user_dashboard, name='user_dashboard'),

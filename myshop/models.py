@@ -17,6 +17,20 @@ import time  # ✅ time module যোগ করুন
 
 
 
+class SiteSettings(models.Model):
+    """Site wide settings"""
+    logo = models.ImageField(upload_to='site/', blank=True, null=True, verbose_name="Site Logo")
+    favicon = models.ImageField(upload_to='site/', blank=True, null=True, verbose_name="Favicon")
+    site_name = models.CharField(max_length=100, default='JadidTechnology')
+    # ... অন্যান্য ফিল্ড
+    
+    class Meta:
+        verbose_name = "Site Setting"
+        verbose_name_plural = "Site Settings"
+
+
+
+
 class Category(models.Model):
     """
     Main product categories (e.g., Phone, Laptop, Tablet)

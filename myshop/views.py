@@ -32,7 +32,7 @@ from django.db.models import Q, Count, Prefetch
 import json
 from django.db.models import Max as MaxDB
 from .forms import BrandForm 
-
+from .models import SiteSettings
 from django.forms import inlineformset_factory
 
 
@@ -83,6 +83,31 @@ def home(request):
     }
     
     return render(request, 'home.html', context)
+
+
+@staff_member_required
+def upload_logo(request):
+    """Admin view to upload site logo"""
+    site_settings = SiteSettings.objects.first()
+    
+    if request.method == 'POST':
+        if request.FILES.get('logo'):
+            if site_settings:
+                site_settings.logo = request.FILES['logo']
+                site_settings.save()
+            else:
+                site_settings = SiteSettings.objects.create(logo=request.FILES['logo'])
+            messages.success(request, 'Logo uploaded successfully!')
+        elif request.POST.get('remove_logo') == 'true':
+            if site_settings and site_settings.logo:
+                site_settings.logo.delete()
+                site_settings.save()
+                messages.success(request, 'Logo removed successfully!')
+        return redirect('upload_logo')
+    
+    return render(request, 'admin/upload_logo.html', {
+        'site_settings': site_settings
+    })
 
 
 # ====================== ALL BRANDS VIEW ======================

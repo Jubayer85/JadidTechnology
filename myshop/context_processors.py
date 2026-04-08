@@ -1,5 +1,6 @@
 from .models import Cart
 from .models import Category, Brand, Product
+from .models import SiteSettings
 
 def cart_context(request):
     cart_count = 0
@@ -22,4 +23,14 @@ def navbar_data(request):
                 'subcategories'
             ),
         "nav_brands": Brand.objects.filter(is_active=True),
+    }
+
+def site_settings(request):
+    """Add site settings to all templates"""
+    try:
+        settings = SiteSettings.objects.first()
+    except:
+        settings = None
+    return {
+        'site_settings': settings
     }

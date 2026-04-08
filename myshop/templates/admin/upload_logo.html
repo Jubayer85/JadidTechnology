@@ -1,0 +1,54 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Upload Site Logo</h3>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="form-group mb-4">
+                            <label>Current Logo:</label>
+                            <div class="border p-3 text-center">
+                                {% if site_settings and site_settings.logo %}
+                                    <img src="{{ site_settings.logo.url }}" 
+                                         alt="Site Logo" 
+                                         style="max-height: 100px; max-width: 300px;">
+                                    <br>
+                                    <button type="submit" name="remove_logo" value="true" 
+                                            class="btn btn-danger mt-2">
+                                        Remove Logo
+                                    </button>
+                                {% else %}
+                                    <p class="text-muted">No logo uploaded yet</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-4">
+                            <label>Upload New Logo:</label>
+                            <input type="file" name="logo" accept="image/*" class="form-control">
+                            <small class="text-muted">Recommended: PNG with transparency, 200x60px</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Upload Logo</button>
+                        <a href="{% url 'admin:index' %}" class="btn btn-secondary">Back to Dashboard</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
