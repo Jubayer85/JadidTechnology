@@ -1,0 +1,2257 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - MobileShop{% endblock %}
+
+{% block extra_css %}
+<style>
+    .gradient-border {
+        position: relative;
+        background: linear-gradient(white, white) padding-box,
+                    linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899) border-box;
+        border: 2px solid transparent;
+    }
+
+    .glow-effect {
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
+    }
+
+    .pulse-dot {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.7;
+            transform: scale(1.05);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .price-tag {
+        background: linear-gradient(135deg, #1e293b, #334155);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .floating-cart-btn {
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .line-clamp-1 {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .tab-content {
+        animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .product-gallery::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .product-gallery::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 3px;
+    }
+
+    .product-gallery::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+
+    .product-gallery::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    /* Image Zoom Modal Styles */
+    .image-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        cursor: zoom-out;
+    }
+
+    .image-modal img {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+        transition: transform 0.2s ease;
+        cursor: zoom-in;
+    }
+
+    @keyframes zoomIn {
+        from {
+            transform: scale(0.5);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .image-modal .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 40px;
+        color: white;
+        font-size: 45px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s;
+        z-index: 10000;
+    }
+
+    .image-modal .close-modal:hover {
+        transform: scale(1.2);
+    }
+
+    .image-modal .zoom-controls {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 15px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 12px 24px;
+        border-radius: 50px;
+        z-index: 10000;
+    }
+
+    .image-modal .zoom-controls button {
+        background: white;
+        border: none;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 22px;
+        font-weight: bold;
+        transition: all 0.2s;
+    }
+
+    .image-modal .zoom-controls button:hover {
+        background: #6366f1;
+        color: white;
+        transform: scale(1.1);
+    }
+
+    /* Product Image Cursor */
+    .product-main-image {
+        cursor: zoom-in;
+        transition: transform 0.2s ease;
+    }
+
+    .product-main-image:hover {
+        transform: scale(1.02);
+    }
+
+    /* Zoom Hint */
+    .zoom-hint {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 30px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        backdrop-filter: blur(4px);
+        pointer-events: none;
+        z-index: 5;
+    }
+
+
+
+
+
+    MODERN DESCRIPTION TAB STYLES
+   ======================================== */
+
+.description-wrapper {
+    max-width: 100%;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Hot Offer Banner */
+.hot-offer-banner {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24, #ff3838);
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    box-shadow: 0 10px 30px rgba(238, 90, 36, 0.3);
+}
+
+.hot-offer-content {
+    flex: 1;
+}
+
+.hot-offer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    padding: 5px 15px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.hot-offer-badge i {
+    font-size: 1rem;
+}
+
+.hot-offer-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: white;
+    margin: 0 0 5px 0;
+}
+
+.hot-offer-desc {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.9);
+    margin: 0;
+}
+
+.hot-offer-timer {
+    display: flex;
+    gap: 15px;
+}
+
+.timer-box {
+    text-align: center;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
+    padding: 10px 15px;
+    border-radius: 12px;
+    min-width: 70px;
+}
+
+.timer-number {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: white;
+    line-height: 1;
+}
+
+.timer-label {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.8);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Section Styles */
+.description-section {
+    margin-bottom: 2.5rem;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.section-icon-wrapper {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.section-icon {
+    font-size: 1.5rem;
+    color: #6366f1;
+}
+
+.section-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.section-subtitle {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 4px 0 0 0;
+}
+
+/* Description Content - Rich Text */
+.description-content {
+    line-height: 1.8;
+    color: #334155;
+    padding: 0.5rem 0;
+}
+
+.description-content h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 1.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid #6366f1;
+    display: inline-block;
+}
+
+.description-content h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 1.25rem 0 0.75rem;
+    padding-left: 0.5rem;
+    border-left: 4px solid #6366f1;
+}
+
+.description-content h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #334155;
+    margin: 1rem 0 0.5rem;
+}
+
+.description-content h4 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #475569;
+    margin: 0.75rem 0 0.5rem;
+}
+
+.description-content p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+}
+
+.description-content strong,
+.description-content b {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.description-content em,
+.description-content i {
+    font-style: italic;
+}
+
+.description-content ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 1rem 0;
+}
+
+.description-content ul li {
+    padding-left: 1.8rem;
+    position: relative;
+    margin-bottom: 0.6rem;
+}
+
+.description-content ul li::before {
+    content: "▹";
+    position: absolute;
+    left: 0;
+    color: #6366f1;
+    font-weight: bold;
+}
+
+.description-content ol {
+    padding-left: 1.5rem;
+    margin: 1rem 0;
+}
+
+.description-content ol li {
+    margin-bottom: 0.5rem;
+}
+
+.description-content a {
+    color: #6366f1;
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px dashed #6366f1;
+}
+
+.description-content a:hover {
+    color: #4f46e5;
+    border-bottom-color: #4f46e5;
+}
+
+.description-content blockquote {
+    border-left: 4px solid #6366f1;
+    padding: 0.5rem 0 0.5rem 1.25rem;
+    margin: 1.25rem 0;
+    background: linear-gradient(90deg, #f8fafc, transparent);
+    border-radius: 0 12px 12px 0;
+    font-style: italic;
+    color: #475569;
+}
+
+.description-content code {
+    background: #f1f5f9;
+    padding: 0.2rem 0.5rem;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    color: #d946ef;
+}
+
+.description-content pre {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    overflow-x: auto;
+    margin: 1.25rem 0;
+}
+
+.description-content pre code {
+    background: transparent;
+    padding: 0;
+    color: inherit;
+}
+
+.description-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.25rem 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.description-content th,
+.description-content td {
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem 1rem;
+    text-align: left;
+}
+
+.description-content th {
+    background: #f8fafc;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.description-content tr:hover {
+    background: #f8fafc;
+}
+
+.description-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin: 1rem 0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.description-content hr {
+    margin: 1.5rem 0;
+    border: none;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Features Grid */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.feature-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: #f8fafc;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.feature-card:hover {
+    background: linear-gradient(135deg, #eef2ff, white);
+    transform: translateX(5px);
+    border-color: #6366f1;
+}
+
+.feature-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.feature-icon i {
+    font-size: 1rem;
+    color: white;
+}
+
+.feature-text {
+    font-size: 0.95rem;
+    color: #334155;
+    line-height: 1.4;
+}
+
+/* What's in the Box */
+.whats-in-box-content {
+    background: linear-gradient(135deg, #f8fafc, #ffffff);
+    border-radius: 20px;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.box-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.25rem;
+}
+
+.box-card {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    background: white;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.box-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+    border-color: #6366f1;
+}
+
+.box-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 1rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+}
+
+.box-icon.device {
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    color: #6366f1;
+}
+
+.box-icon.charger {
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    color: #10b981;
+}
+
+.box-icon.cable {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #f59e0b;
+}
+
+.box-icon.sim {
+    background: linear-gradient(135deg, #fae8ff, #f3e8ff);
+    color: #d946ef;
+}
+
+.box-icon.docs {
+    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    color: #64748b;
+}
+
+.box-icon.case {
+    background: linear-gradient(135deg, #fff7ed, #fed7aa);
+    color: #ea580c;
+}
+
+.box-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.25rem;
+}
+
+.box-desc {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+/* Timer Animation */
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.hot-offer-banner {
+    animation: pulse 2s infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hot-offer-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.5rem;
+    }
+    
+    .hot-offer-title {
+        font-size: 1.4rem;
+    }
+    
+    .hot-offer-timer {
+        justify-content: center;
+    }
+    
+    .timer-box {
+        padding: 5px 10px;
+        min-width: 55px;
+    }
+    
+    .timer-number {
+        font-size: 1.3rem;
+    }
+    
+    .section-title {
+        font-size: 1.3rem;
+    }
+    
+    .section-icon-wrapper {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .section-icon {
+        font-size: 1.2rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .box-items-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .description-content h1 {
+        font-size: 1.6rem;
+    }
+    
+    .description-content h2 {
+        font-size: 1.4rem;
+    }
+    
+    .description-content h3 {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .box-items-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .feature-card {
+        padding: 0.75rem 1rem;
+    }
+    
+    .feature-text {
+        font-size: 0.875rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.description-section {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.feature-card {
+    animation: fadeInUp 0.4s ease-out;
+    animation-fill-mode: both;
+}
+
+.feature-card:nth-child(1) { animation-delay: 0.05s; }
+.feature-card:nth-child(2) { animation-delay: 0.1s; }
+.feature-card:nth-child(3) { animation-delay: 0.15s; }
+.feature-card:nth-child(4) { animation-delay: 0.2s; }
+.feature-card:nth-child(5) { animation-delay: 0.25s; }
+.feature-card:nth-child(6) { animation-delay: 0.3s; }
+
+.box-card {
+    animation: fadeInUp 0.4s ease-out;
+    animation-fill-mode: both;
+}
+
+.box-card:nth-child(1) { animation-delay: 0.1s; }
+.box-card:nth-child(2) { animation-delay: 0.15s; }
+.box-card:nth-child(3) { animation-delay: 0.2s; }
+.box-card:nth-child(4) { animation-delay: 0.25s; }
+.box-card:nth-child(5) { animation-delay: 0.3s; }
+.box-card:nth-child(6) { animation-delay: 0.35s; }
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Product Detail Section -->
+<div class="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+    <!-- Breadcrumb -->
+    <div class="bg-white border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="py-4">
+                <ol class="flex items-center space-x-2 text-sm">
+                    <li>
+                        <a href="{% url 'home' %}" class="text-slate-500 hover:text-indigo-600 transition-colors">
+                            <i class="fas fa-home"></i>
+                        </a>
+                    </li>
+                    <li class="text-slate-300">›</li>
+                    {% if category %}
+                    <li>
+                        <a href="{% url 'category_products' category.slug %}" class="text-slate-500 hover:text-indigo-600 transition-colors">
+                            {{ category.name }}
+                        </a>
+                    </li>
+                    <li class="text-slate-300">›</li>
+                    {% endif %}
+                    {% if subcategory %}
+                    <li>
+                        <a href="{% url 'subcategory_products' subcategory.slug %}" class="text-slate-500 hover:text-indigo-600 transition-colors">
+                            {{ subcategory.name }}
+                        </a>
+                    </li>
+                    <li class="text-slate-300">›</li>
+                    {% endif %}
+                    <li class="text-slate-900 font-medium truncate">{{ product.name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Product Main Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Left Column - Product Images -->
+            <div class="space-y-6">
+                <!-- Main Product Image with Zoom -->
+                <div class="relative bg-gradient-to-br from-slate-100 to-white rounded-3xl p-8 gradient-border glow-effect">
+                    {% if product.is_featured %}
+                    <div class="absolute top-6 left-6 z-10">
+                        <span class="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg">
+                            <i class="fas fa-crown mr-1"></i> Featured
+                        </span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if product.stock_quantity == 0 %}
+                    <div class="absolute top-6 right-6 z-10">
+                        <span class="px-3 py-1.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg">
+                            Out of Stock
+                        </span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if product.compare_price %}
+                    <div class="absolute bottom-6 left-6 z-10">
+                        <span class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-green-500 text-white text-xs font-bold rounded-full shadow-lg">
+                            Save ৳{{ discount_amount }}
+                        </span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="flex items-center justify-center min-h-[500px] relative">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" 
+                             alt="{{ product.name }}"
+                             id="mainProductImage"
+                             class="product-main-image max-h-[500px] w-auto object-contain drop-shadow-2xl"
+                             onclick="openImageModal(this.src)">
+                        {% else %}
+                        <div class="text-center">
+                            <i class="fas fa-mobile-alt text-8xl text-slate-300"></i>
+                            <p class="mt-4 text-slate-400">No image available</p>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Zoom Hint -->
+                        <div class="zoom-hint">
+                            <i class="fas fa-search-plus"></i>
+                            <span>Click to zoom</span>
+                        </div>
+                    </div>
+                    
+                    <button class="absolute bottom-6 right-6 w-12 h-12 bg-white/80 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white transition-all group">
+                        <i class="fas fa-rotate text-slate-700 group-hover:rotate-180 transition-transform duration-700"></i>
+                    </button>
+                </div>
+
+                <!-- Product Gallery -->
+                {% if product.gallery.all %}
+                <div class="relative">
+                    <div class="product-gallery flex space-x-4 overflow-x-auto pb-4">
+                        <button onclick="changeMainImage('{{ product.image.url }}')"
+                                class="flex-shrink-0 w-24 h-24 rounded-xl border-2 border-indigo-500 bg-white p-2 hover:shadow-md transition-all">
+                            <img src="{{ product.image.url }}" 
+                                 alt="{{ product.name }}"
+                                 class="w-full h-full object-contain">
+                        </button>
+                        
+                        {% for image in product.gallery.all %}
+                            {% if image.is_active %}
+                            <button onclick="changeMainImage('{{ image.image.url }}')"
+                                    class="flex-shrink-0 w-24 h-24 rounded-xl border border-slate-200 bg-white p-2 hover:border-indigo-300 hover:shadow-md transition-all">
+                                <img src="{{ image.image.url }}" 
+                                     alt="{{ product.name }} - Image {{ forloop.counter }}"
+                                     class="w-full h-full object-contain">
+                            </button>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    
+                    <button onclick="scrollGallery(-100)"
+                            class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-8 h-8 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-slate-50">
+                        <i class="fas fa-chevron-left text-sm text-slate-600"></i>
+                    </button>
+                    <button onclick="scrollGallery(100)"
+                            class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-8 h-8 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-slate-50">
+                        <i class="fas fa-chevron-right text-sm text-slate-600"></i>
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right Column - Product Info -->
+            <div class="space-y-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        {% if product.brand.logo %}
+                        <img src="{{ product.brand.logo.url }}" 
+                             alt="{{ product.brand.name }}"
+                             class="w-10 h-10 rounded-lg border border-slate-200 p-1">
+                        {% endif %}
+                        <span class="text-sm font-semibold text-indigo-600 uppercase tracking-wider">
+                            {{ product.brand.name|default:"Brand" }}
+                        </span>
+                        <span class="px-2 py-1 bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-700 text-xs font-medium rounded-full border border-emerald-200">
+                            <i class="fas fa-check-circle mr-1"></i> Official Store
+                        </span>
+                    </div>
+                    
+                    <h1 class="text-3xl lg:text-4xl font-bold text-slate-900 mb-3">
+                        {{ product.name }}
+                    </h1>
+                    
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="flex items-center">
+                            <div class="text-amber-400 text-lg">
+                                {% for i in "12345"|make_list %}
+                                <i class="fas fa-star {% if forloop.counter <= 4 %}text-amber-400{% else %}text-slate-300{% endif %}"></i>
+                                {% endfor %}
+                            </div>
+                            <span class="ml-2 text-slate-700 font-semibold">4.8</span>
+                            <span class="ml-1 text-slate-500">(128 reviews)</span>
+                        </div>
+                        <div class="flex items-center text-slate-500">
+                            <i class="fas fa-eye mr-2"></i>
+                            <span>1.2K views</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl p-6">
+                    <div class="flex items-end space-x-4">
+                        <div>
+                            <span class="text-sm text-slate-500 mb-1 block">Current Price</span>
+                            <div class="flex items-baseline">
+                                <span class="text-4xl lg:text-5xl font-bold price-tag">৳{{ product.price }}</span>
+                                {% if product.compare_price %}
+                                <span class="ml-3 text-xl text-slate-400 line-through">৳{{ product.compare_price }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if product.compare_price %}
+                        <div class="ml-auto">
+                            <div class="px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-full text-center">
+                                <span class="text-lg font-bold">{{ discount_percent }}% OFF</span>
+                                <div class="text-xs">Save ৳{{ discount_amount }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-4 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex items-center">
+                                {% if product.stock_quantity > 10 %}
+                                <div class="w-3 h-3 rounded-full bg-emerald-500 pulse-dot"></div>
+                                <span class="ml-2 text-emerald-600 font-semibold">In Stock</span>
+                                {% elif product.stock_quantity > 0 %}
+                                <div class="w-3 h-3 rounded-full bg-amber-500 pulse-dot"></div>
+                                <span class="ml-2 text-amber-600 font-semibold">Low Stock</span>
+                                {% else %}
+                                <div class="w-3 h-3 rounded-full bg-rose-500"></div>
+                                <span class="ml-2 text-rose-600 font-semibold">Out of Stock</span>
+                                {% endif %}
+                            </div>
+                            <span class="text-slate-500 text-sm">
+                                {{ product.stock_quantity }} units available
+                            </span>
+                        </div>
+                        <div class="text-slate-500 text-sm">
+                            <i class="fas fa-shipping-fast mr-1"></i>
+                            Free Delivery
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {% if product.ram %}
+                    <div class="bg-white rounded-xl p-4 border border-slate-200 hover:border-indigo-300 hover:shadow-sm transition-all">
+                        <div class="text-slate-500 text-xs mb-1">RAM</div>
+                        <div class="font-semibold text-slate-900">{{ product.ram }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if product.storage %}
+                    <div class="bg-white rounded-xl p-4 border border-slate-200 hover:border-indigo-300 hover:shadow-sm transition-all">
+                        <div class="text-slate-500 text-xs mb-1">Storage</div>
+                        <div class="font-semibold text-slate-900">{{ product.storage }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if product.display_size %}
+                    <div class="bg-white rounded-xl p-4 border border-slate-200 hover:border-indigo-300 hover:shadow-sm transition-all">
+                        <div class="text-slate-500 text-xs mb-1">Display</div>
+                        <div class="font-semibold text-slate-900">{{ product.display_size }}"</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if product.battery_capacity %}
+                    <div class="bg-white rounded-xl p-4 border border-slate-200 hover:border-indigo-300 hover:shadow-sm transition-all">
+                        <div class="text-slate-500 text-xs mb-1">Battery</div>
+                        <div class="font-semibold text-slate-900">{{ product.battery_capacity }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if colors_list %}
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900 mb-3">Available Colors</h3>
+                    <div class="flex flex-wrap gap-3">
+                        {% for color in colors_list %}
+                        <button class="flex items-center space-x-2 px-4 py-2 rounded-full border border-slate-300 hover:border-indigo-400 hover:shadow-sm transition-all">
+                            <div class="w-6 h-6 rounded-full 
+                                {% if color|lower == 'black' %}bg-gray-900
+                                {% elif color|lower == 'white' %}bg-white border border-slate-300
+                                {% elif color|lower == 'blue' %}bg-blue-500
+                                {% elif color|lower == 'red' %}bg-red-500
+                                {% elif color|lower == 'green' %}bg-green-500
+                                {% elif color|lower == 'gold' %}bg-yellow-400
+                                {% elif color|lower == 'silver' %}bg-gray-300
+                                {% elif color|lower == 'purple' %}bg-purple-500
+                                {% else %}bg-slate-400{% endif %}"></div>
+                            <span class="text-sm text-slate-700">{{ color }}</span>
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="group">
+                            {% if user.is_authenticated %}
+                                <form action="{% url 'add_to_cart' product.id %}" method="post" class="h-full">
+                                    {% csrf_token %}
+                                    <button type="submit" 
+                                            class="w-full h-full flex items-center justify-center space-x-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-4 px-6 rounded-xl font-semibold hover:from-indigo-700 hover:to-indigo-800 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02]">
+                                        <div class="relative">
+                                            <i class="fas fa-shopping-cart text-lg group-hover:scale-110 transition-transform"></i>
+                                            {% if product.stock_quantity > 0 %}
+                                            <span class="absolute -top-2 -right-2 w-5 h-5 bg-rose-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse">
+                                                +
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                        <span class="flex-1 text-center">Add to Cart</span>
+                                    </button>
+                                </form>
+                            {% else %}
+                                <a href="{% url 'login' %}?next={{ request.path }}"
+                                   class="w-full flex items-center justify-center space-x-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white py-4 px-6 rounded-xl font-semibold hover:from-indigo-600 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02]">
+                                    <i class="fas fa-lock text-lg"></i>
+                                    <span class="flex-1 text-center">Login to Add to Cart</span>
+                                </a>
+                            {% endif %}
+                        </div>
+                        
+                        {% if product.stock_quantity > 0 %}
+                        <div class="group">
+                            {% if user.is_authenticated %}
+                                <form action="{% url 'checkout' %}" method="post" class="h-full">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" 
+                                            class="w-full h-full flex items-center justify-center space-x-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white py-4 px-6 rounded-xl font-semibold hover:from-emerald-600 hover:to-green-700 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02]">
+                                        <i class="fas fa-bolt text-lg group-hover:rotate-12 transition-transform"></i>
+                                        <span class="flex-1 text-center">Buy Now</span>
+                                    </button>
+                                </form>
+                            {% else %}
+                                <a href="{% url 'login' %}?next={% url 'checkout' %}?product_id={{ product.id }}&quantity=1"
+                                   class="w-full flex items-center justify-center space-x-3 bg-gradient-to-r from-emerald-400 to-green-500 text-white py-4 px-6 rounded-xl font-semibold hover:from-emerald-500 hover:to-green-600 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02]">
+                                    <i class="fas fa-bolt text-lg"></i>
+                                    <span class="flex-1 text-center">Login to Buy Now</span>
+                                </a>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="group">
+                            <button disabled
+                                    class="w-full flex items-center justify-center space-x-3 bg-gradient-to-r from-slate-400 to-slate-500 text-white py-4 px-6 rounded-xl font-semibold cursor-not-allowed shadow">
+                                <i class="fas fa-times-circle text-lg"></i>
+                                <span class="flex-1 text-center">Out of Stock</span>
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex justify-center space-x-6 pt-4 border-t border-slate-200">
+                        <button onclick="addToWishlist({{ product.id }})"
+                                class="flex flex-col items-center text-slate-600 hover:text-rose-500 transition-colors group">
+                            <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-rose-50 transition-colors">
+                                <i class="fas fa-heart text-lg"></i>
+                            </div>
+                            <span class="text-xs mt-2">Wishlist</span>
+                        </button>
+                        
+                        <button onclick="compareProduct({{ product.id }})"
+                                class="flex flex-col items-center text-slate-600 hover:text-indigo-600 transition-colors group">
+                            <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-indigo-50 transition-colors">
+                                <i class="fas fa-exchange-alt text-lg"></i>
+                            </div>
+                            <span class="text-xs mt-2">Compare</span>
+                        </button>
+                        
+                        <button onclick="shareProduct()"
+                                class="flex flex-col items-center text-slate-600 hover:text-blue-600 transition-colors group">
+                            <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
+                                <i class="fas fa-share-alt text-lg"></i>
+                            </div>
+                            <span class="text-xs mt-2">Share</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Tabs Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+            <!-- Tabs Header -->
+            <div class="border-b border-slate-200">
+                <nav class="flex overflow-x-auto">
+                    <button onclick="switchTab('specifications')"
+                            id="tab-specifications"
+                            class="flex-shrink-0 px-8 py-4 text-lg font-semibold border-b-2 border-indigo-500 text-indigo-600">
+                        <i class="fas fa-microchip mr-2"></i>Specifications
+                    </button>
+                    <button onclick="switchTab('description')"
+                            id="tab-description"
+                            class="flex-shrink-0 px-8 py-4 text-lg font-semibold text-slate-600 hover:text-slate-900 border-b-2 border-transparent hover:border-slate-300">
+                        <i class="fas fa-file-alt mr-2"></i>Description
+                    </button>
+                    <button onclick="switchTab('reviews')"
+                            id="tab-reviews"
+                            class="flex-shrink-0 px-8 py-4 text-lg font-semibold text-slate-600 hover:text-slate-900 border-b-2 border-transparent hover:border-slate-300">
+                        <i class="fas fa-star mr-2"></i>Reviews (128)
+                    </button>
+                    <button onclick="switchTab('faq')"
+                            id="tab-faq"
+                            class="flex-shrink-0 px-8 py-4 text-lg font-semibold text-slate-600 hover:text-slate-900 border-b-2 border-transparent hover:border-slate-300">
+                        <i class="fas fa-question-circle mr-2"></i>FAQ
+                    </button>
+                </nav>
+            </div>
+<!-- Tab Content -->
+<div class="p-8">
+    <!-- Specifications Tab -->
+    <div id="content-specifications" class="tab-content">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Left Column - 70% (2 parts out of 3) -->
+            <div class="lg:col-span-3">
+                <h3 class="text-2xl font-bold text-slate-900 mb-6">Technical Specifications</h3>
+                <div class="space-y-2">
+                    <!-- Display Type -->
+                    {% if product.display_type %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-tv mr-2 text-indigo-500"></i>Display Type
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.display_type }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Display Size -->
+                    {% if product.display_size %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-mobile-alt mr-2 text-indigo-500"></i>Display Size
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.display_size }}"</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Refresh Rate -->
+                    {% if product.refresh_rate %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-tachometer-alt mr-2 text-indigo-500"></i>Refresh Rate
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.refresh_rate }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Resolution -->
+                    {% if product.resolution %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-expand-alt mr-2 text-indigo-500"></i>Resolution
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.resolution }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Display Resolution (Detailed) -->
+                    {% if product.display_resolution %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-tv mr-2 text-indigo-500"></i>Display Resolution
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.display_resolution }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- RAM -->
+                    {% if product.ram %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-microchip mr-2 text-indigo-500"></i>RAM
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.ram }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Storage -->
+                    {% if product.storage %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-hdd mr-2 text-indigo-500"></i>Storage
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.storage }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Processor -->
+                    {% if product.processor %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-microchip mr-2 text-indigo-500"></i>Processor
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.processor }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Back Camera -->
+                    {% if product.camera %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-camera mr-2 text-indigo-500"></i>Back Camera
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.camera }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Front Camera -->
+                    {% if product.front_camera %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-camera-retro mr-2 text-indigo-500"></i>Front Camera
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.front_camera }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Video Recording -->
+                    {% if product.video_recording %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-video mr-2 text-indigo-500"></i>Video Recording
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.video_recording }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Battery Capacity -->
+                    {% if product.battery_capacity %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-battery-full mr-2 text-indigo-500"></i>Battery Capacity
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.battery_capacity }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Charging Speed -->
+                    {% if product.charging_speed %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-bolt mr-2 text-indigo-500"></i>Charging Speed
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.charging_speed }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Operating System -->
+                    {% if product.operating_system %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fab fa-android mr-2 text-indigo-500"></i>Operating System
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.operating_system }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Network -->
+                    {% if product.network %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-wifi mr-2 text-indigo-500"></i>Network
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.network }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Connectivity -->
+                    {% if product.connectivity %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-plug mr-2 text-indigo-500"></i>Connectivity
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.connectivity|truncatechars:80 }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- SIM Type -->
+                    {% if product.sim_type %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-sim-card mr-2 text-indigo-500"></i>SIM Type
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.sim_type }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Water Resistance -->
+                    {% if product.water_resistance %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-tint mr-2 text-indigo-500"></i>Water Resistance
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.water_resistance }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Fingerprint Sensor -->
+                    {% if product.fingerprint_sensor %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-fingerprint mr-2 text-indigo-500"></i>Fingerprint Sensor
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.fingerprint_sensor }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Weight -->
+                    {% if product.weight %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-weight-hanging mr-2 text-indigo-500"></i>Weight
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.weight }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Available Colors -->
+                    {% if colors_list %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-palette mr-2 text-indigo-500"></i>Available Colors
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">
+                            <div class="flex flex-wrap gap-2">
+                                {% for color in colors_list %}
+                                <div class="flex items-center space-x-1">
+                                    <div class="w-5 h-5 rounded-full border border-slate-200 
+                                        {% if color|lower == 'black' %}bg-gray-900
+                                        {% elif color|lower == 'white' %}bg-white
+                                        {% elif color|lower == 'blue' %}bg-blue-500
+                                        {% elif color|lower == 'red' %}bg-red-500
+                                        {% elif color|lower == 'green' %}bg-green-500
+                                        {% elif color|lower == 'gold' %}bg-yellow-500
+                                        {% elif color|lower == 'silver' %}bg-gray-400
+                                        {% elif color|lower == 'purple' %}bg-purple-500
+                                        {% else %}bg-slate-400{% endif %}"></div>
+                                    <span class="text-sm">{{ color }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Warranty -->
+                    {% if product.warranty %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-shield-alt mr-2 text-indigo-500"></i>Warranty
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.warranty }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- SKU -->
+                    {% if product.sku %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-barcode mr-2 text-indigo-500"></i>SKU
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.sku }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- What's in the Box Section -->
+                {% if product.whats_in_box %}
+                <div class="mt-8">
+                    <h3 class="text-xl font-bold text-slate-900 mb-4 flex items-center">
+                        <i class="fas fa-box-open mr-3 text-indigo-500"></i>
+                        What's in the Box
+                    </h3>
+                    <div class="bg-gradient-to-r from-slate-50 to-white rounded-xl p-5 border border-slate-200">
+                        <div class="text-slate-700 whitespace-pre-line text-left">
+                            {{ product.whats_in_box|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Right Column - 30% (1 part out of 3) -->
+            <div class="lg:col-span-1">
+                <!-- Performance Metrics -->
+                <h3 class="text-2xl font-bold text-slate-900 mb-6">Performance Metrics</h3>
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-slate-700 font-medium">Overall Rating</span>
+                            <span class="text-slate-900 font-bold">{{ product.average_rating|default:"4.8" }}/5</span>
+                        </div>
+                        <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" 
+                                 style="width: {% widthratio product.average_rating|default:4.8 5 100 %}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-slate-700 font-medium">Performance Score</span>
+                            <span class="text-slate-900 font-bold">9.2/10</span>
+                        </div>
+                        <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style="width: 92%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-slate-700 font-medium">Battery Life</span>
+                            <span class="text-slate-900 font-bold">8.5/10</span>
+                        </div>
+                        <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-slate-700 font-medium">Camera Quality</span>
+                            <span class="text-slate-900 font-bold">9.0/10</span>
+                        </div>
+                        <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full" style="width: 90%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-slate-700 font-medium">Display Quality</span>
+                            <span class="text-slate-900 font-bold">9.5/10</span>
+                        </div>
+                        <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" style="width: 95%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-slate-700 font-medium">Value for Money</span>
+                            <span class="text-slate-900 font-bold">8.8/10</span>
+                        </div>
+                        <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full" style="width: 88%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Technical Highlights Card -->
+                <div class="mt-8 p-5 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl border border-indigo-100">
+                    <h4 class="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                        <i class="fas fa-star-of-life mr-2 text-indigo-500"></i>
+                        Technical Highlights
+                    </h4>
+                    <ul class="space-y-2 text-slate-700">
+                        {% if product.processor %}
+                        <li class="flex items-start">
+                            <i class="fas fa-microchip text-indigo-500 mt-1 mr-3"></i>
+                            <span class="text-left">Powered by <strong>{{ product.processor }}</strong> processor</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if product.display_size %}
+                        <li class="flex items-start">
+                            <i class="fas fa-mobile-alt text-indigo-500 mt-1 mr-3"></i>
+                            <span class="text-left">{{ product.display_size }}" {{ product.display_resolution|default:"High-resolution" }} display</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if product.refresh_rate %}
+                        <li class="flex items-start">
+                            <i class="fas fa-tachometer-alt text-indigo-500 mt-1 mr-3"></i>
+                            <span class="text-left"><strong>{{ product.refresh_rate }}</strong> refresh rate</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if product.ram and product.storage %}
+                        <li class="flex items-start">
+                            <i class="fas fa-memory text-indigo-500 mt-1 mr-3"></i>
+                            <span class="text-left">{{ product.ram }} RAM with {{ product.storage }} storage</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if product.camera %}
+                        <li class="flex items-start">
+                            <i class="fas fa-camera text-indigo-500 mt-1 mr-3"></i>
+                            <span class="text-left">{{ product.camera }} camera system</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if product.charging_speed %}
+                        <li class="flex items-start">
+                            <i class="fas fa-bolt text-indigo-500 mt-1 mr-3"></i>
+                            <span class="text-left"><strong>{{ product.charging_speed }}</strong> fast charging support</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if product.battery_capacity %}
+                        <li class="flex items-start">
+                            <i class="fas fa-battery-full text-indigo-500 mt-1 mr-3"></i>
+                            <span class="text-left">{{ product.battery_capacity }} battery</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if product.water_resistance %}
+                        <li class="flex items-start">
+                            <i class="fas fa-tint text-indigo-500 mt-1 mr-3"></i>
+                            <span class="text-left">{{ product.water_resistance }} water and dust resistance</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                
+                <!-- Connectivity Details -->
+                {% if product.connectivity %}
+                <div class="mt-6">
+                    <h4 class="text-md font-semibold text-slate-900 mb-3 flex items-center">
+                        <i class="fas fa-plug mr-2 text-indigo-500"></i>
+                        Connectivity Details
+                    </h4>
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                        <p class="text-slate-700 text-sm whitespace-pre-line text-left">{{ product.connectivity }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Description Tab -->
+<div id="content-description" class="tab-content hidden">
+    <div class="description-wrapper">
+        <!-- Hot Offer Banner -->
+        {% if product.is_featured %}
+        <div class="hot-offer-banner">
+            <div class="hot-offer-content">
+                <span class="hot-offer-badge">
+                    <i class="fas fa-fire-flame"></i> Hot Offer
+                </span>
+                <h3 class="hot-offer-title">Limited Time Deal!</h3>
+                <p class="hot-offer-desc">Get special discount on this product</p>
+            </div>
+            <div class="hot-offer-timer">
+                <div class="timer-box">
+                    <span class="timer-number" id="days">00</span>
+                    <span class="timer-label">Days</span>
+                </div>
+                <div class="timer-box">
+                    <span class="timer-number" id="hours">00</span>
+                    <span class="timer-label">Hours</span>
+                </div>
+                <div class="timer-box">
+                    <span class="timer-number" id="minutes">00</span>
+                    <span class="timer-label">Mins</span>
+                </div>
+                <div class="timer-box">
+                    <span class="timer-number" id="seconds">00</span>
+                    <span class="timer-label">Secs</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Product Overview Section -->
+        {% if product.description %}
+        <div class="description-section">
+            <div class="section-header">
+                <div class="section-icon-wrapper">
+                    <i class="fas fa-align-left section-icon"></i>
+                </div>
+                <div>
+                    <h2 class="section-title">Product Overview</h2>
+                    <p class="section-subtitle">Complete details about {{ product.name }}</p>
+                </div>
+            </div>
+            <div class="description-content">
+                {{ product.description|safe|linebreaks }}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Features Section -->
+        {% if features_list %}
+        <div class="description-section">
+            <div class="section-header">
+                <div class="section-icon-wrapper">
+                    <i class="fas fa-star section-icon"></i>
+                </div>
+                <div>
+                    <h2 class="section-title">Key Features</h2>
+                    <p class="section-subtitle">What makes this product special</p>
+                </div>
+            </div>
+            <div class="features-grid">
+                {% for feature in features_list %}
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span class="feature-text">{{ feature }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- What's in the Box Section -->
+        <div class="description-section">
+            <div class="section-header">
+                <div class="section-icon-wrapper">
+                    <i class="fas fa-box-open section-icon"></i>
+                </div>
+                <div>
+                    <h2 class="section-title">What's in the Box</h2>
+                    <p class="section-subtitle">Package contents and accessories</p>
+                </div>
+            </div>
+            {% if product.whats_in_box %}
+                <div class="whats-in-box-content">
+                    {{ product.whats_in_box|safe|linebreaks }}
+                </div>
+            {% else %}
+                <div class="box-items-grid">
+                    <div class="box-card">
+                        <div class="box-icon device">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h4 class="box-title">Smartphone</h4>
+                        <p class="box-desc">1 Unit with pre-applied screen protector</p>
+                    </div>
+                    <div class="box-card">
+                        <div class="box-icon charger">
+                            <i class="fas fa-charging-station"></i>
+                        </div>
+                        <h4 class="box-title">Fast Charger</h4>
+                        <p class="box-desc">80W SuperVOOC Charging Adapter</p>
+                    </div>
+                    <div class="box-card">
+                        <div class="box-icon cable">
+                            <i class="fas fa-plug"></i>
+                        </div>
+                        <h4 class="box-title">USB Cable</h4>
+                        <p class="box-desc">Type-C to Type-C Cable</p>
+                    </div>
+                    <div class="box-card">
+                        <div class="box-icon sim">
+                            <i class="fas fa-sim-card"></i>
+                        </div>
+                        <h4 class="box-title">SIM Ejector Tool</h4>
+                        <p class="box-desc">For SIM card installation</p>
+                    </div>
+                    <div class="box-card">
+                        <div class="box-icon docs">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h4 class="box-title">Documentation</h4>
+                        <p class="box-desc">User Manual & Warranty Card</p>
+                    </div>
+                    <div class="box-card">
+                        <div class="box-icon case">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h4 class="box-title">Protective Case</h4>
+                        <p class="box-desc">Silicone Back Cover</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+                <!-- Reviews Tab -->
+                <div id="content-reviews" class="tab-content hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-2xl font-bold text-slate-900 mb-6">Customer Reviews</h3>
+                            <div class="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-6 border border-slate-200">
+                                <div class="flex items-center justify-center mb-4">
+                                    <div class="text-center">
+                                        <div class="text-5xl font-bold text-slate-900">4.8</div>
+                                        <div class="flex justify-center text-amber-400 text-xl mt-2">
+                                            {% for i in "12345"|make_list %}
+                                            <i class="fas fa-star {% if forloop.counter <= 4 %}text-amber-400{% else %}text-slate-300{% endif %}"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <p class="text-slate-500 mt-2">Based on 128 reviews</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    {% for i in "54321"|make_list %}
+                                    <div class="flex items-center">
+                                        <span class="text-sm text-slate-600 w-8">{{ i }} star</span>
+                                        <div class="flex-1 h-2 bg-slate-200 rounded-full mx-3 overflow-hidden">
+                                            <div class="h-full bg-amber-400 rounded-full" 
+                                                 style="width: {{ forloop.counter|add:"60" }}%"></div>
+                                        </div>
+                                        <span class="text-sm text-slate-600 w-12">{{ forloop.counter|add:"60" }}%</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-2xl font-bold text-slate-900 mb-6">Write a Review</h3>
+                            {% if user.is_authenticated %}
+                            <form class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Your Rating</label>
+                                    <div class="flex text-2xl text-slate-300" id="ratingStars">
+                                        <i class="fas fa-star hover:text-amber-400 cursor-pointer" data-rating="1"></i>
+                                        <i class="fas fa-star hover:text-amber-400 cursor-pointer" data-rating="2"></i>
+                                        <i class="fas fa-star hover:text-amber-400 cursor-pointer" data-rating="3"></i>
+                                        <i class="fas fa-star hover:text-amber-400 cursor-pointer" data-rating="4"></i>
+                                        <i class="fas fa-star hover:text-amber-400 cursor-pointer" data-rating="5"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Your Review</label>
+                                    <textarea rows="4" 
+                                              class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                                              placeholder="Share your experience with this product..."></textarea>
+                                </div>
+                                <button type="submit"
+                                        class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700">
+                                    Submit Review
+                                </button>
+                            </form>
+                            {% else %}
+                            <div class="text-center py-8">
+                                <i class="fas fa-lock text-4xl text-slate-300 mb-4"></i>
+                                <p class="text-slate-600 mb-4">Please login to write a review</p>
+                                <a href="{% url 'login' %}?next={{ request.path }}"
+                                   class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700">
+                                    Login Now
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-12">
+                        <h4 class="text-xl font-bold text-slate-900 mb-6">Customer Reviews (128)</h4>
+                        <div class="space-y-6">
+                            <div class="bg-white rounded-xl border border-slate-200 p-6">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div>
+                                        <div class="flex items-center mb-2">
+                                            <div class="text-amber-400 mr-3">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                            </div>
+                                            <span class="font-semibold text-slate-900">John Doe</span>
+                                        </div>
+                                        <p class="text-sm text-slate-500">Verified Purchase • 2 days ago</p>
+                                    </div>
+                                    <button class="text-slate-400 hover:text-slate-600">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                </div>
+                                <h5 class="font-semibold text-slate-900 mb-2">Excellent product! Best phone ever</h5>
+                                <p class="text-slate-600 mb-4">The phone exceeded my expectations. Camera quality is amazing, battery lasts all day, and performance is smooth. Highly recommended!</p>
+                                <div class="flex items-center text-sm text-slate-500">
+                                    <button class="flex items-center mr-4 hover:text-indigo-600">
+                                        <i class="far fa-thumbs-up mr-2"></i> Helpful (45)
+                                    </button>
+                                    <button class="flex items-center hover:text-slate-700">
+                                        <i class="far fa-comment mr-2"></i> Reply
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Tab -->
+                <div id="content-faq" class="tab-content hidden">
+                    <div class="space-y-6">
+                        <h3 class="text-2xl font-bold text-slate-900 mb-6">Frequently Asked Questions</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="faq-item border border-slate-200 rounded-xl overflow-hidden">
+                                <button class="faq-question w-full flex items-center justify-between p-6 text-left hover:bg-slate-50">
+                                    <span class="font-semibold text-slate-900">What is the warranty period for this product?</span>
+                                    <i class="fas fa-chevron-down text-slate-400 transition-transform"></i>
+                                </button>
+                                <div class="faq-answer hidden p-6 pt-0 border-t border-slate-200">
+                                    <p class="text-slate-600">{{ warranty }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item border border-slate-200 rounded-xl overflow-hidden">
+                                <button class="faq-question w-full flex items-center justify-between p-6 text-left hover:bg-slate-50">
+                                    <span class="font-semibold text-slate-900">Is there any return policy?</span>
+                                    <i class="fas fa-chevron-down text-slate-400 transition-transform"></i>
+                                </button>
+                                <div class="faq-answer hidden p-6 pt-0 border-t border-slate-200">
+                                    <p class="text-slate-600">Yes, we offer a 7-day return policy for unused products in original packaging. Please contact our customer support for return requests.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item border border-slate-200 rounded-xl overflow-hidden">
+                                <button class="faq-question w-full flex items-center justify-between p-6 text-left hover:bg-slate-50">
+                                    <span class="font-semibold text-slate-900">Does it come with original charger and accessories?</span>
+                                    <i class="fas fa-chevron-down text-slate-400 transition-transform"></i>
+                                </button>
+                                <div class="faq-answer hidden p-6 pt-0 border-t border-slate-200">
+                                    <p class="text-slate-600">Yes, all products come with original charger, cable, and accessories as mentioned in "What's in the Box" section.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item border border-slate-200 rounded-xl overflow-hidden">
+                                <button class="faq-question w-full flex items-center justify-between p-6 text-left hover:bg-slate-50">
+                                    <span class="font-semibold text-slate-900">How long does delivery take?</span>
+                                    <i class="fas fa-chevron-down text-slate-400 transition-transform"></i>
+                                </button>
+                                <div class="faq-answer hidden p-6 pt-0 border-t border-slate-200">
+                                    <p class="text-slate-600">Delivery typically takes 2-3 business days within city areas and 3-5 business days for outside city areas. Express delivery options are available.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item border border-slate-200 rounded-xl overflow-hidden">
+                                <button class="faq-question w-full flex items-center justify-between p-6 text-left hover:bg-slate-50">
+                                    <span class="font-semibold text-slate-900">Is installment payment available?</span>
+                                    <i class="fas fa-chevron-down text-slate-400 transition-transform"></i>
+                                </button>
+                                <div class="faq-answer hidden p-6 pt-0 border-t border-slate-200">
+                                    <p class="text-slate-600">Yes, we offer EMI options through selected banks. Please check the checkout page for available installment plans.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8 p-6 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl border border-indigo-100">
+                            <h4 class="text-lg font-semibold text-slate-900 mb-4">Still have questions?</h4>
+                            <form class="space-y-4">
+                                <div>
+                                    <textarea rows="3" 
+                                              class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                                              placeholder="Ask your question here..."></textarea>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <input type="email" 
+                                           class="flex-1 rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                                           placeholder="Your email (for reply)">
+                                    <button type="submit"
+                                            class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700">
+                                        Ask Question
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h2 class="text-3xl font-bold text-slate-900">Related Products</h2>
+                <p class="text-slate-500 mt-1">You might also like these similar products</p>
+            </div>
+            <a href="{% url 'category_products' product.category.slug %}"
+               class="hidden sm:inline-flex items-center gap-2 text-indigo-600 font-semibold hover:underline">
+                View All
+                <i class="fas fa-arrow-right text-sm"></i>
+            </a>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for related in related_products %}
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-lg hover:border-indigo-200 transition-all duration-300 overflow-hidden group">
+                <div class="relative h-56 bg-gradient-to-b from-slate-50 to-white flex items-center justify-center p-4">
+                    {% if related.image %}
+                    <img src="{{ related.image.url }}" 
+                         alt="{{ related.name }}"
+                         class="h-44 object-contain transition-transform duration-500 group-hover:scale-110">
+                    {% endif %}
+                    
+                    {% if related.is_featured %}
+                    <span class="absolute top-3 left-3 px-2 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full">
+                        <i class="fas fa-crown mr-1"></i> Featured
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <div class="p-5">
+                    <p class="text-xs text-indigo-600 font-semibold mb-1">{{ related.brand.name }}</p>
+                    <h3 class="font-bold text-lg leading-tight line-clamp-1 mb-2">
+                        <a href="{% url 'product_detail' related.slug %}" class="hover:text-indigo-600">
+                            {{ related.name }}
+                        </a>
+                    </h3>
+                    
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xl font-bold text-slate-900">৳{{ related.price }}</span>
+                        <div class="text-amber-400 text-sm">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'product_detail' related.slug %}"
+                       class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-semibold text-center hover:bg-indigo-700 transition-colors block">
+                        View Details
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recently Viewed -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h2 class="text-3xl font-bold text-slate-900 mb-8">Recently Viewed</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {% for viewed in recently_viewed %}
+            <a href="{% url 'product_detail' viewed.slug %}"
+               class="bg-white rounded-xl border border-slate-200 p-4 hover:border-indigo-300 hover:shadow-sm transition-all group">
+                <div class="aspect-square mb-3 flex items-center justify-center">
+                    {% if viewed.image %}
+                    <img src="{{ viewed.image.url }}" 
+                         alt="{{ viewed.name }}"
+                         class="h-20 object-contain group-hover:scale-110 transition-transform duration-300">
+                    {% endif %}
+                </div>
+                <p class="text-sm font-medium text-slate-900 line-clamp-2 group-hover:text-indigo-600">
+                    {{ viewed.name }}
+                </p>
+                <p class="text-lg font-bold text-slate-900 mt-2">৳{{ viewed.price }}</p>
+            </a>
+            {% empty %}
+            {% for popular in popular_products %}
+            <a href="{% url 'product_detail' popular.slug %}"
+               class="bg-white rounded-xl border border-slate-200 p-4 hover:border-indigo-300 hover:shadow-sm transition-all group">
+                <div class="aspect-square mb-3 flex items-center justify-center">
+                    {% if popular.image %}
+                    <img src="{{ popular.image.url }}" 
+                         alt="{{ popular.name }}"
+                         class="h-20 object-contain group-hover:scale-110 transition-transform duration-300">
+                    {% endif %}
+                </div>
+                <p class="text-sm font-medium text-slate-900 line-clamp-2 group-hover:text-indigo-600">
+                    {{ popular.name }}
+                </p>
+                <p class="text-lg font-bold text-slate-900 mt-2">৳{{ popular.price }}</p>
+            </a>
+            {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Image Zoom Modal -->
+<div id="imageModal" class="image-modal" onclick="closeImageModalOnClick(event)">
+    <span class="close-modal" onclick="closeImageModal()">&times;</span>
+    <img id="modalImage" src="" alt="Zoomed Image" onclick="zoomImageOnClick(event)">
+    <div class="zoom-controls">
+        <button onclick="zoomImage(0.2)"><i class="fas fa-plus"></i></button>
+        <button onclick="zoomImage(-0.2)"><i class="fas fa-minus"></i></button>
+        <button onclick="resetZoom()"><i class="fas fa-undo-alt"></i></button>
+        <button onclick="rotateImage()"><i class="fas fa-rotate-right"></i></button>
+    </div>
+</div>
+
+<button onclick="addToCart({{ product.id }})"
+        class="lg:hidden fixed bottom-6 right-6 z-50 w-16 h-16 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-full shadow-2xl floating-cart-btn flex items-center justify-center">
+    <i class="fas fa-shopping-cart text-xl"></i>
+    {% if product.stock_quantity > 0 %}
+    <span class="absolute -top-1 -right-1 w-6 h-6 bg-rose-500 text-white text-xs rounded-full flex items-center justify-center">
+        {{ product.stock_quantity|default:1 }}
+    </span>
+    {% endif %}
+</button>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Image Zoom Modal Functions
+let currentZoom = 1;
+let currentRotation = 0;
+
+function openImageModal(imageSrc) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    modal.style.display = 'flex';
+    modalImg.src = imageSrc;
+    currentZoom = 1;
+    currentRotation = 0;
+    modalImg.style.transform = `scale(${currentZoom}) rotate(${currentRotation}deg)`;
+    document.body.style.overflow = 'hidden';
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    resetZoom();
+}
+
+function closeImageModalOnClick(event) {
+    if (event.target === event.currentTarget) {
+        closeImageModal();
+    }
+}
+
+function zoomImage(delta) {
+    const modalImg = document.getElementById('modalImage');
+    currentZoom += delta;
+    currentZoom = Math.min(Math.max(0.5, currentZoom), 4);
+    modalImg.style.transform = `scale(${currentZoom}) rotate(${currentRotation}deg)`;
+}
+
+function zoomImageOnClick(event) {
+    event.stopPropagation();
+    if (currentZoom >= 2) {
+        zoomImage(-0.5);
+    } else {
+        zoomImage(0.5);
+    }
+}
+
+function resetZoom() {
+    const modalImg = document.getElementById('modalImage');
+    currentZoom = 1;
+    currentRotation = 0;
+    modalImg.style.transform = `scale(1) rotate(0deg)`;
+}
+
+function rotateImage() {
+    const modalImg = document.getElementById('modalImage');
+    currentRotation = (currentRotation + 90) % 360;
+    modalImg.style.transform = `scale(${currentZoom}) rotate(${currentRotation}deg)`;
+}
+
+// Gallery Functions
+function changeMainImage(imageUrl) {
+    const mainImage = document.getElementById('mainProductImage');
+    if (mainImage) {
+        mainImage.src = imageUrl;
+        mainImage.style.opacity = '0.5';
+        setTimeout(() => {
+            mainImage.style.opacity = '1';
+        }, 200);
+    }
+}
+
+function scrollGallery(direction) {
+    const gallery = document.querySelector('.product-gallery');
+    if (gallery) {
+        gallery.scrollBy({ left: direction, behavior: 'smooth' });
+    }
+}
+
+// Tab Switching
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    document.querySelectorAll('[id^="tab-"]').forEach(tab => {
+        tab.classList.remove('border-indigo-500', 'text-indigo-600');
+        tab.classList.add('text-slate-600', 'border-transparent');
+    });
+    
+    const content = document.getElementById(`content-${tabName}`);
+    if (content) {
+        content.classList.remove('hidden');
+    }
+    
+    const tab = document.getElementById(`tab-${tabName}`);
+    if (tab) {
+        tab.classList.add('border-indigo-500', 'text-indigo-600');
+        tab.classList.remove('text-slate-600', 'border-transparent');
+    }
+}
+
+// Keyboard Events
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeImageModal();
+    }
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    // FAQ toggle
+    document.querySelectorAll('.faq-question').forEach(question => {
+        question.addEventListener('click', function() {
+            const answer = this.nextElementSibling;
+            const icon = this.querySelector('i');
+            answer.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+            
+            document.querySelectorAll('.faq-item').forEach(item => {
+                if (item !== this.parentElement) {
+                    item.querySelector('.faq-answer').classList.add('hidden');
+                    item.querySelector('.faq-question i').classList.remove('rotate-180');
+                }
+            });
+        });
+    });
+    
+    // Rating stars
+    const ratingStars = document.querySelectorAll('#ratingStars .fa-star');
+    ratingStars.forEach(star => {
+        star.addEventListener('click', function() {
+            const rating = parseInt(this.getAttribute('data-rating'));
+            ratingStars.forEach((s, index) => {
+                if (index < rating) {
+                    s.classList.remove('text-slate-300');
+                    s.classList.add('text-amber-400');
+                } else {
+                    s.classList.remove('text-amber-400');
+                    s.classList.add('text-slate-300');
+                }
+            });
+        });
+        
+        star.addEventListener('mouseover', function() {
+            const rating = parseInt(this.getAttribute('data-rating'));
+            ratingStars.forEach((s, index) => {
+                if (index < rating) {
+                    s.classList.add('text-amber-300');
+                }
+            });
+        });
+        
+        star.addEventListener('mouseout', function() {
+            ratingStars.forEach(s => {
+                s.classList.remove('text-amber-300');
+            });
+        });
+    });
+});
+
+// Action Functions
+function addToWishlist(productId) {
+    alert('Added to wishlist!');
+}
+
+function compareProduct(productId) {
+    alert('Added to compare!');
+}
+
+function shareProduct() {
+    if (navigator.share) {
+        navigator.share({
+            title: document.title,
+            text: 'Check out this product on MobileShop!',
+            url: window.location.href,
+        });
+    } else {
+        navigator.clipboard.writeText(window.location.href)
+            .then(() => {
+                alert('Link copied to clipboard!');
+            })
+            .catch(() => {
+                prompt('Copy this link:', window.location.href);
+            });
+    }
+}
+
+function addToCart(productId) {
+    if (confirm('Add this product to cart?')) {
+        fetch(`/cart/add/${productId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ quantity: 1 })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Product added to cart!');
+                if (data.cart_count) {
+                    document.querySelectorAll('.cart-count').forEach(el => {
+                        el.textContent = data.cart_count;
+                    });
+                }
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error adding to cart. Please try again.');
+        });
+    }
+}
+</script>
+{% endblock %} 
