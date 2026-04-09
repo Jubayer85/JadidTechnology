@@ -16,32 +16,37 @@ from .models import (
     OrderItem,
     Cart,
     CartItem,
+    HeroSlide,
 )
 
+# ==================== HERO SLIDE ADMIN ====================
+@admin.register(HeroSlide)
+class HeroSlideAdmin(admin.ModelAdmin):
+    list_display = ['title', 'badge_text', 'order', 'is_active']
+    list_editable = ['order', 'is_active']
+    list_filter = ['is_active']
+    search_fields = ['title']
 
-
-
+# ==================== SITE SETTINGS ADMIN ====================
+@admin.register(SiteSettings)
 class SiteSettingsAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Basic Information', {
-            'fields': ('site_name', 'site_tagline', 'site_logo', 'site_favicon')
+            'fields': ('site_name', 'site_tagline', 'site_logo', 'site_favicon'),
+            'classes': ('wide',)
         }),
         ('Header Settings', {
             'fields': ('header_bg_color', 'header_text_color', 'header_sticky', 
                       'show_top_bar', 'top_bar_text'),
-            'classes': ('wide',)
         }),
-        ('Hero Section', {
-            'fields': ('hero_enabled', 'hero_title', 'hero_subtitle', 
-                      'hero_button_text', 'hero_button_url', 'hero_bg_color'),
-        }),
-        ('Hero Slider Images', {
-            'fields': ('hero_image_1', 'hero_image_2', 'hero_image_3', 
-                      'hero_image_4', 'hero_image_5'),
-            'description': 'Upload up to 5 hero slider images (Recommended size: 1920x600px)'
+        ('Hero Section Settings', {
+            'fields': ('hero_enabled', 'hero_title', 'hero_highlight', 'hero_subtitle',
+                      'hero_button_text', 'hero_button_url', 'hero_bg_color',
+                      'hero_image_1', 'hero_image_2', 'hero_image_3'),
+            'description': 'Upload hero slider images (Recommended: 1920x600px)'
         }),
         ('Color Scheme', {
-            'fields': ('primary_color', 'secondary_color', 'accent_color', 
+            'fields': ('primary_color', 'secondary_color', 'accent_color',
                       'footer_bg_color', 'footer_text_color'),
         }),
         ('Social Media Links', {
@@ -66,10 +71,16 @@ class SiteSettingsAdmin(admin.ModelAdmin):
     )
     
     def has_add_permission(self, request):
-        # Prevent adding multiple instances
+        # Only allow one instance
+        return not SiteSettings.objects.exists()
+    
+    def changelist_view(self, request, extra_context=None):
+        # Redirect to change view if only one instance exists
         if SiteSettings.objects.exists():
-            return False
-        return True
+            obj = SiteSettings.objects.first()
+            from django.shortcuts import redirect
+            return redirect(f'admin:myshop_sitesettings_change', obj.pk)
+        return super().changelist_view(request, extra_context)
     
     def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
         extra_context = extra_context or {}
@@ -77,7 +88,10 @@ class SiteSettingsAdmin(admin.ModelAdmin):
         extra_context['show_save_and_add_another'] = False
         return super().changeform_view(request, object_id, form_url, extra_context)
 
-admin.site.register(SiteSettings, SiteSettingsAdmin)
+# ==================== ADMIN SITE CUSTOMIZATION ====================
+admin.site.site_header = 'MobileShop Admin Dashboard'
+admin.site.site_title = 'MobileShop Admin'
+admin.site.index_title = 'Welcome to MobileShop Admin Dashboard'
 
 # ======================================================
 # Product Image Inline
