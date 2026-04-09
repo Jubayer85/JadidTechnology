@@ -65,6 +65,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'myshop.context_processors.cart_context',
                 "myshop.context_processors.navbar_data",
+                'myshop.context_processors.site_settings',
 
                 
             ],

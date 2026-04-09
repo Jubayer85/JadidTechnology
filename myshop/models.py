@@ -14,22 +14,167 @@ import random
 import string
 from decimal import Decimal
 import time  # ✅ time module যোগ করুন
+from django.utils.html import format_html
 
+
+class HeroSlide(models.Model):
+    """Individual hero slide for slider"""
+    
+    # Content
+    title = models.CharField(max_length=200, default='Premium Smartphones', verbose_name="Slide Title")
+    highlight_text = models.CharField(max_length=100, blank=True, verbose_name="Highlight Text")
+    subtitle = models.TextField(default='Cutting-edge technology with exceptional performance.', verbose_name="Subtitle")
+    
+    # Badge
+    badge_text = models.CharField(max_length=100, blank=True, verbose_name="Badge Text")
+    badge_icon = models.CharField(max_length=50, default='fire', verbose_name="Badge Icon")
+    badge_color = models.CharField(max_length=50, default='accent', verbose_name="Badge Color")
+    badge_color_2 = models.CharField(max_length=50, default='brand', verbose_name="Badge Color 2")
+    
+    # Images
+    image = models.ImageField(upload_to='hero/slides/', blank=True, null=True, verbose_name="Slide Image")
+    
+    # Buttons
+    button1_text = models.CharField(max_length=50, default='Shop Now', verbose_name="Button 1 Text")
+    button1_url = models.CharField(max_length=200, default='/shop/', verbose_name="Button 1 URL")
+    button1_icon = models.CharField(max_length=50, default='shopping-cart', verbose_name="Button 1 Icon")
+    button1_color = models.CharField(max_length=50, default='brand', verbose_name="Button 1 Color")
+    button1_color_2 = models.CharField(max_length=50, default='brand-dark', verbose_name="Button 1 Color 2")
+    
+    button2_text = models.CharField(max_length=50, blank=True, verbose_name="Button 2 Text")
+    button2_url = models.CharField(max_length=200, blank=True, verbose_name="Button 2 URL")
+    button2_icon = models.CharField(max_length=50, default='star', verbose_name="Button 2 Icon")
+    button2_color = models.CharField(max_length=50, default='accent', verbose_name="Button 2 Color")
+    
+    # Price Tag
+    price_tag = models.CharField(max_length=50, blank=True, verbose_name="Price Tag")
+    price_label = models.CharField(max_length=50, default='From', verbose_name="Price Label")
+    price_tag_color = models.CharField(max_length=50, default='brand', verbose_name="Price Tag Color")
+    price_tag_color_2 = models.CharField(max_length=50, default='brand-dark', verbose_name="Price Tag Color 2")
+    
+    # Badge (corner badge)
+    badge = models.CharField(max_length=100, blank=True, verbose_name="Corner Badge")
+    
+    # Rating
+    rating = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True, verbose_name="Rating")
+    
+    # Features (JSON field for multiple features)
+    features = models.JSONField(default=list, blank=True, verbose_name="Features")
+    
+    # Order & Status
+    order = models.IntegerField(default=0, verbose_name="Display Order")
+    is_active = models.BooleanField(default=True, verbose_name="Active")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = "Hero Slide"
+        verbose_name_plural = "Hero Slides"
+    
+    def __str__(self):
+        return self.title
 
 
 class SiteSettings(models.Model):
-    """Site wide settings"""
-    logo = models.ImageField(upload_to='site/', blank=True, null=True, verbose_name="Site Logo")
-    favicon = models.ImageField(upload_to='site/', blank=True, null=True, verbose_name="Favicon")
-    site_name = models.CharField(max_length=100, default='JadidTechnology')
-    # ... অন্যান্য ফিল্ড
+    """Dynamic site settings for admin control"""
+    
+    # Site Basic Info
+    site_name = models.CharField(max_length=100, default='Jadid Technology', verbose_name="Site Name")
+    site_tagline = models.CharField(max_length=200, blank=True, default='Premium Tech Store', verbose_name="Site Tagline")
+    site_logo = models.ImageField(upload_to='site/logo/', blank=True, null=True, verbose_name="Site Logo")
+    site_favicon = models.ImageField(upload_to='site/favicon/', blank=True, null=True, verbose_name="Favicon Icon")
+    
+    # Header Settings
+    header_bg_color = models.CharField(max_length=20, default='#ffffff', verbose_name="Header Background Color")
+    header_text_color = models.CharField(max_length=20, default='#1f2937', verbose_name="Header Text Color")
+    header_sticky = models.BooleanField(default=True, verbose_name="Sticky Header")
+    show_top_bar = models.BooleanField(default=True, verbose_name="Show Top Bar")
+    top_bar_text = models.CharField(max_length=500, blank=True, default='Free Shipping on orders over $50', verbose_name="Top Bar Text")
+    
+    # Hero Section Settings
+    hero_enabled = models.BooleanField(default=True, verbose_name="Enable Hero Section")
+    hero_title = models.CharField(max_length=200, default='Welcome to Jadid Technology', verbose_name="Hero Title")
+    hero_highlight = models.CharField(max_length=100, blank=True, default='Best Deals', verbose_name="Hero Highlight")
+    hero_subtitle = models.TextField(default='Discover the latest smartphones, laptops, and gadgets at best prices', verbose_name="Hero Subtitle")
+    hero_button_text = models.CharField(max_length=50, default='Shop Now', verbose_name="Hero Button Text")
+    hero_button_url = models.CharField(max_length=200, default='/shop/', verbose_name="Hero Button URL")
+    hero_bg_color = models.CharField(max_length=20, default='#6366f1', verbose_name="Hero Background Color")
+    
+    # Hero Slider Images (for backward compatibility)
+    hero_image_1 = models.ImageField(upload_to='site/hero/', blank=True, null=True, verbose_name="Hero Image 1")
+    hero_image_2 = models.ImageField(upload_to='site/hero/', blank=True, null=True, verbose_name="Hero Image 2")
+    hero_image_3 = models.ImageField(upload_to='site/hero/', blank=True, null=True, verbose_name="Hero Image 3")
+    
+    # Color Scheme
+    primary_color = models.CharField(max_length=20, default='#6366f1', verbose_name="Primary Color")
+    secondary_color = models.CharField(max_length=20, default='#3b82f6', verbose_name="Secondary Color")
+    accent_color = models.CharField(max_length=20, default='#f59e0b', verbose_name="Accent Color")
+    footer_bg_color = models.CharField(max_length=20, default='#111827', verbose_name="Footer Background Color")
+    footer_text_color = models.CharField(max_length=20, default='#9ca3af', verbose_name="Footer Text Color")
+    
+    # Social Media Links
+    facebook_url = models.URLField(blank=True, verbose_name="Facebook URL")
+    instagram_url = models.URLField(blank=True, verbose_name="Instagram URL")
+    twitter_url = models.URLField(blank=True, verbose_name="Twitter URL")
+    youtube_url = models.URLField(blank=True, verbose_name="YouTube URL")
+    linkedin_url = models.URLField(blank=True, verbose_name="LinkedIn URL")
+    
+    # Contact Info
+    contact_email = models.EmailField(default='support@jadidtechnology.com', verbose_name="Contact Email")
+    contact_phone = models.CharField(max_length=20, default='+880123456789', verbose_name="Contact Phone")
+    contact_address = models.TextField(blank=True, verbose_name="Office Address")
+    
+    # Footer Settings
+    footer_copyright = models.CharField(max_length=200, default='© 2024 Jadid Technology. All rights reserved.', verbose_name="Copyright Text")
+    show_newsletter = models.BooleanField(default=True, verbose_name="Show Newsletter Section")
+    
+    # SEO Settings
+    meta_title = models.CharField(max_length=200, blank=True, verbose_name="Default Meta Title")
+    meta_description = models.TextField(blank=True, verbose_name="Default Meta Description")
+    meta_keywords = models.CharField(max_length=500, blank=True, verbose_name="Default Meta Keywords")
+    
+    # Maintenance Mode
+    maintenance_mode = models.BooleanField(default=False, verbose_name="Maintenance Mode")
+    maintenance_message = models.TextField(default='Site is under maintenance. Please check back soon!', verbose_name="Maintenance Message")
+    
+    # Analytics & Tracking
+    google_analytics_id = models.CharField(max_length=50, blank=True, verbose_name="Google Analytics ID")
+    facebook_pixel_id = models.CharField(max_length=50, blank=True, verbose_name="Facebook Pixel ID")
+    custom_css = models.TextField(blank=True, verbose_name="Custom CSS")
+    custom_js = models.TextField(blank=True, verbose_name="Custom JavaScript")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         verbose_name = "Site Setting"
         verbose_name_plural = "Site Settings"
+    
+    def __str__(self):
+        return self.site_name
+    
+    def get_hero_images(self):
+        """Get list of non-empty hero images"""
+        images = []
+        for i in range(1, 4):
+            img = getattr(self, f'hero_image_{i}')
+            if img:
+                images.append(img)
+        return images
+    
+    def get_hero_slides(self):
+        """Get active hero slides"""
+        return HeroSlide.objects.filter(is_active=True)
+    
+    def save(self, *args, **kwargs):
+        # Ensure only one instance exists
+        if not self.pk and SiteSettings.objects.exists():
+            return  # Skip creating duplicate
+        super().save(*args, **kwargs)
 
-
-
+        # ==================== CATEGORY MODELS ====================
 
 class Category(models.Model):
     """
@@ -56,6 +201,7 @@ class Category(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
+        cache.delete('navbar_categories')
     
     @property
     def active_subcategories(self):
@@ -90,15 +236,14 @@ class SubCategory(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.slug:
-            base_slug = slugify(self.name)
-            slug = base_slug
-            counter = 1
-            
-            while SubCategory.objects.filter(slug=slug).exclude(id=self.id).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-            
-            self.slug = slug
+            self.slug = slugify(self.name)
+        
+        # Ensure slug is unique
+        original_slug = self.slug
+        counter = 1
+        while SubCategory.objects.filter(slug=self.slug).exclude(id=self.id).exists():
+            self.slug = f"{original_slug}-{counter}"
+            counter += 1
         
         super().save(*args, **kwargs)
         
@@ -110,6 +255,8 @@ class SubCategory(models.Model):
         return self.products.filter(is_active=True).count()
 
 
+# ==================== BRAND MODEL ====================
+
 class Brand(models.Model):
     TIER_CHOICES = [
         ('premium', 'Premium'),
@@ -119,6 +266,7 @@ class Brand(models.Model):
     
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100, unique=True, blank=True)
+    #description = models.TextField(blank=True, null=True)
     logo = models.ImageField(upload_to='brands/logos/', blank=True, null=True)
     tier = models.CharField(max_length=20, choices=TIER_CHOICES, default='standard')
     website = models.URLField(blank=True, null=True)
@@ -153,9 +301,11 @@ class Brand(models.Model):
         
         super().save(*args, **kwargs)
     
+    def get_absolute_url(self):
+        return reverse('brand_products', args=[self.slug])
+    
     def get_tier_display(self):
         return dict(self.TIER_CHOICES).get(self.tier, self.tier)
-
 
 class Product(models.Model):
     # ==================== RELATIONS ====================

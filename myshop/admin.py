@@ -5,6 +5,7 @@ from .models import SiteSettings
 from django.urls import path
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.utils.html import format_html
 from .models import (
     Brand,
     Category,
@@ -20,41 +21,61 @@ from .models import (
 
 
 
-class SiteSettingsForm(forms.ModelForm):
-    class Meta:
-        model = SiteSettings
-        fields = ['logo', 'favicon', 'site_name']
-        widgets = {
-            'logo': forms.FileInput(attrs={'accept': 'image/*'}),
-            'favicon': forms.FileInput(attrs={'accept': 'image/*'}),
-        }
-
 class SiteSettingsAdmin(admin.ModelAdmin):
-    form = SiteSettingsForm
     fieldsets = (
-        ('Logo & Branding', {
-            'fields': ('logo', 'favicon', 'site_name'),
-            'description': 'Upload your site logo (recommended size: 200x60px, PNG with transparency)'
+        ('Basic Information', {
+            'fields': ('site_name', 'site_tagline', 'site_logo', 'site_favicon')
+        }),
+        ('Header Settings', {
+            'fields': ('header_bg_color', 'header_text_color', 'header_sticky', 
+                      'show_top_bar', 'top_bar_text'),
+            'classes': ('wide',)
+        }),
+        ('Hero Section', {
+            'fields': ('hero_enabled', 'hero_title', 'hero_subtitle', 
+                      'hero_button_text', 'hero_button_url', 'hero_bg_color'),
+        }),
+        ('Hero Slider Images', {
+            'fields': ('hero_image_1', 'hero_image_2', 'hero_image_3', 
+                      'hero_image_4', 'hero_image_5'),
+            'description': 'Upload up to 5 hero slider images (Recommended size: 1920x600px)'
+        }),
+        ('Color Scheme', {
+            'fields': ('primary_color', 'secondary_color', 'accent_color', 
+                      'footer_bg_color', 'footer_text_color'),
+        }),
+        ('Social Media Links', {
+            'fields': ('facebook_url', 'instagram_url', 'twitter_url', 
+                      'youtube_url', 'linkedin_url'),
+        }),
+        ('Contact Information', {
+            'fields': ('contact_email', 'contact_phone', 'contact_address'),
+        }),
+        ('Footer Settings', {
+            'fields': ('footer_copyright', 'show_newsletter'),
+        }),
+        ('SEO Settings', {
+            'fields': ('meta_title', 'meta_description', 'meta_keywords'),
+        }),
+        ('Maintenance Mode', {
+            'fields': ('maintenance_mode', 'maintenance_message'),
+        }),
+        ('Analytics & Tracking', {
+            'fields': ('google_analytics_id', 'facebook_pixel_id', 'custom_css', 'custom_js'),
         }),
     )
     
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path('upload-logo/', self.admin_site.admin_view(self.upload_logo), name='upload_logo'),
-        ]
-        return custom_urls + urls
+    def has_add_permission(self, request):
+        # Prevent adding multiple instances
+        if SiteSettings.objects.exists():
+            return False
+        return True
     
-    def upload_logo(self, request):
-        if request.method == 'POST' and request.FILES.get('logo'):
-            site_settings = SiteSettings.objects.first()
-            if not site_settings:
-                site_settings = SiteSettings.objects.create()
-            site_settings.logo = request.FILES['logo']
-            site_settings.save()
-            messages.success(request, 'Logo uploaded successfully!')
-            return redirect('admin:index')
-        return render(request, 'admin/upload_logo.html')
+    def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['show_save_and_continue'] = False
+        extra_context['show_save_and_add_another'] = False
+        return super().changeform_view(request, object_id, form_url, extra_context)
 
 admin.site.register(SiteSettings, SiteSettingsAdmin)
 
