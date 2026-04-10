@@ -34,6 +34,7 @@ from django.db.models import Max as MaxDB
 from .forms import BrandForm 
 from .models import SiteSettings
 from django.forms import inlineformset_factory
+from .models import SiteSettings, HeroSlide
 
 
 ProductImageFormSet = inlineformset_factory(
@@ -2436,3 +2437,249 @@ def update_cart_item(request, item_id):
     
     return redirect('cart_detail')
 
+
+#======================= SITE SETTINGS VIEW ======================
+
+@staff_member_required
+def site_settings_view(request):
+    """Admin view for site settings"""
+    settings = SiteSettings.objects.first()
+    hero_slides = HeroSlide.objects.all().order_by('order')
+    
+    if request.method == 'POST':
+        try:
+            if not settings:
+                settings = SiteSettings()
+            
+            # ==================== BASIC INFORMATION ====================
+            settings.site_name = request.POST.get('site_name', 'Jadid Technology') or 'Jadid Technology'
+            settings.site_tagline = request.POST.get('site_tagline', 'Premium Tech Store') or 'Premium Tech Store'
+            
+            # ==================== LOGO UPLOAD ====================
+            if request.FILES.get('site_logo'):
+                if settings.site_logo:
+                    settings.site_logo.delete()
+                settings.site_logo = request.FILES['site_logo']
+            
+            if request.FILES.get('site_favicon'):
+                if settings.site_favicon:
+                    settings.site_favicon.delete()
+                settings.site_favicon = request.FILES['site_favicon']
+            
+            # ==================== HEADER SETTINGS ====================
+            settings.header_bg_color = request.POST.get('header_bg_color', '#ffffff') or '#ffffff'
+            settings.header_text_color = request.POST.get('header_text_color', '#1f2937') or '#1f2937'
+            settings.header_sticky = request.POST.get('header_sticky') == 'on'
+            settings.show_top_bar = request.POST.get('show_top_bar') == 'on'
+            settings.top_bar_text = request.POST.get('top_bar_text', 'Free Shipping on orders over $50') or 'Free Shipping on orders over $50'
+            
+            # ==================== HERO SETTINGS ====================
+            settings.hero_enabled = request.POST.get('hero_enabled') == 'on'
+            settings.hero_title = request.POST.get('hero_title', 'Welcome to Jadid Technology') or 'Welcome to Jadid Technology'
+            settings.hero_highlight = request.POST.get('hero_highlight', 'Best Deals') or 'Best Deals'
+            settings.hero_subtitle = request.POST.get('hero_subtitle', 'Discover the latest smartphones, laptops, and gadgets at best prices') or 'Discover the latest smartphones, laptops, and gadgets at best prices'
+            settings.hero_button_text = request.POST.get('hero_button_text', 'Shop Now') or 'Shop Now'
+            settings.hero_button_url = request.POST.get('hero_button_url', '/shop/') or '/shop/'
+            settings.hero_bg_color = request.POST.get('hero_bg_color', '#6366f1') or '#6366f1'
+            
+            # ==================== HERO IMAGES ====================
+            if request.FILES.get('hero_image_1'):
+                if settings.hero_image_1:
+                    settings.hero_image_1.delete()
+                settings.hero_image_1 = request.FILES['hero_image_1']
+            
+            if request.FILES.get('hero_image_2'):
+                if settings.hero_image_2:
+                    settings.hero_image_2.delete()
+                settings.hero_image_2 = request.FILES['hero_image_2']
+            
+            if request.FILES.get('hero_image_3'):
+                if settings.hero_image_3:
+                    settings.hero_image_3.delete()
+                settings.hero_image_3 = request.FILES['hero_image_3']
+            
+            # ==================== COLOR SCHEME ====================
+            settings.primary_color = request.POST.get('primary_color', '#6366f1') or '#6366f1'
+            settings.secondary_color = request.POST.get('secondary_color', '#3b82f6') or '#3b82f6'
+            settings.accent_color = request.POST.get('accent_color', '#f59e0b') or '#f59e0b'
+            settings.footer_bg_color = request.POST.get('footer_bg_color', '#111827') or '#111827'
+            settings.footer_text_color = request.POST.get('footer_text_color', '#9ca3af') or '#9ca3af'
+            
+            # ==================== SOCIAL MEDIA ====================
+            settings.facebook_url = request.POST.get('facebook_url') or ''
+            settings.instagram_url = request.POST.get('instagram_url') or ''
+            settings.twitter_url = request.POST.get('twitter_url') or ''
+            settings.youtube_url = request.POST.get('youtube_url') or ''
+            settings.linkedin_url = request.POST.get('linkedin_url') or ''
+            
+            # ==================== CONTACT INFO ====================
+            settings.contact_email = request.POST.get('contact_email', 'support@jadidtechnology.com') or 'support@jadidtechnology.com'
+            settings.contact_phone = request.POST.get('contact_phone', '+880123456789') or '+880123456789'
+            settings.contact_address = request.POST.get('contact_address') or ''
+            
+            # ==================== FOOTER SETTINGS ====================
+            settings.footer_copyright = request.POST.get('footer_copyright', '© 2024 Jadid Technology. All rights reserved.') or '© 2024 Jadid Technology. All rights reserved.'
+            settings.show_newsletter = request.POST.get('show_newsletter') == 'on'
+            
+            # ==================== SEO SETTINGS ====================
+            settings.meta_title = request.POST.get('meta_title') or ''
+            settings.meta_description = request.POST.get('meta_description') or ''
+            settings.meta_keywords = request.POST.get('meta_keywords') or ''
+            
+            # ==================== MAINTENANCE MODE ====================
+            settings.maintenance_mode = request.POST.get('maintenance_mode') == 'on'
+            settings.maintenance_message = request.POST.get('maintenance_message', 'Site is under maintenance. Please check back soon!') or 'Site is under maintenance. Please check back soon!'
+            
+            # ==================== ANALYTICS ====================
+            settings.google_analytics_id = request.POST.get('google_analytics_id') or ''
+            settings.facebook_pixel_id = request.POST.get('facebook_pixel_id') or ''
+            settings.custom_css = request.POST.get('custom_css') or ''
+            settings.custom_js = request.POST.get('custom_js') or ''
+            
+            settings.save()
+            messages.success(request, '✅ Site settings updated successfully!')
+            return redirect('site_settings')
+            
+        except Exception as e:
+            messages.error(request, f'❌ Error saving settings: {str(e)}')
+            return redirect('site_settings')
+    
+    context = {
+        'settings': settings,
+        'hero_slides': hero_slides,
+    }
+    return render(request, 'admin/site_settings.html', context)
+
+
+@staff_member_required
+def add_hero_slide(request):
+    """Add new hero slide"""
+    if request.method == 'POST':
+        try:
+            slide = HeroSlide()
+            slide.title = request.POST.get('title')
+            slide.highlight_text = request.POST.get('highlight_text', '')
+            slide.subtitle = request.POST.get('subtitle', '')
+            slide.badge_text = request.POST.get('badge_text', '')
+            slide.badge_icon = request.POST.get('badge_icon', 'fire')
+            slide.button1_text = request.POST.get('button1_text', 'Shop Now')
+            slide.button1_url = request.POST.get('button1_url', '/shop/')
+            slide.button2_text = request.POST.get('button2_text', '')
+            slide.button2_url = request.POST.get('button2_url', '')
+            slide.price_tag = request.POST.get('price_tag', '')
+            slide.price_label = request.POST.get('price_label', 'From')
+            slide.badge = request.POST.get('badge', '')
+            slide.rating = request.POST.get('rating') or None
+            slide.order = request.POST.get('order', HeroSlide.objects.count() + 1)
+            slide.is_active = request.POST.get('is_active') == 'on'
+            
+            if request.FILES.get('image'):
+                slide.image = request.FILES['image']
+            
+            # Features as JSON
+            features = []
+            feature_texts = request.POST.getlist('feature_text[]')
+            feature_icons = request.POST.getlist('feature_icon[]')
+            for i, text in enumerate(feature_texts):
+                if text:
+                    features.append({
+                        'text': text,
+                        'icon': feature_icons[i] if i < len(feature_icons) else 'check',
+                        'color': 'brand'
+                    })
+            slide.features = features
+            
+            slide.save()
+            messages.success(request, f'✅ Hero slide "{slide.title}" added successfully!')
+            return redirect('site_settings')
+            
+        except Exception as e:
+            messages.error(request, f'❌ Error adding slide: {str(e)}')
+            return redirect('add_hero_slide')
+    
+    return render(request, 'admin/add_hero_slide.html')
+
+
+@staff_member_required
+def edit_hero_slide(request, slide_id):
+    """Edit hero slide"""
+    slide = get_object_or_404(HeroSlide, id=slide_id)
+    
+    if request.method == 'POST':
+        try:
+            slide.title = request.POST.get('title')
+            slide.highlight_text = request.POST.get('highlight_text', '')
+            slide.subtitle = request.POST.get('subtitle', '')
+            slide.badge_text = request.POST.get('badge_text', '')
+            slide.badge_icon = request.POST.get('badge_icon', 'fire')
+            slide.button1_text = request.POST.get('button1_text', 'Shop Now')
+            slide.button1_url = request.POST.get('button1_url', '/shop/')
+            slide.button2_text = request.POST.get('button2_text', '')
+            slide.button2_url = request.POST.get('button2_url', '')
+            slide.price_tag = request.POST.get('price_tag', '')
+            slide.price_label = request.POST.get('price_label', 'From')
+            slide.badge = request.POST.get('badge', '')
+            slide.rating = request.POST.get('rating') or None
+            slide.order = request.POST.get('order', slide.order)
+            slide.is_active = request.POST.get('is_active') == 'on'
+            
+            if request.FILES.get('image'):
+                if slide.image:
+                    slide.image.delete()
+                slide.image = request.FILES['image']
+            
+            # Features as JSON
+            features = []
+            feature_texts = request.POST.getlist('feature_text[]')
+            feature_icons = request.POST.getlist('feature_icon[]')
+            for i, text in enumerate(feature_texts):
+                if text:
+                    features.append({
+                        'text': text,
+                        'icon': feature_icons[i] if i < len(feature_icons) else 'check',
+                        'color': 'brand'
+                    })
+            slide.features = features
+            
+            slide.save()
+            messages.success(request, f'✅ Hero slide "{slide.title}" updated successfully!')
+            return redirect('site_settings')
+            
+        except Exception as e:
+            messages.error(request, f'❌ Error updating slide: {str(e)}')
+    
+    return render(request, 'admin/edit_hero_slide.html', {'slide': slide})
+
+
+@staff_member_required
+def delete_hero_slide(request, slide_id):
+    """Delete hero slide"""
+    slide = get_object_or_404(HeroSlide, id=slide_id)
+    slide_title = slide.title
+    slide.delete()
+    messages.success(request, f'✅ Hero slide "{slide_title}" deleted successfully!')
+    return redirect('site_settings')
+
+
+@staff_member_required
+def toggle_hero_slide(request, slide_id):
+    """Toggle hero slide active status"""
+    slide = get_object_or_404(HeroSlide, id=slide_id)
+    slide.is_active = not slide.is_active
+    slide.save()
+    status = "activated" if slide.is_active else "deactivated"
+    messages.success(request, f'✅ Hero slide "{slide.title}" {status}!')
+    return redirect('site_settings')
+
+
+@staff_member_required
+def reorder_hero_slides(request):
+    """Reorder hero slides"""
+    if request.method == 'POST':
+        slide_ids = request.POST.getlist('slide_order[]')
+        for index, slide_id in enumerate(slide_ids, 1):
+            slide = HeroSlide.objects.get(id=slide_id)
+            slide.order = index
+            slide.save()
+        messages.success(request, '✅ Hero slides reordered successfully!')
+    return redirect('site_settings')

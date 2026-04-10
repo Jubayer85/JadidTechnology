@@ -9,13 +9,20 @@ from django.urls import path, include
 
 urlpatterns = [
     # Public pages
+    
     path('admin-dashboard/', include('myshop.urls_admin')),
     path('', views.home, name='home'),
     path('register/', views.register, name='register'),
     path('login-redirect/', views.login_redirect, name='login_redirect'),
     path('profile/', views.profile, name='profile'),
     path('admin/upload-logo/', views.upload_logo, name='upload_logo'),
-    
+    path('site-settings/', views.site_settings_view, name='site_settings'),
+    path('site-settings/toggle-slide/<int:slide_id>/', views.toggle_hero_slide, name='toggle_hero_slide'),
+    path('site-settings/delete-slide/<int:slide_id>/', views.delete_hero_slide, name='delete_hero_slide'),
+     path('site-settings/add-slide/', views.add_hero_slide, name='add_hero_slide'),
+    path('site-settings/edit-slide/<int:slide_id>/', views.edit_hero_slide, name='edit_hero_slide'),
+    path('site-settings/delete-slide/<int:slide_id>/', views.delete_hero_slide, name='delete_hero_slide'),
+   
     
 
     # User dashboard
