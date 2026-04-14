@@ -93,6 +93,19 @@ class SiteSettings(models.Model):
     show_top_bar = models.BooleanField(default=True, verbose_name="Show Top Bar")
     top_bar_text = models.CharField(max_length=500, blank=True, default='Free Shipping on orders over $50', verbose_name="Top Bar Text")
     
+    # NEW: Header Height & Layout
+    header_height = models.PositiveIntegerField(default=70, help_text="Header height in pixels (50-150)", verbose_name="Header Height (px)")
+    header_layout = models.CharField(
+        max_length=20,
+        choices=[
+            ('standard', 'Standard (Logo left, nav right)'),
+            ('centered', 'Centered (Logo center)'),
+            ('compact', 'Compact (Reduced padding)')
+        ],
+        default='standard',
+        verbose_name="Header Layout Style"
+    )
+    
     # Hero Section Settings
     hero_enabled = models.BooleanField(default=True, verbose_name="Enable Hero Section")
     hero_title = models.CharField(max_length=200, default='Welcome to Jadid Technology', verbose_name="Hero Title")
@@ -101,6 +114,13 @@ class SiteSettings(models.Model):
     hero_button_text = models.CharField(max_length=50, default='Shop Now', verbose_name="Hero Button Text")
     hero_button_url = models.CharField(max_length=200, default='/shop/', verbose_name="Hero Button URL")
     hero_bg_color = models.CharField(max_length=20, default='#6366f1', verbose_name="Hero Background Color")
+    
+    # NEW: Hero Height & Slideshow Speed
+    hero_height = models.PositiveIntegerField(default=500, help_text="Hero section height in pixels (300-800)", verbose_name="Hero Height (px)")
+    hero_slideshow_speed = models.PositiveIntegerField(default=5000, help_text="Slideshow transition speed in milliseconds", verbose_name="Slideshow Speed (ms)")
+    
+    # NEW: Hero Background Image
+    hero_background_image = models.ImageField(upload_to='hero/background/', blank=True, null=True, verbose_name="Hero Background Image")
     
     # Hero Slider Images (for backward compatibility)
     hero_image_1 = models.ImageField(upload_to='site/hero/', blank=True, null=True, verbose_name="Hero Image 1")
@@ -113,6 +133,29 @@ class SiteSettings(models.Model):
     accent_color = models.CharField(max_length=20, default='#f59e0b', verbose_name="Accent Color")
     footer_bg_color = models.CharField(max_length=20, default='#111827', verbose_name="Footer Background Color")
     footer_text_color = models.CharField(max_length=20, default='#9ca3af', verbose_name="Footer Text Color")
+    
+    # NEW: Footer Settings
+    footer_height = models.CharField(
+        max_length=20,
+        default='auto',
+        help_text="Footer height (auto or pixels like 300px)",
+        verbose_name="Footer Height"
+    )
+    footer_layout = models.CharField(
+        max_length=20,
+        choices=[
+            ('4cols', '4 Columns (Full width)'),
+            ('3cols', '3 Columns (Compact)'),
+            ('centered', 'Centered (Single column)')
+        ],
+        default='4cols',
+        verbose_name="Footer Layout"
+    )
+    footer_link_color = models.CharField(
+        max_length=20,
+        default='#e5e7eb',
+        verbose_name="Footer Link Color"
+    )
     
     # Social Media Links
     facebook_url = models.URLField(blank=True, verbose_name="Facebook URL")
@@ -173,7 +216,7 @@ class SiteSettings(models.Model):
         if not self.pk and SiteSettings.objects.exists():
             return  # Skip creating duplicate
         super().save(*args, **kwargs)
-
+        
         # ==================== CATEGORY MODELS ====================
 
 class Category(models.Model):

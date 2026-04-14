@@ -52,13 +52,13 @@
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     
-    <!-- Google Fonts - Optimized -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- AOS Animation Library -->
+    <!-- AOS Animation -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
-    <!-- Slick Carousel for Hero Slider -->
+    <!-- Slick Carousel -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
     
@@ -68,13 +68,27 @@
     <!-- Dynamic CSS Variables from Site Settings -->
     <style>
         :root {
+            /* Color Scheme */
             --primary-color: {{ site_settings.primary_color|default:'#6366f1' }};
             --primary-light: {{ site_settings.primary_color|default:'#6366f1' }}20;
             --primary-dark: {{ site_settings.primary_color|default:'#6366f1' }}cc;
             --secondary-color: {{ site_settings.secondary_color|default:'#3b82f6' }};
             --accent-color: {{ site_settings.accent_color|default:'#f59e0b' }};
+            
+            /* Header Settings */
+            --header-height: {% if site_settings.header_height %}{{ site_settings.header_height }}{% else %}70{% endif %}px;
+            --header-bg: {{ site_settings.header_bg_color|default:'#ffffff' }};
+            --header-text: {{ site_settings.header_text_color|default:'#1f2937' }};
+            
+            /* Hero Settings */
+            --hero-height: {% if site_settings.hero_height %}{{ site_settings.hero_height }}{% else %}500{% endif %}px;
+            --hero-speed: {% if site_settings.hero_slideshow_speed %}{{ site_settings.hero_slideshow_speed }}{% else %}5000{% endif %}ms;
+            --hero-bg: {{ site_settings.hero_bg_color|default:'#6366f1' }};
+            
+            /* Footer Settings */
             --footer-bg: {{ site_settings.footer_bg_color|default:'#111827' }};
             --footer-text: {{ site_settings.footer_text_color|default:'#9ca3af' }};
+            --footer-link: {{ site_settings.footer_link_color|default:'#e5e7eb' }};
         }
         
         * {
@@ -95,7 +109,130 @@
             font-family: 'Poppins', system-ui, sans-serif;
         }
         
-        /* Custom Gradient Backgrounds */
+        /* ========== HEADER HEIGHT CONTROL ========== */
+        .main-header, .site-header, header.site-header, .navbar {
+            height: var(--header-height) !important;
+            min-height: var(--header-height) !important;
+            background: var(--header-bg) !important;
+            color: var(--header-text) !important;
+            transition: all 0.3s ease;
+        }
+        
+        /* Sticky Header */
+        {% if site_settings.header_sticky %}
+        .main-header, .site-header, header.site-header {
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        {% endif %}
+        
+        /* Header Layout Variations */
+        {% if site_settings.header_layout == 'centered' %}
+        .header-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        {% elif site_settings.header_layout == 'compact' %}
+        .main-header, .site-header {
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+        }
+        {% endif %}
+        
+        /* ========== HERO HEIGHT CONTROL ========== */
+        .hero-section, .hero-area, .hero-slider, 
+        .slick-slider .slick-list, .slick-slider .slick-track,
+        .hero-banner, .hero-container, .home-hero {
+            min-height: var(--hero-height) !important;
+            height: var(--hero-height) !important;
+            background: var(--hero-bg) !important;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Hero Background Image */
+        {% if site_settings.hero_background_image %}
+        .hero-section {
+            background-image: url('{{ site_settings.hero_background_image.url }}') !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+        }
+        {% endif %}
+        
+        /* Hero Slideshow Speed */
+        .slick-slider .slick-slide {
+            transition: all var(--hero-speed) ease;
+        }
+        
+        /* ========== FOOTER HEIGHT CONTROL ========== */
+        .main-footer, .site-footer, footer.site-footer, .footer {
+            background: var(--footer-bg) !important;
+            color: var(--footer-text) !important;
+        }
+        
+        .main-footer a, .site-footer a, footer a {
+            color: var(--footer-link) !important;
+            transition: color 0.3s ease;
+        }
+        
+        .main-footer a:hover, .site-footer a:hover {
+            color: var(--primary-color) !important;
+        }
+        
+        /* Footer Layout Variations */
+        {% if site_settings.footer_layout == 'centered' %}
+        .footer-content {
+            text-align: center;
+        }
+        .footer-columns {
+            justify-content: center;
+        }
+        {% elif site_settings.footer_layout == '3cols' %}
+        .footer-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+        }
+        {% else %}
+        .footer-grid {
+            grid-template-columns: repeat(4, 1fr) !important;
+        }
+        {% endif %}
+        
+        /* ========== TOP BAR STYLES ========== */
+        .top-bar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 0.5rem 0;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+        
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .hero-section, .hero-area, .hero-slider {
+                min-height: calc(var(--hero-height) * 0.6) !important;
+                height: auto !important;
+            }
+            
+            .main-header, .site-header {
+                height: auto !important;
+                min-height: 60px !important;
+            }
+            
+            {% if site_settings.footer_layout == '4cols' or site_settings.footer_layout == '3cols' %}
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+                gap: 2rem;
+            }
+            {% endif %}
+        }
+        
+        /* ========== CUSTOM GRADIENTS ========== */
         .gradient-primary {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
         }
@@ -108,6 +245,7 @@
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
         }
         
+        /* ========== CARD HOVER ========== */
         .card-hover {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -117,7 +255,7 @@
             box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
         }
         
-        /* Custom Scrollbar */
+        /* ========== SCROLLBAR ========== */
         ::-webkit-scrollbar {
             width: 10px;
             height: 10px;
@@ -137,7 +275,7 @@
             background: var(--primary-dark);
         }
         
-        /* Loading Spinner */
+        /* ========== LOADER ========== */
         .loader {
             width: 48px;
             height: 48px;
@@ -152,7 +290,7 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* Utility Classes */
+        /* ========== UTILITY CLASSES ========== */
         .line-clamp-1 {
             display: -webkit-box;
             -webkit-line-clamp: 1;
@@ -174,7 +312,7 @@
             overflow: hidden;
         }
         
-        /* Animations */
+        /* ========== ANIMATIONS ========== */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -223,7 +361,7 @@
             animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
         
-        /* Skeleton Loading */
+        /* ========== SKELETON LOADING ========== */
         .skeleton {
             background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
             background-size: 200% 100%;
@@ -235,7 +373,7 @@
             100% { background-position: -200% 0; }
         }
         
-        /* Custom Button Styles */
+        /* ========== BUTTON STYLES ========== */
         .btn-primary {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             transition: all 0.3s ease;
@@ -246,7 +384,7 @@
             box-shadow: 0 10px 20px -5px var(--primary-color);
         }
         
-        /* Responsive Container */
+        /* ========== CONTAINER ========== */
         .container-custom {
             width: 100%;
             max-width: 1400px;
@@ -280,12 +418,10 @@
         {{ site_settings.custom_css|safe }}
     </style>
     
-    <!-- Block for page-specific CSS -->
     {% block extra_css %}{% endblock %}
     
     <!-- Google Analytics -->
     {% if site_settings.google_analytics_id %}
-    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ site_settings.google_analytics_id }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -315,7 +451,6 @@
     </noscript>
     {% endif %}
     
-    <!-- Block for extra head content -->
     {% block extra_head %}{% endblock %}
 </head>
 
@@ -370,6 +505,16 @@
     </div>
     {% endif %}
     
+    <!-- Top Bar (if enabled) -->
+    {% if site_settings.show_top_bar and site_settings.top_bar_text %}
+    <div class="top-bar">
+        <div class="container-custom">
+            <i class="fas fa-bell mr-2"></i>
+            {{ site_settings.top_bar_text }}
+        </div>
+    </div>
+    {% endif %}
+    
     <!-- Header Section -->
     {% block header %}
         {% include 'partials/header.html' %}
@@ -377,8 +522,6 @@
     
     <!-- Main Content -->
     <main class="min-h-screen">
-        
-        <!-- Page Content -->
         {% block content %}
         <!-- Child templates will override this -->
         {% endblock %}
@@ -396,7 +539,7 @@
         <i class="fas fa-arrow-up"></i>
     </button>
     
-    <!-- WhatsApp Floating Button (Optional) -->
+    <!-- WhatsApp Floating Button -->
     {% if site_settings.contact_phone %}
     <a href="https://wa.me/{{ site_settings.contact_phone|cut:'+'|cut:' '|cut:'-' }}" 
        target="_blank"
@@ -427,14 +570,12 @@
     <script>
         const csrfToken = "{{ csrf_token }}";
         
-        // Global AJAX setup
         $.ajaxSetup({
             headers: {
                 'X-CSRFToken': csrfToken
             }
         });
         
-        // Show/Hide Loading Overlay
         window.showLoading = function() {
             $('#loading-overlay').removeClass('hidden').addClass('flex');
         };
@@ -442,12 +583,17 @@
         window.hideLoading = function() {
             $('#loading-overlay').addClass('hidden').removeClass('flex');
         };
+        
+        // Debug - Check settings in console
+        console.log('=== SITE CONFIGURATION ===');
+        console.log('Header Height:', getComputedStyle(document.documentElement).getPropertyValue('--header-height'));
+        console.log('Hero Height:', getComputedStyle(document.documentElement).getPropertyValue('--hero-height'));
+        console.log('Hero Speed:', getComputedStyle(document.documentElement).getPropertyValue('--hero-speed'));
+        console.log('Primary Color:', getComputedStyle(document.documentElement).getPropertyValue('--primary-color'));
     </script>
     
-    <!-- Main JavaScript -->
     <script src="{% static 'js/main.js' %}"></script>
     
-    <!-- Page-specific JavaScript -->
     {% block extra_js %}{% endblock %}
     
     <!-- Global JavaScript -->
@@ -468,7 +614,7 @@
                 $('html, body').animate({ scrollTop: 0 }, 500);
             });
             
-            // Auto-dismiss messages with progress bar
+            // Auto-dismiss messages
             $('.message-alert').each(function() {
                 const duration = $(this).data('duration') || 5000;
                 const progressBar = $(this).find('.message-progress');
@@ -486,7 +632,6 @@
                 }
             });
             
-            // Close message on button click
             $('.close-message').click(function() {
                 $(this).closest('.message-alert').fadeOut(300, function() {
                     $(this).remove();
@@ -514,15 +659,12 @@
                 });
             }
             
-            // Add active class to current navigation item
+            // Active navigation
             const currentPath = window.location.pathname;
             $('nav a, .nav-link').each(function() {
                 const href = $(this).attr('href');
                 if (href === currentPath || (href !== '/' && currentPath.startsWith(href))) {
-                    $(this).addClass('active text-brand font-semibold');
-                    if ($(this).hasClass('nav-link')) {
-                        $(this).addClass('bg-brand/10');
-                    }
+                    $(this).addClass('active');
                 }
             });
             

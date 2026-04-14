@@ -1,445 +1,749 @@
 {% extends 'admin/base_admin.html' %}
 {% load static %}
 
-{% block title %}Site Settings - Admin Dashboard{% endblock %}
+{% block title %}Site Configuration - Admin Dashboard{% endblock %}
 
 {% block extra_css %}
 <style>
     :root {
-        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --primary-gradient: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-900: #111827;
     }
     
-    .settings-section {
+    /* Settings Container */
+    .settings-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
         background: white;
         border-radius: 1rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        padding: 1.25rem;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        border: 1px solid var(--gray-200);
+        transition: all 0.2s;
+    }
+    
+    .stat-card:hover {
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #e0e7ff 0%, #ede9fe 100%);
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.75rem;
+    }
+    
+    .stat-icon i {
+        font-size: 1.5rem;
+        color: #4f46e5;
+    }
+    
+    .stat-value {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        line-height: 1.2;
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--gray-600);
+        margin-top: 0.25rem;
+    }
+    
+    /* Section Cards */
+    .config-card {
+        background: white;
+        border-radius: 1rem;
+        border: 1px solid var(--gray-200);
         margin-bottom: 1.5rem;
         overflow: hidden;
-        transition: all 0.3s ease;
     }
     
-    .settings-section:hover {
-        box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-    }
-    
-    .settings-header {
-        background: var(--primary-gradient);
+    .config-header {
+        background: white;
         padding: 1rem 1.5rem;
-        color: white;
+        border-bottom: 1px solid var(--gray-200);
         cursor: pointer;
-    }
-    
-    .settings-header h3 {
-        margin: 0;
-        font-size: 1.1rem;
-        font-weight: 600;
+        transition: background 0.2s;
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
     
-    .settings-header i {
-        margin-right: 0.5rem;
+    .config-header:hover {
+        background: var(--gray-50);
     }
     
-    .settings-header .toggle-icon {
-        transition: transform 0.3s ease;
+    .config-header h3 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--gray-900);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
     
-    .settings-header.collapsed .toggle-icon {
+    .config-header h3 i {
+        color: #4f46e5;
+        font-size: 1.125rem;
+    }
+    
+    .header-badge {
+        background: var(--gray-100);
+        color: var(--gray-600);
+        font-size: 0.7rem;
+        font-weight: 500;
+        padding: 0.25rem 0.5rem;
+        border-radius: 2rem;
+        margin-left: 0.75rem;
+    }
+    
+    .toggle-icon {
+        color: var(--gray-400);
+        transition: transform 0.2s;
+    }
+    
+    .config-header.collapsed .toggle-icon {
         transform: rotate(180deg);
     }
     
-    .settings-body {
+    .config-body {
         padding: 1.5rem;
+        transition: all 0.2s;
     }
     
-    .settings-body.collapsed {
+    .config-body.collapsed {
         display: none;
     }
     
+    /* Form Elements */
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
     .form-group {
-        margin-bottom: 1.25rem;
+        margin-bottom: 0;
     }
     
     .form-group label {
         display: block;
+        font-size: 0.8125rem;
         font-weight: 600;
+        color: var(--gray-700);
         margin-bottom: 0.5rem;
-        color: #374151;
-        font-size: 0.875rem;
     }
     
     .form-group label i {
         margin-right: 0.5rem;
-        color: #667eea;
+        color: #6b7280;
+        width: 1rem;
     }
     
-    .form-group input:not([type="checkbox"]),
-    .form-group textarea,
-    .form-group select {
+    .form-control {
         width: 100%;
-        padding: 0.75rem 1rem;
-        border: 2px solid #e5e7eb;
+        padding: 0.625rem 0.875rem;
+        border: 1px solid var(--gray-200);
         border-radius: 0.75rem;
         font-size: 0.875rem;
-        background: #fafbfc;
-    }
-    
-    .form-group input:focus,
-    .form-group textarea:focus {
-        outline: none;
-        border-color: #667eea;
+        transition: all 0.2s;
         background: white;
-        box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
     }
     
-    .color-preview {
-        width: 50px;
-        height: 50px;
+    .form-control:focus {
+        outline: none;
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+    }
+    
+    /* Dimension Input Group */
+    .dimension-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .dimension-group .form-control {
+        flex: 1;
+    }
+    
+    .dimension-unit {
+        font-size: 0.75rem;
+        color: var(--gray-600);
+        background: var(--gray-100);
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+    }
+    
+    /* Toggle Switch */
+    .toggle-switch {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem;
+        background: var(--gray-50);
         border-radius: 0.75rem;
-        border: 3px solid #e5e7eb;
-        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .toggle-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--gray-700);
+    }
+    
+    .toggle-checkbox {
+        width: 2.5rem;
+        height: 1.25rem;
+        background: var(--gray-300);
+        border-radius: 1rem;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .toggle-checkbox input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        position: absolute;
+    }
+    
+    .toggle-checkbox:before {
+        content: '';
+        position: absolute;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        background: white;
+        top: 0.125rem;
+        left: 0.125rem;
+        transition: transform 0.2s;
+    }
+    
+    .toggle-checkbox input:checked + .toggle-checkbox {
+        background: #4f46e5;
+    }
+    
+    .toggle-checkbox input:checked:before {
+        transform: translateX(1.25rem);
+    }
+    
+    /* Image Preview */
+    .image-upload-area {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        flex-wrap: wrap;
     }
     
     .image-preview {
-        width: 120px;
-        height: 120px;
+        width: 80px;
+        height: 80px;
+        background: var(--gray-100);
         border-radius: 0.75rem;
-        border: 2px dashed #e5e7eb;
+        border: 1px solid var(--gray-200);
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        margin-top: 0.75rem;
-        background: #f9fafb;
         position: relative;
     }
     
     .image-preview img {
         width: 100%;
         height: 100%;
-        object-fit: contain;
+        object-fit: cover;
     }
     
-    .image-preview:hover .image-overlay {
-        opacity: 1;
-    }
-    
-    .image-overlay {
+    .image-preview .remove-image {
         position: absolute;
-        inset: 0;
-        background: rgba(0,0,0,0.5);
+        top: 0;
+        right: 0;
+        background: rgba(0,0,0,0.6);
+        color: white;
+        width: 20px;
+        height: 20px;
+        border-radius: 0 0 0 8px;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 0.7rem;
+        cursor: pointer;
         opacity: 0;
-        transition: opacity 0.3s;
-        cursor: pointer;
+        transition: opacity 0.2s;
     }
     
-    .checkbox-group {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.5rem;
-        border-radius: 0.75rem;
-        background: #f9fafb;
+    .image-preview:hover .remove-image {
+        opacity: 1;
     }
     
-    .checkbox-group:hover {
-        background: #f3f4f6;
-    }
-    
-    .checkbox-group input {
-        width: 1.25rem;
-        height: 1.25rem;
-        accent-color: #667eea;
-    }
-    
-    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-    
-    @media (max-width: 768px) {
-        .grid-2, .grid-3 { grid-template-columns: 1fr; }
-    }
-    
-    .btn-save {
-        background: var(--primary-gradient);
-        color: white;
-        padding: 0.875rem 2rem;
-        border: none;
-        border-radius: 0.75rem;
-        font-weight: 600;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    .btn-save:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px -5px rgba(102,126,234,0.4);
-    }
-    
-    .btn-reset {
-        background: #6b7280;
-        color: white;
-        padding: 0.875rem 2rem;
-        border: none;
-        border-radius: 0.75rem;
-        font-weight: 600;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    .btn-reset:hover {
-        background: #4b5563;
-    }
-    
-    .code-editor {
-        font-family: monospace;
-        background: #1e293b;
-        color: #e2e8f0;
-    }
-    
-    .badge {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        margin-left: 0.5rem;
-    }
-    
-    .badge-info { background: #dbeafe; color: #1e40af; }
-    .badge-success { background: #d1fae5; color: #065f46; }
-    
-    .stats-card {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        border-radius: 1rem;
-        padding: 1rem;
-        text-align: center;
-    }
-    
-    .stats-number {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #667eea;
-    }
-    
-    .slide-table {
+    /* Slides Table */
+    .slides-table {
         width: 100%;
         border-collapse: collapse;
     }
     
-    .slide-table th {
+    .slides-table th {
         text-align: left;
         padding: 0.75rem 1rem;
-        background: #f9fafb;
-        font-weight: 600;
+        background: var(--gray-50);
         font-size: 0.75rem;
-        color: #6b7280;
+        font-weight: 600;
+        color: var(--gray-600);
+        border-bottom: 1px solid var(--gray-200);
     }
     
-    .slide-table td {
+    .slides-table td {
         padding: 1rem;
-        border-bottom: 1px solid #f3f4f6;
+        border-bottom: 1px solid var(--gray-100);
+        vertical-align: middle;
     }
     
-    .slide-table tr:hover {
-        background: #f9fafb;
+    .slides-table tr:hover {
+        background: var(--gray-50);
     }
     
-    .status-active { background: #d1fae5; color: #065f46; }
-    .status-inactive { background: #f3f4f6; color: #6b7280; }
     .status-badge {
         display: inline-flex;
         align-items: center;
         gap: 0.25rem;
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 2rem;
+        font-size: 0.7rem;
+        font-weight: 500;
+    }
+    
+    .status-active {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .status-inactive {
+        background: var(--gray-100);
+        color: var(--gray-600);
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .action-btn {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .action-edit {
+        background: #e0e7ff;
+        color: #3730a3;
+    }
+    
+    .action-edit:hover {
+        background: #c7d2fe;
+    }
+    
+    .action-toggle {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .action-toggle:hover {
+        background: #fde68a;
+    }
+    
+    .action-delete {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .action-delete:hover {
+        background: #fecaca;
+    }
+    
+    /* Submit Area */
+    .submit-area {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--gray-200);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+    }
+    
+    .btn-secondary {
+        background: white;
+        border: 1px solid var(--gray-200);
+        color: var(--gray-700);
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+    
+    .btn-secondary:hover {
+        background: var(--gray-50);
+    }
+    
+    /* Helper Text */
+    .helper-text {
+        font-size: 0.7rem;
+        color: var(--gray-600);
+        margin-top: 0.25rem;
+    }
+    
+    /* Color Preview */
+    .color-preview-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .color-preview {
+        width: 40px;
+        height: 40px;
+        border-radius: 0.5rem;
+        border: 2px solid white;
+        box-shadow: 0 0 0 1px var(--gray-200);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .config-body {
+            padding: 1rem;
+        }
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        .slides-table {
+            display: block;
+            overflow-x: auto;
+        }
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    /* Toast */
+    .toast-message {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: #10b981;
+        color: white;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto">
-    <!-- Header -->
-    <div class="mb-8">
-        <div class="flex justify-between items-center mb-4">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">Site Settings</h1>
-                <p class="text-gray-600 mt-1">Configure your website appearance, content, and functionality</p>
-            </div>
-            <button type="button" onclick="resetToDefault()" class="btn-reset">
-                <i class="fas fa-undo-alt"></i> Reset to Default
-            </button>
+<div class="settings-container">
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Site Configuration</h1>
+        <p class="text-gray-500 text-sm mt-1">Manage global settings for appearance, layout, and functionality</p>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-store"></i></div>
+            <div class="stat-value">{{ settings.site_name|default:'Jadid Technology'|truncatechars:20 }}</div>
+            <div class="stat-label">Site Name</div>
         </div>
-        
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="stats-card">
-                <i class="fas fa-store text-2xl text-indigo-600 mb-2"></i>
-                <div class="stats-number">{{ settings.site_name|default:'Jadid Technology' }}</div>
-                <div class="text-sm text-gray-500">Site Name</div>
-            </div>
-            <div class="stats-card">
-                <i class="fas fa-palette text-2xl text-purple-600 mb-2"></i>
-                <div class="stats-number">{{ settings.primary_color|default:'#6366f1' }}</div>
-                <div class="text-sm text-gray-500">Primary Color</div>
-            </div>
-            <div class="stats-card">
-                <i class="fas fa-sliders-h text-2xl text-green-600 mb-2"></i>
-                <div class="stats-number">{{ hero_slides|length }}</div>
-                <div class="text-sm text-gray-500">Hero Slides</div>
-            </div>
-            <div class="stats-card">
-                <i class="fas fa-check-circle text-2xl text-blue-600 mb-2"></i>
-                <div class="stats-number">{% if settings.hero_enabled %}Active{% else %}Inactive{% endif %}</div>
-                <div class="text-sm text-gray-500">Hero Status</div>
-            </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-fill-drip"></i></div>
+            <div class="stat-value">{{ settings.primary_color|default:'#2563eb' }}</div>
+            <div class="stat-label">Primary Color</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-images"></i></div>
+            <div class="stat-value">{{ hero_slides|length }}</div>
+            <div class="stat-label">Hero Slides</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+            <div class="stat-value">{{ settings.header_height|default:'70' }}px</div>
+            <div class="stat-label">Header Height</div>
         </div>
     </div>
     
     <form method="POST" enctype="multipart/form-data" id="settingsForm">
         {% csrf_token %}
         
-        <!-- Basic Information -->
-        <div class="settings-section">
-            <div class="settings-header" onclick="toggleSection(this)">
-                <h3><span><i class="fas fa-info-circle"></i> Basic Information</span><i class="fas fa-chevron-up toggle-icon"></i></h3>
+        <!-- Branding Section -->
+        <div class="config-card">
+            <div class="config-header" onclick="toggleSection(this)">
+                <h3><i class="fas fa-crown"></i> Branding & Identity</h3>
+                <i class="fas fa-chevron-down toggle-icon"></i>
             </div>
-            <div class="settings-body">
-                <div class="grid-2">
+            <div class="config-body">
+                <div class="form-row">
                     <div class="form-group">
                         <label><i class="fas fa-globe"></i> Site Name</label>
-                        <input type="text" name="site_name" value="{{ settings.site_name|default:'Jadid Technology' }}">
+                        <input type="text" name="site_name" class="form-control" value="{{ settings.site_name|default:'Jadid Technology' }}">
+                        <div class="helper-text">Your brand name displayed across the site</div>
                     </div>
                     <div class="form-group">
-                        <label><i class="fas fa-tag"></i> Site Tagline</label>
-                        <input type="text" name="site_tagline" value="{{ settings.site_tagline|default:'Premium Tech Store' }}">
+                        <label><i class="fas fa-tagline"></i> Tagline</label>
+                        <input type="text" name="site_tagline" class="form-control" value="{{ settings.site_tagline|default:'Premium Tech Solutions' }}">
+                        <div class="helper-text">Short description appearing below logo</div>
                     </div>
                 </div>
-                <div class="grid-2">
+                <div class="form-row">
                     <div class="form-group">
-                        <label><i class="fas fa-image"></i> Site Logo</label>
-                        <input type="file" name="site_logo" accept="image/*">
-                        {% if settings.site_logo %}
-                        <div class="image-preview">
-                            <img src="{{ settings.site_logo.url }}" alt="Logo">
-                            <div class="image-overlay" onclick="clearImage('site_logo')"><i class="fas fa-trash text-white"></i></div>
+                        <label><i class="fas fa-image"></i> Logo</label>
+                        <div class="image-upload-area">
+                            <input type="file" name="site_logo" class="form-control" accept="image/*">
+                            {% if settings.site_logo %}
+                            <div class="image-preview" data-field="site_logo">
+                                <img src="{{ settings.site_logo.url }}" alt="Logo">
+                                <div class="remove-image" onclick="clearImageField('site_logo')"><i class="fas fa-times"></i></div>
+                            </div>
+                            {% endif %}
                         </div>
-                        {% endif %}
                     </div>
                     <div class="form-group">
                         <label><i class="fas fa-heart"></i> Favicon</label>
-                        <input type="file" name="site_favicon" accept="image/*">
-                        {% if settings.site_favicon %}
-                        <div class="image-preview">
-                            <img src="{{ settings.site_favicon.url }}" alt="Favicon">
-                            <div class="image-overlay" onclick="clearImage('site_favicon')"><i class="fas fa-trash text-white"></i></div>
+                        <div class="image-upload-area">
+                            <input type="file" name="site_favicon" class="form-control" accept="image/*">
+                            {% if settings.site_favicon %}
+                            <div class="image-preview" data-field="site_favicon">
+                                <img src="{{ settings.site_favicon.url }}" alt="Favicon">
+                                <div class="remove-image" onclick="clearImageField('site_favicon')"><i class="fas fa-times"></i></div>
+                            </div>
+                            {% endif %}
                         </div>
-                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- Header Settings -->
-        <div class="settings-section">
-            <div class="settings-header" onclick="toggleSection(this)">
-                <h3><span><i class="fas fa-header"></i> Header Settings</span><i class="fas fa-chevron-up toggle-icon"></i></h3>
+        <!-- Header Configuration -->
+        <div class="config-card">
+            <div class="config-header" onclick="toggleSection(this)">
+                <h3><i class="fas fa-header"></i> Header Configuration <span class="header-badge">Layout & Dimensions</span></h3>
+                <i class="fas fa-chevron-down toggle-icon"></i>
             </div>
-            <div class="settings-body">
-                <div class="grid-3">
+            <div class="config-body">
+                <div class="form-row">
                     <div class="form-group">
-                        <label>Header Background</label>
-                        <input type="color" name="header_bg_color" value="{{ settings.header_bg_color|default:'#ffffff' }}">
+                        <label><i class="fas fa-arrows-alt-v"></i> Header Height</label>
+                        <div class="dimension-group">
+                            <input type="number" name="header_height" class="form-control" value="{{ settings.header_height|default:'70' }}" min="50" max="150" step="1">
+                            <span class="dimension-unit">pixels</span>
+                        </div>
+                        <div class="helper-text">Recommended: 60-80px for optimal display</div>
                     </div>
                     <div class="form-group">
-                        <label>Header Text Color</label>
-                        <input type="color" name="header_text_color" value="{{ settings.header_text_color|default:'#1f2937' }}">
-                    </div>
-                    <div class="form-group">
-                        <label>Top Bar Text</label>
-                        <input type="text" name="top_bar_text" value="{{ settings.top_bar_text|default:'Free Shipping on orders over $50' }}">
+                        <label><i class="fas fa-layer-group"></i> Header Layout Style</label>
+                        <select name="header_layout" class="form-control">
+                            <option value="standard" {% if settings.header_layout == 'standard' %}selected{% endif %}>Standard (Logo left, nav right)</option>
+                            <option value="centered" {% if settings.header_layout == 'centered' %}selected{% endif %}>Centered (Logo center)</option>
+                            <option value="compact" {% if settings.header_layout == 'compact' %}selected{% endif %}>Compact (Reduced padding)</option>
+                        </select>
                     </div>
                 </div>
-                <div class="grid-2">
-                    <div class="checkbox-group">
-                        <input type="checkbox" name="header_sticky" {% if settings.header_sticky %}checked{% endif %}>
-                        <label>Sticky Header</label>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-fill"></i> Header Background</label>
+                        <div class="color-preview-row">
+                            <input type="color" name="header_bg_color" class="form-control" style="width: 80px; padding: 0.25rem;" value="{{ settings.header_bg_color|default:'#ffffff' }}">
+                            <div class="color-preview" style="background: {{ settings.header_bg_color|default:'#ffffff' }}"></div>
+                            <span class="helper-text">White (#ffffff) or transparent (#00000000)</span>
+                        </div>
                     </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" name="show_top_bar" {% if settings.show_top_bar %}checked{% endif %}>
-                        <label>Show Top Bar</label>
+                    <div class="form-group">
+                        <label><i class="fas fa-palette"></i> Header Text Color</label>
+                        <div class="color-preview-row">
+                            <input type="color" name="header_text_color" class="form-control" style="width: 80px; padding: 0.25rem;" value="{{ settings.header_text_color|default:'#1f2937' }}">
+                            <div class="color-preview" style="background: {{ settings.header_text_color|default:'#1f2937' }}"></div>
+                        </div>
                     </div>
+                </div>
+                <div class="form-row">
+                    <div class="toggle-switch">
+                        <span class="toggle-label"><i class="fas fa-thumbtack"></i> Sticky Header</span>
+                        <label class="toggle-checkbox">
+                            <input type="checkbox" name="header_sticky" {% if settings.header_sticky %}checked{% endif %}>
+                            <span class="toggle-checkbox"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-switch">
+                        <span class="toggle-label"><i class="fas fa-bell"></i> Show Top Announcement Bar</span>
+                        <label class="toggle-checkbox">
+                            <input type="checkbox" name="show_top_bar" {% if settings.show_top_bar %}checked{% endif %}>
+                            <span class="toggle-checkbox"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-megaphone"></i> Top Bar Message</label>
+                    <input type="text" name="top_bar_text" class="form-control" value="{{ settings.top_bar_text|default:'Free shipping on orders over $50 • 24/7 Customer Support' }}">
+                    <div class="helper-text">Displayed above main header when enabled</div>
                 </div>
             </div>
         </div>
         
-        <!-- Hero Section Settings -->
-        <div class="settings-section">
-            <div class="settings-header" onclick="toggleSection(this)">
-                <h3><span><i class="fas fa-image"></i> Hero Section Settings</span><i class="fas fa-chevron-up toggle-icon"></i></h3>
+        <!-- Hero Section -->
+        <div class="config-card">
+            <div class="config-header" onclick="toggleSection(this)">
+                <h3><i class="fas fa-tv"></i> Hero Section <span class="header-badge">Slideshow & Content</span></h3>
+                <i class="fas fa-chevron-down toggle-icon"></i>
             </div>
-            <div class="settings-body">
-                <div class="checkbox-group mb-4">
-                    <input type="checkbox" name="hero_enabled" {% if settings.hero_enabled %}checked{% endif %}>
-                    <label>Enable Hero Section</label>
+            <div class="config-body">
+                <div class="toggle-switch mb-4">
+                    <span class="toggle-label"><i class="fas fa-power-off"></i> Enable Hero Section</span>
+                    <label class="toggle-checkbox">
+                        <input type="checkbox" name="hero_enabled" {% if settings.hero_enabled %}checked{% endif %}>
+                        <span class="toggle-checkbox"></span>
+                    </label>
                 </div>
-                <div class="grid-2">
+                
+                <div class="form-row">
                     <div class="form-group">
-                        <label>Hero Title</label>
-                        <input type="text" name="hero_title" value="{{ settings.hero_title|default:'Welcome to Jadid Technology' }}">
+                        <label><i class="fas fa-heading"></i> Hero Height</label>
+                        <div class="dimension-group">
+                            <input type="number" name="hero_height" class="form-control" value="{{ settings.hero_height|default:'500' }}" min="300" max="800" step="10">
+                            <span class="dimension-unit">pixels</span>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label>Hero Highlight</label>
-                        <input type="text" name="hero_highlight" value="{{ settings.hero_highlight|default:'Best Deals' }}">
+                        <label><i class="fas fa-film"></i> Slideshow Speed</label>
+                        <div class="dimension-group">
+                            <input type="number" name="hero_slideshow_speed" class="form-control" value="{{ settings.hero_slideshow_speed|default:'5000' }}" min="2000" max="10000" step="500">
+                            <span class="dimension-unit">milliseconds</span>
+                        </div>
                     </div>
                 </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-text-height"></i> Hero Title</label>
+                        <input type="text" name="hero_title" class="form-control" value="{{ settings.hero_title|default:'Welcome to Jadid Technology' }}">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-highlighter"></i> Highlight Text</label>
+                        <input type="text" name="hero_highlight" class="form-control" value="{{ settings.hero_highlight|default:'Latest Tech' }}">
+                    </div>
+                </div>
+                
                 <div class="form-group">
-                    <label>Hero Subtitle</label>
-                    <textarea name="hero_subtitle" rows="3">{{ settings.hero_subtitle|default:'Discover the latest smartphones, laptops, and gadgets at best prices' }}</textarea>
+                    <label><i class="fas fa-paragraph"></i> Hero Subtitle</label>
+                    <textarea name="hero_subtitle" class="form-control" rows="2">{{ settings.hero_subtitle|default:'Discover premium smartphones, laptops, and gadgets at unbeatable prices' }}</textarea>
                 </div>
-                <div class="grid-2">
+                
+                <div class="form-row">
                     <div class="form-group">
-                        <label>Button Text</label>
-                        <input type="text" name="hero_button_text" value="{{ settings.hero_button_text|default:'Shop Now' }}">
+                        <label><i class="fas fa-hand-pointer"></i> Button Text</label>
+                        <input type="text" name="hero_button_text" class="form-control" value="{{ settings.hero_button_text|default:'Shop Collection' }}">
                     </div>
                     <div class="form-group">
-                        <label>Button URL</label>
-                        <input type="text" name="hero_button_url" value="{{ settings.hero_button_url|default:'/shop/' }}">
+                        <label><i class="fas fa-link"></i> Button URL</label>
+                        <input type="text" name="hero_button_url" class="form-control" value="{{ settings.hero_button_url|default:'/shop/' }}">
                     </div>
                 </div>
+                
                 <div class="form-group">
-                    <label>Hero Background Color</label>
-                    <input type="color" name="hero_bg_color" value="{{ settings.hero_bg_color|default:'#6366f1' }}">
+                    <label><i class="fas fa-paint-roller"></i> Hero Background Color</label>
+                    <div class="color-preview-row">
+                        <input type="color" name="hero_bg_color" class="form-control" style="width: 80px;" value="{{ settings.hero_bg_color|default:'#4f46e5' }}">
+                        <div class="color-preview" style="background: {{ settings.hero_bg_color|default:'#4f46e5' }}"></div>
+                    </div>
                 </div>
-                <div class="grid-3">
+                
+                <div class="form-row">
                     <div class="form-group">
-                        <label>Hero Image 1</label>
-                        <input type="file" name="hero_image_1" accept="image/*">
-                        {% if settings.hero_image_1 %}
-                        <div class="image-preview"><img src="{{ settings.hero_image_1.url }}" alt="Hero"></div>
-                        {% endif %}
-                    </div>
-                    <div class="form-group">
-                        <label>Hero Image 2</label>
-                        <input type="file" name="hero_image_2" accept="image/*">
-                        {% if settings.hero_image_2 %}
-                        <div class="image-preview"><img src="{{ settings.hero_image_2.url }}" alt="Hero"></div>
-                        {% endif %}
-                    </div>
-                    <div class="form-group">
-                        <label>Hero Image 3</label>
-                        <input type="file" name="hero_image_3" accept="image/*">
-                        {% if settings.hero_image_3 %}
-                        <div class="image-preview"><img src="{{ settings.hero_image_3.url }}" alt="Hero"></div>
+                        <label><i class="fas fa-image"></i> Hero Background Image</label>
+                        <input type="file" name="hero_background_image" class="form-control" accept="image/*">
+                        {% if settings.hero_background_image %}
+                        <div class="image-preview mt-2">
+                            <img src="{{ settings.hero_background_image.url }}" alt="Hero BG">
+                        </div>
                         {% endif %}
                     </div>
                 </div>
@@ -447,38 +751,45 @@
         </div>
         
         <!-- Hero Slides Manager -->
-        <div class="settings-section">
-            <div class="settings-header" onclick="toggleSection(this)">
-                <h3>
-                    <span><i class="fas fa-sliders-h"></i> Hero Slides Manager <span class="badge badge-info">{{ hero_slides|length }} Slides</span></span>
-                    <i class="fas fa-chevron-up toggle-icon"></i>
-                </h3>
+        <div class="config-card">
+            <div class="config-header" onclick="toggleSection(this)">
+                <h3><i class="fas fa-sliders-h"></i> Hero Slides Manager <span class="header-badge">{{ hero_slides|length }} Slides</span></h3>
+                <i class="fas fa-chevron-down toggle-icon"></i>
             </div>
-            <div class="settings-body">
+            <div class="config-body">
                 <div class="mb-4">
-                    <a href="{% url 'add_hero_slide' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    <a href="{% url 'add_hero_slide' %}" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem; text-decoration: none;">
                         <i class="fas fa-plus"></i> Add New Slide
                     </a>
                 </div>
                 
                 {% if hero_slides %}
                 <div class="overflow-x-auto">
-                    <table class="slide-table">
+                    <table class="slides-table">
                         <thead>
-                            <tr><th>Order</th><th>Image</th><th>Title</th><th>Badge</th><th>Status</th><th>Actions</th></tr>
+                            <tr><th>Order</th><th>Preview</th><th>Title / Subtitle</th><th>Badge</th><th>Status</th><th>Actions</th></tr>
                         </thead>
                         <tbody>
                             {% for slide in hero_slides %}
                             <tr>
-                                <td><span class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">{{ forloop.counter }}</span></td>
-                                <td>{% if slide.image %}<img src="{{ slide.image.url }}" class="w-10 h-10 rounded object-cover">{% else %}<div class="w-10 h-10 bg-gray-100 rounded flex items-center justify-center"><i class="fas fa-image text-gray-400"></i></div>{% endif %}</td>
-                                <td><strong>{{ slide.title }}</strong><br><small class="text-gray-400">{{ slide.subtitle|truncatechars:40 }}</small></td>
-                                <td>{% if slide.badge_text %}<span class="badge badge-success">{{ slide.badge_text }}</span>{% else %}—{% endif %}</td>
-                                <td>{% if slide.is_active %}<span class="status-badge status-active">Active</span>{% else %}<span class="status-badge status-inactive">Inactive</span>{% endif %}</td>
-                                <td class="whitespace-nowrap">
-                                    <a href="{% url 'edit_hero_slide' slide.id %}" class="px-2 py-1 bg-indigo-50 text-indigo-600 rounded text-sm hover:bg-indigo-100 inline-block mr-1"><i class="fas fa-edit"></i> Edit</a>
-                                    <a href="{% url 'toggle_hero_slide' slide.id %}" class="px-2 py-1 {% if slide.is_active %}bg-amber-50 text-amber-600{% else %}bg-emerald-50 text-emerald-600{% endif %} rounded text-sm hover:bg-amber-100 inline-block mr-1"><i class="fas {% if slide.is_active %}fa-eye-slash{% else %}fa-eye{% endif %}"></i> {% if slide.is_active %}Disable{% else %}Enable{% endif %}</a>
-                                    <a href="{% url 'delete_hero_slide' slide.id %}" onclick="return confirm('Delete {{ slide.title }}?')" class="px-2 py-1 bg-red-50 text-red-600 rounded text-sm hover:bg-red-100 inline-block"><i class="fas fa-trash"></i> Delete</a>
+                                <td style="width: 60px;"><span class="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full">{{ forloop.counter }}</span></td>
+                                <td style="width: 80px;">
+                                    {% if slide.image %}
+                                    <img src="{{ slide.image.url }}" class="w-12 h-12 rounded-lg object-cover">
+                                    {% else %}
+                                    <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center"><i class="fas fa-image text-gray-400"></i></div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="font-medium text-gray-900">{{ slide.title }}</div>
+                                    <div class="text-xs text-gray-500">{{ slide.subtitle|truncatechars:50 }}</div>
+                                </td>
+                                <td>{% if slide.badge_text %}<span class="status-badge status-active">{{ slide.badge_text }}</span>{% else %}—{% endif %}</td>
+                                <td>{% if slide.is_active %}<span class="status-badge status-active"><i class="fas fa-check-circle"></i> Active</span>{% else %}<span class="status-badge status-inactive"><i class="fas fa-circle"></i> Inactive</span>{% endif %}</td>
+                                <td class="action-buttons">
+                                    <a href="{% url 'edit_hero_slide' slide.id %}" class="action-btn action-edit"><i class="fas fa-edit"></i> Edit</a>
+                                    <a href="{% url 'toggle_hero_slide' slide.id %}" class="action-btn action-toggle"><i class="fas {% if slide.is_active %}fa-eye-slash{% else %}fa-eye{% endif %}"></i> {% if slide.is_active %}Disable{% else %}Enable{% endif %}</a>
+                                    <a href="{% url 'delete_hero_slide' slide.id %}" onclick="return confirm('Permanently delete this slide?')" class="action-btn action-delete"><i class="fas fa-trash"></i> Delete</a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -487,177 +798,310 @@
                 </div>
                 {% else %}
                 <div class="text-center py-12 bg-gray-50 rounded-xl">
-                    <i class="fas fa-sliders-h text-5xl text-gray-300 mb-3"></i>
-                    <p class="text-gray-500">No hero slides created yet.</p>
-                    <a href="{% url 'add_hero_slide' %}" class="inline-block mt-3 px-4 py-2 bg-indigo-600 text-white rounded-lg">Create First Slide</a>
+                    <i class="fas fa-sliders-h text-4xl text-gray-300 mb-3"></i>
+                    <p class="text-gray-500">No hero slides configured</p>
+                    <a href="{% url 'add_hero_slide' %}" class="inline-block mt-3 text-indigo-600 hover:text-indigo-700">Create your first slide →</a>
                 </div>
                 {% endif %}
                 
-                <!-- Tips -->
-                <div class="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-700">
-                    <i class="fas fa-lightbulb"></i> <strong>Tips:</strong> Order determines sequence | Recommended image: 800x600px | Slides auto-rotate every 5 seconds
+                <div class="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
+                    <i class="fas fa-lightbulb"></i> Slides appear in order | Recommended image size: 1920x800px | Each slide displays for {{ settings.hero_slideshow_speed|default:'5000' }}ms
                 </div>
             </div>
         </div>
         
         <!-- Color Scheme -->
-        <div class="settings-section">
-            <div class="settings-header" onclick="toggleSection(this)">
-                <h3><span><i class="fas fa-palette"></i> Color Scheme</span><i class="fas fa-chevron-up toggle-icon"></i></h3>
+        <div class="config-card">
+            <div class="config-header" onclick="toggleSection(this)">
+                <h3><i class="fas fa-palette"></i> Color Scheme</h3>
+                <i class="fas fa-chevron-down toggle-icon"></i>
             </div>
-            <div class="settings-body">
-                <div class="grid-3">
-                    <div class="form-group"><label>Primary Color</label><input type="color" name="primary_color" value="{{ settings.primary_color|default:'#6366f1' }}"></div>
-                    <div class="form-group"><label>Secondary Color</label><input type="color" name="secondary_color" value="{{ settings.secondary_color|default:'#3b82f6' }}"></div>
-                    <div class="form-group"><label>Accent Color</label><input type="color" name="accent_color" value="{{ settings.accent_color|default:'#f59e0b' }}"></div>
-                </div>
-                <div class="grid-2">
-                    <div class="form-group"><label>Footer Background</label><input type="color" name="footer_bg_color" value="{{ settings.footer_bg_color|default:'#111827' }}"></div>
-                    <div class="form-group"><label>Footer Text Color</label><input type="color" name="footer_text_color" value="{{ settings.footer_text_color|default:'#9ca3af' }}"></div>
+            <div class="config-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-droplet"></i> Primary Color</label>
+                        <div class="color-preview-row">
+                            <input type="color" name="primary_color" class="form-control" style="width: 80px;" value="{{ settings.primary_color|default:'#2563eb' }}">
+                            <div class="color-preview" style="background: {{ settings.primary_color|default:'#2563eb' }}"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-droplet"></i> Secondary Color</label>
+                        <div class="color-preview-row">
+                            <input type="color" name="secondary_color" class="form-control" style="width: 80px;" value="{{ settings.secondary_color|default:'#7c3aed' }}">
+                            <div class="color-preview" style="background: {{ settings.secondary_color|default:'#7c3aed' }}"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-star"></i> Accent Color</label>
+                        <div class="color-preview-row">
+                            <input type="color" name="accent_color" class="form-control" style="width: 80px;" value="{{ settings.accent_color|default:'#f59e0b' }}">
+                            <div class="color-preview" style="background: {{ settings.accent_color|default:'#f59e0b' }}"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <!-- Social Media -->
-        <div class="settings-section">
-            <div class="settings-header" onclick="toggleSection(this)">
-                <h3><span><i class="fas fa-share-alt"></i> Social Media</span><i class="fas fa-chevron-up toggle-icon"></i></h3>
+        <!-- Footer Configuration -->
+        <div class="config-card">
+            <div class="config-header" onclick="toggleSection(this)">
+                <h3><i class="fas fa-copyright"></i> Footer Configuration <span class="header-badge">Layout & Content</span></h3>
+                <i class="fas fa-chevron-down toggle-icon"></i>
             </div>
-            <div class="settings-body">
-                <div class="grid-2">
-                    <div class="form-group"><label><i class="fab fa-facebook"></i> Facebook</label><input type="url" name="facebook_url" value="{{ settings.facebook_url|default:'' }}"></div>
-                    <div class="form-group"><label><i class="fab fa-instagram"></i> Instagram</label><input type="url" name="instagram_url" value="{{ settings.instagram_url|default:'' }}"></div>
-                    <div class="form-group"><label><i class="fab fa-twitter"></i> Twitter</label><input type="url" name="twitter_url" value="{{ settings.twitter_url|default:'' }}"></div>
-                    <div class="form-group"><label><i class="fab fa-youtube"></i> YouTube</label><input type="url" name="youtube_url" value="{{ settings.youtube_url|default:'' }}"></div>
+            <div class="config-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-arrows-alt-v"></i> Footer Height</label>
+                        <div class="dimension-group">
+                            <input type="number" name="footer_height" class="form-control" value="{{ settings.footer_height|default:'auto' }}" placeholder="auto">
+                            <span class="dimension-unit">pixels or auto</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-border-all"></i> Footer Layout</label>
+                        <select name="footer_layout" class="form-control">
+                            <option value="4cols" {% if settings.footer_layout == '4cols' %}selected{% endif %}>4 Columns (Full width)</option>
+                            <option value="3cols" {% if settings.footer_layout == '3cols' %}selected{% endif %}>3 Columns (Compact)</option>
+                            <option value="centered" {% if settings.footer_layout == 'centered' %}selected{% endif %}>Centered (Single column)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-fill"></i> Footer Background</label>
+                        <div class="color-preview-row">
+                            <input type="color" name="footer_bg_color" class="form-control" style="width: 80px;" value="{{ settings.footer_bg_color|default:'#111827' }}">
+                            <div class="color-preview" style="background: {{ settings.footer_bg_color|default:'#111827' }}"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-palette"></i> Footer Text Color</label>
+                        <div class="color-preview-row">
+                            <input type="color" name="footer_text_color" class="form-control" style="width: 80px;" value="{{ settings.footer_text_color|default:'#9ca3af' }}">
+                            <div class="color-preview" style="background: {{ settings.footer_text_color|default:'#9ca3af' }}"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-link"></i> Footer Link Color</label>
+                        <div class="color-preview-row">
+                            <input type="color" name="footer_link_color" class="form-control" style="width: 80px;" value="{{ settings.footer_link_color|default:'#e5e7eb' }}">
+                            <div class="color-preview" style="background: {{ settings.footer_link_color|default:'#e5e7eb' }}"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-copyright"></i> Copyright Text</label>
+                    <input type="text" name="footer_copyright" class="form-control" value="{{ settings.footer_copyright|default:'© 2024 Jadid Technology. All rights reserved.' }}">
+                </div>
+                <div class="toggle-switch">
+                    <span class="toggle-label"><i class="fas fa-newspaper"></i> Show Newsletter Signup</span>
+                    <label class="toggle-checkbox">
+                        <input type="checkbox" name="show_newsletter" {% if settings.show_newsletter %}checked{% endif %}>
+                        <span class="toggle-checkbox"></span>
+                    </label>
                 </div>
             </div>
         </div>
         
-        <!-- Contact Information -->
-        <div class="settings-section">
-            <div class="settings-header" onclick="toggleSection(this)">
-                <h3><span><i class="fas fa-address-card"></i> Contact Information</span><i class="fas fa-chevron-up toggle-icon"></i></h3>
+        <!-- Social & Contact -->
+        <div class="config-card">
+            <div class="config-header" onclick="toggleSection(this)">
+                <h3><i class="fas fa-share-alt"></i> Social Media & Contact</h3>
+                <i class="fas fa-chevron-down toggle-icon"></i>
             </div>
-            <div class="settings-body">
-                <div class="grid-2">
-                    <div class="form-group"><label>Email</label><input type="email" name="contact_email" value="{{ settings.contact_email|default:'support@jadidtechnology.com' }}"></div>
-                    <div class="form-group"><label>Phone</label><input type="text" name="contact_phone" value="{{ settings.contact_phone|default:'+880123456789' }}"></div>
+            <div class="config-body">
+                <div class="form-row">
+                    <div class="form-group"><label><i class="fab fa-facebook"></i> Facebook</label><input type="url" name="facebook_url" class="form-control" value="{{ settings.facebook_url|default:'' }}" placeholder="https://facebook.com/yourpage"></div>
+                    <div class="form-group"><label><i class="fab fa-instagram"></i> Instagram</label><input type="url" name="instagram_url" class="form-control" value="{{ settings.instagram_url|default:'' }}" placeholder="https://instagram.com/yourhandle"></div>
+                    <div class="form-group"><label><i class="fab fa-twitter"></i> Twitter/X</label><input type="url" name="twitter_url" class="form-control" value="{{ settings.twitter_url|default:'' }}" placeholder="https://twitter.com/yourhandle"></div>
                 </div>
-                <div class="form-group"><label>Address</label><textarea name="contact_address" rows="2">{{ settings.contact_address|default:'' }}</textarea></div>
+                <div class="form-row">
+                    <div class="form-group"><label><i class="fab fa-youtube"></i> YouTube</label><input type="url" name="youtube_url" class="form-control" value="{{ settings.youtube_url|default:'' }}" placeholder="https://youtube.com/@channel"></div>
+                    <div class="form-group"><label><i class="fab fa-linkedin"></i> LinkedIn</label><input type="url" name="linkedin_url" class="form-control" value="{{ settings.linkedin_url|default:'' }}" placeholder="https://linkedin.com/company/"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label><i class="fas fa-envelope"></i> Contact Email</label><input type="email" name="contact_email" class="form-control" value="{{ settings.contact_email|default:'support@jadidtechnology.com' }}"></div>
+                    <div class="form-group"><label><i class="fas fa-phone"></i> Phone Number</label><input type="text" name="contact_phone" class="form-control" value="{{ settings.contact_phone|default:'+1 (555) 123-4567' }}"></div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Address</label>
+                    <textarea name="contact_address" class="form-control" rows="2">{{ settings.contact_address|default:'123 Tech Street, Silicon Valley, CA 94025' }}</textarea>
+                </div>
             </div>
         </div>
         
-        <!-- Footer Settings -->
-        <div class="settings-section">
-            <div class="settings-header" onclick="toggleSection(this)">
-                <h3><span><i class="fas fa-copyright"></i> Footer Settings</span><i class="fas fa-chevron-up toggle-icon"></i></h3>
+        <!-- SEO & Analytics -->
+        <div class="config-card">
+            <div class="config-header" onclick="toggleSection(this)">
+                <h3><i class="fas fa-chart-line"></i> SEO & Analytics</h3>
+                <i class="fas fa-chevron-down toggle-icon"></i>
             </div>
-            <div class="settings-body">
-                <div class="form-group"><label>Copyright Text</label><input type="text" name="footer_copyright" value="{{ settings.footer_copyright|default:'© 2024 Jadid Technology. All rights reserved.' }}"></div>
-                <div class="checkbox-group"><input type="checkbox" name="show_newsletter" {% if settings.show_newsletter %}checked{% endif %}><label>Show Newsletter</label></div>
-            </div>
-        </div>
-        
-        <!-- SEO Settings -->
-        <div class="settings-section">
-            <div class="settings-header" onclick="toggleSection(this)">
-                <h3><span><i class="fas fa-search"></i> SEO Settings</span><i class="fas fa-chevron-up toggle-icon"></i></h3>
-            </div>
-            <div class="settings-body">
-                <div class="form-group"><label>Meta Title</label><input type="text" name="meta_title" value="{{ settings.meta_title|default:'' }}"></div>
-                <div class="form-group"><label>Meta Description</label><textarea name="meta_description" rows="2">{{ settings.meta_description|default:'' }}</textarea></div>
-                <div class="form-group"><label>Meta Keywords</label><input type="text" name="meta_keywords" value="{{ settings.meta_keywords|default:'' }}"></div>
+            <div class="config-body">
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> Meta Title</label>
+                    <input type="text" name="meta_title" class="form-control" value="{{ settings.meta_title|default:'' }}" placeholder="{{ settings.site_name|default:'Jadid Technology' }}">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-description"></i> Meta Description</label>
+                    <textarea name="meta_description" class="form-control" rows="2">{{ settings.meta_description|default:'' }}</textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label><i class="fab fa-google"></i> Google Analytics ID</label><input type="text" name="google_analytics_id" class="form-control" value="{{ settings.google_analytics_id|default:'' }}" placeholder="G-XXXXXXXXXX"></div>
+                    <div class="form-group"><label><i class="fab fa-facebook"></i> Facebook Pixel ID</label><input type="text" name="facebook_pixel_id" class="form-control" value="{{ settings.facebook_pixel_id|default:'' }}" placeholder="123456789012345"></div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-code"></i> Custom CSS</label>
+                    <textarea name="custom_css" class="form-control code-editor" rows="4" style="font-family: monospace; background: #1e1e2e; color: #cdd6f4;">{{ settings.custom_css|default:'' }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label><i class="fab fa-js"></i> Custom JavaScript</label>
+                    <textarea name="custom_js" class="form-control code-editor" rows="4" style="font-family: monospace; background: #1e1e2e; color: #cdd6f4;">{{ settings.custom_js|default:'' }}</textarea>
+                </div>
             </div>
         </div>
         
         <!-- Maintenance Mode -->
-        <div class="settings-section">
-            <div class="settings-header" onclick="toggleSection(this)">
-                <h3><span><i class="fas fa-tools"></i> Maintenance Mode</span><i class="fas fa-chevron-up toggle-icon"></i></h3>
+        <div class="config-card">
+            <div class="config-header" onclick="toggleSection(this)">
+                <h3><i class="fas fa-tools"></i> Maintenance Mode</h3>
+                <i class="fas fa-chevron-down toggle-icon"></i>
             </div>
-            <div class="settings-body">
-                <div class="checkbox-group mb-3"><input type="checkbox" name="maintenance_mode" {% if settings.maintenance_mode %}checked{% endif %}><label>Enable Maintenance Mode</label></div>
-                <div class="form-group"><label>Message</label><textarea name="maintenance_message" rows="2">{{ settings.maintenance_message|default:'Site is under maintenance. Please check back soon!' }}</textarea></div>
-            </div>
-        </div>
-        
-        <!-- Analytics -->
-        <div class="settings-section">
-            <div class="settings-header" onclick="toggleSection(this)">
-                <h3><span><i class="fas fa-chart-line"></i> Analytics</span><i class="fas fa-chevron-up toggle-icon"></i></h3>
-            </div>
-            <div class="settings-body">
-                <div class="grid-2">
-                    <div class="form-group"><label>Google Analytics ID</label><input type="text" name="google_analytics_id" value="{{ settings.google_analytics_id|default:'' }}"></div>
-                    <div class="form-group"><label>Facebook Pixel ID</label><input type="text" name="facebook_pixel_id" value="{{ settings.facebook_pixel_id|default:'' }}"></div>
+            <div class="config-body">
+                <div class="toggle-switch mb-3">
+                    <span class="toggle-label"><i class="fas fa-power-off"></i> Enable Maintenance Mode</span>
+                    <label class="toggle-checkbox">
+                        <input type="checkbox" name="maintenance_mode" {% if settings.maintenance_mode %}checked{% endif %}>
+                        <span class="toggle-checkbox"></span>
+                    </label>
                 </div>
-                <div class="form-group"><label>Custom CSS</label><textarea name="custom_css" rows="4" class="code-editor">{{ settings.custom_css|default:'' }}</textarea></div>
-                <div class="form-group"><label>Custom JS</label><textarea name="custom_js" rows="4" class="code-editor">{{ settings.custom_js|default:'' }}</textarea></div>
+                <div class="form-group">
+                    <label><i class="fas fa-comment"></i> Maintenance Message</label>
+                    <textarea name="maintenance_message" class="form-control" rows="2">{{ settings.maintenance_message|default:'We are currently performing scheduled maintenance. Please check back soon!' }}</textarea>
+                </div>
             </div>
         </div>
         
-        <!-- Submit -->
-        <div class="flex justify-end mt-6">
-            <button type="submit" class="btn-save"><i class="fas fa-save"></i> Save All Settings</button>
+        <!-- Submit Actions -->
+        <div class="submit-area">
+            <button type="button" onclick="resetToDefaults()" class="btn-secondary">
+                <i class="fas fa-undo-alt"></i> Reset to Defaults
+            </button>
+            <button type="submit" class="btn-primary" id="saveButton">
+                <i class="fas fa-save"></i> Save Configuration
+            </button>
         </div>
     </form>
 </div>
 
 <script>
-    function toggleSection(header) {
-        const section = header.closest('.settings-section');
-        const body = section.querySelector('.settings-body');
-        const icon = header.querySelector('.toggle-icon');
+    // Toggle section collapse/expand
+    function toggleSection(headerElement) {
+        const card = headerElement.closest('.config-card');
+        const body = card.querySelector('.config-body');
+        const icon = headerElement.querySelector('.toggle-icon');
+        
         body.classList.toggle('collapsed');
-        header.classList.toggle('collapsed');
-        icon.classList.toggle('fa-chevron-up');
-        icon.classList.toggle('fa-chevron-down');
+        headerElement.classList.toggle('collapsed');
+        
+        // Store preference
+        const sectionTitle = headerElement.querySelector('h3').innerText;
+        localStorage.setItem(`section_${sectionTitle}`, body.classList.contains('collapsed'));
     }
     
-    function clearImage(fieldName) {
-        document.querySelector(`input[name="${fieldName}"]`).value = '';
-        document.querySelector(`input[name="${fieldName}"]`).closest('.form-group').querySelector('.image-preview')?.remove();
-    }
-    
-    function resetToDefault() {
-        if(confirm('Reset all settings to default?')){
-            document.querySelector('input[name="site_name"]').value = 'Jadid Technology';
-            document.querySelector('input[name="site_tagline"]').value = 'Premium Tech Store';
-            document.querySelector('input[name="primary_color"]').value = '#6366f1';
-            document.querySelector('input[name="hero_title"]').value = 'Welcome to Jadid Technology';
-            showToast('Reset to default! Click Save to apply.');
-        }
-    }
-    
-    function showToast(msg) {
-        let toast = document.createElement('div');
-        toast.className = 'fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50';
-        toast.innerHTML = msg;
-        document.body.appendChild(toast);
-        setTimeout(()=>toast.remove(),3000);
-    }
-    
-    document.getElementById('settingsForm')?.addEventListener('submit',function(){
-        let btn = document.querySelector('.btn-save');
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-        btn.disabled = true;
-    });
-    
-    // Save collapsed state
-    document.querySelectorAll('.settings-section').forEach((s,i)=>{
-        let isCollapsed = localStorage.getItem(`sec_${i}`) === 'true';
-        if(isCollapsed){
-            let header = s.querySelector('.settings-header');
-            let body = s.querySelector('.settings-body');
-            let icon = header.querySelector('.toggle-icon');
+    // Restore collapsed states
+    document.querySelectorAll('.config-card').forEach(card => {
+        const header = card.querySelector('.config-header');
+        const title = header.querySelector('h3').innerText;
+        const isCollapsed = localStorage.getItem(`section_${title}`) === 'true';
+        if (isCollapsed) {
+            const body = card.querySelector('.config-body');
+            const icon = header.querySelector('.toggle-icon');
             body.classList.add('collapsed');
             header.classList.add('collapsed');
-            icon.classList.remove('fa-chevron-up');
-            icon.classList.add('fa-chevron-down');
+            if (icon) icon.classList.add('fa-chevron-down');
         }
-        s.querySelector('.settings-header')?.addEventListener('click',()=>{
-            let body = s.querySelector('.settings-body');
-            localStorage.setItem(`sec_${i}`, body.classList.contains('collapsed'));
+    });
+    
+    // Clear image field
+    function clearImageField(fieldName) {
+        const fileInput = document.querySelector(`input[name="${fieldName}"]`);
+        if (fileInput) fileInput.value = '';
+        const preview = document.querySelector(`.image-preview[data-field="${fieldName}"]`);
+        if (preview) preview.remove();
+    }
+    
+    // Reset to defaults
+    function resetToDefaults() {
+        if (confirm('Reset all configuration to default values? This cannot be undone.')) {
+            const defaultValues = {
+                site_name: 'Jadid Technology',
+                site_tagline: 'Premium Tech Solutions',
+                header_height: '70',
+                header_layout: 'standard',
+                header_bg_color: '#ffffff',
+                header_text_color: '#1f2937',
+                hero_enabled: true,
+                hero_height: '500',
+                hero_slideshow_speed: '5000',
+                hero_title: 'Welcome to Jadid Technology',
+                hero_highlight: 'Latest Tech',
+                hero_subtitle: 'Discover premium smartphones, laptops, and gadgets at unbeatable prices',
+                hero_button_text: 'Shop Collection',
+                hero_button_url: '/shop/',
+                hero_bg_color: '#4f46e5',
+                footer_height: 'auto',
+                footer_layout: '4cols',
+                footer_bg_color: '#111827',
+                footer_text_color: '#9ca3af',
+                footer_link_color: '#e5e7eb',
+                footer_copyright: '© 2024 Jadid Technology. All rights reserved.',
+                contact_email: 'support@jadidtechnology.com',
+                contact_phone: '+1 (555) 123-4567'
+            };
+            
+            for (const [key, value] of Object.entries(defaultValues)) {
+                const input = document.querySelector(`[name="${key}"]`);
+                if (input) {
+                    if (input.type === 'checkbox') {
+                        input.checked = value === true || value === 'true';
+                    } else {
+                        input.value = value;
+                    }
+                }
+            }
+            
+            showToast('Defaults loaded. Click Save to apply changes.');
+        }
+    }
+    
+    // Show toast notification
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast-message ${type === 'error' ? 'bg-red-500' : 'bg-green-500'}`;
+        toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'} mr-2"></i>${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    // Form submission handler
+    document.getElementById('settingsForm')?.addEventListener('submit', function(e) {
+        const saveBtn = document.getElementById('saveButton');
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        saveBtn.disabled = true;
+        
+        // Allow form to submit naturally
+        setTimeout(() => {
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Configuration';
+            saveBtn.disabled = false;
+        }, 3000);
+    });
+    
+    // Live color preview
+    document.querySelectorAll('input[type="color"]').forEach(colorInput => {
+        colorInput.addEventListener('input', function() {
+            const preview = this.closest('.color-preview-row')?.querySelector('.color-preview');
+            if (preview) preview.style.background = this.value;
         });
     });
 </script>

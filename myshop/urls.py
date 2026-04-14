@@ -16,12 +16,16 @@ urlpatterns = [
     path('login-redirect/', views.login_redirect, name='login_redirect'),
     path('profile/', views.profile, name='profile'),
     path('admin/upload-logo/', views.upload_logo, name='upload_logo'),
+    
+    # Site Settings
     path('site-settings/', views.site_settings_view, name='site_settings'),
+    
+    # Hero Slide Management
+    path('site-settings/add-slide/', views.add_hero_slide, name='add_hero_slide'),
+    path('site-settings/edit-slide/<int:slide_id>/', views.edit_hero_slide, name='edit_hero_slide'),
     path('site-settings/toggle-slide/<int:slide_id>/', views.toggle_hero_slide, name='toggle_hero_slide'),
     path('site-settings/delete-slide/<int:slide_id>/', views.delete_hero_slide, name='delete_hero_slide'),
-     path('site-settings/add-slide/', views.add_hero_slide, name='add_hero_slide'),
-    path('site-settings/edit-slide/<int:slide_id>/', views.edit_hero_slide, name='edit_hero_slide'),
-    path('site-settings/delete-slide/<int:slide_id>/', views.delete_hero_slide, name='delete_hero_slide'),
+    path('site-settings/reorder-slides/', views.reorder_hero_slides, name='reorder_hero_slides'),
    
     
 

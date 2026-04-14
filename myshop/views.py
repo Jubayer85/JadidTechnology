@@ -2438,8 +2438,7 @@ def update_cart_item(request, item_id):
     return redirect('cart_detail')
 
 
-#======================= SITE SETTINGS VIEW ======================
-
+# ==================== SITE SETTINGS VIEW ====================
 @staff_member_required
 def site_settings_view(request):
     """Admin view for site settings"""
@@ -2451,11 +2450,11 @@ def site_settings_view(request):
             if not settings:
                 settings = SiteSettings()
             
-            # ==================== BASIC INFORMATION ====================
+            # Basic Information
             settings.site_name = request.POST.get('site_name', 'Jadid Technology') or 'Jadid Technology'
             settings.site_tagline = request.POST.get('site_tagline', 'Premium Tech Store') or 'Premium Tech Store'
             
-            # ==================== LOGO UPLOAD ====================
+            # Logo & Favicon
             if request.FILES.get('site_logo'):
                 if settings.site_logo:
                     settings.site_logo.delete()
@@ -2466,14 +2465,22 @@ def site_settings_view(request):
                     settings.site_favicon.delete()
                 settings.site_favicon = request.FILES['site_favicon']
             
-            # ==================== HEADER SETTINGS ====================
+            # Header Settings
             settings.header_bg_color = request.POST.get('header_bg_color', '#ffffff') or '#ffffff'
             settings.header_text_color = request.POST.get('header_text_color', '#1f2937') or '#1f2937'
             settings.header_sticky = request.POST.get('header_sticky') == 'on'
             settings.show_top_bar = request.POST.get('show_top_bar') == 'on'
             settings.top_bar_text = request.POST.get('top_bar_text', 'Free Shipping on orders over $50') or 'Free Shipping on orders over $50'
             
-            # ==================== HERO SETTINGS ====================
+            # Header Height & Layout
+            try:
+                header_height = request.POST.get('header_height', '70')
+                settings.header_height = int(header_height) if header_height and header_height.isdigit() else 70
+            except:
+                settings.header_height = 70
+            settings.header_layout = request.POST.get('header_layout', 'standard') or 'standard'
+            
+            # Hero Settings
             settings.hero_enabled = request.POST.get('hero_enabled') == 'on'
             settings.hero_title = request.POST.get('hero_title', 'Welcome to Jadid Technology') or 'Welcome to Jadid Technology'
             settings.hero_highlight = request.POST.get('hero_highlight', 'Best Deals') or 'Best Deals'
@@ -2482,7 +2489,26 @@ def site_settings_view(request):
             settings.hero_button_url = request.POST.get('hero_button_url', '/shop/') or '/shop/'
             settings.hero_bg_color = request.POST.get('hero_bg_color', '#6366f1') or '#6366f1'
             
-            # ==================== HERO IMAGES ====================
+            # Hero Height & Slideshow Speed
+            try:
+                hero_height = request.POST.get('hero_height', '500')
+                settings.hero_height = int(hero_height) if hero_height and hero_height.isdigit() else 500
+            except:
+                settings.hero_height = 500
+            
+            try:
+                slideshow_speed = request.POST.get('hero_slideshow_speed', '5000')
+                settings.hero_slideshow_speed = int(slideshow_speed) if slideshow_speed and slideshow_speed.isdigit() else 5000
+            except:
+                settings.hero_slideshow_speed = 5000
+            
+            # Hero Background Image
+            if request.FILES.get('hero_background_image'):
+                if settings.hero_background_image:
+                    settings.hero_background_image.delete()
+                settings.hero_background_image = request.FILES['hero_background_image']
+            
+            # Hero Images (legacy)
             if request.FILES.get('hero_image_1'):
                 if settings.hero_image_1:
                     settings.hero_image_1.delete()
@@ -2498,39 +2524,42 @@ def site_settings_view(request):
                     settings.hero_image_3.delete()
                 settings.hero_image_3 = request.FILES['hero_image_3']
             
-            # ==================== COLOR SCHEME ====================
+            # Color Scheme
             settings.primary_color = request.POST.get('primary_color', '#6366f1') or '#6366f1'
             settings.secondary_color = request.POST.get('secondary_color', '#3b82f6') or '#3b82f6'
             settings.accent_color = request.POST.get('accent_color', '#f59e0b') or '#f59e0b'
             settings.footer_bg_color = request.POST.get('footer_bg_color', '#111827') or '#111827'
             settings.footer_text_color = request.POST.get('footer_text_color', '#9ca3af') or '#9ca3af'
             
-            # ==================== SOCIAL MEDIA ====================
+            # Social Media
             settings.facebook_url = request.POST.get('facebook_url') or ''
             settings.instagram_url = request.POST.get('instagram_url') or ''
             settings.twitter_url = request.POST.get('twitter_url') or ''
             settings.youtube_url = request.POST.get('youtube_url') or ''
             settings.linkedin_url = request.POST.get('linkedin_url') or ''
             
-            # ==================== CONTACT INFO ====================
+            # Contact Info
             settings.contact_email = request.POST.get('contact_email', 'support@jadidtechnology.com') or 'support@jadidtechnology.com'
             settings.contact_phone = request.POST.get('contact_phone', '+880123456789') or '+880123456789'
             settings.contact_address = request.POST.get('contact_address') or ''
             
-            # ==================== FOOTER SETTINGS ====================
+            # Footer Settings
             settings.footer_copyright = request.POST.get('footer_copyright', '© 2024 Jadid Technology. All rights reserved.') or '© 2024 Jadid Technology. All rights reserved.'
             settings.show_newsletter = request.POST.get('show_newsletter') == 'on'
+            settings.footer_height = request.POST.get('footer_height', 'auto') or 'auto'
+            settings.footer_layout = request.POST.get('footer_layout', '4cols') or '4cols'
+            settings.footer_link_color = request.POST.get('footer_link_color', '#e5e7eb') or '#e5e7eb'
             
-            # ==================== SEO SETTINGS ====================
+            # SEO Settings
             settings.meta_title = request.POST.get('meta_title') or ''
             settings.meta_description = request.POST.get('meta_description') or ''
             settings.meta_keywords = request.POST.get('meta_keywords') or ''
             
-            # ==================== MAINTENANCE MODE ====================
+            # Maintenance Mode
             settings.maintenance_mode = request.POST.get('maintenance_mode') == 'on'
             settings.maintenance_message = request.POST.get('maintenance_message', 'Site is under maintenance. Please check back soon!') or 'Site is under maintenance. Please check back soon!'
             
-            # ==================== ANALYTICS ====================
+            # Analytics
             settings.google_analytics_id = request.POST.get('google_analytics_id') or ''
             settings.facebook_pixel_id = request.POST.get('facebook_pixel_id') or ''
             settings.custom_css = request.POST.get('custom_css') or ''
@@ -2551,6 +2580,7 @@ def site_settings_view(request):
     return render(request, 'admin/site_settings.html', context)
 
 
+# ==================== HERO SLIDE MANAGEMENT ====================
 @staff_member_required
 def add_hero_slide(request):
     """Add new hero slide"""
@@ -2575,19 +2605,6 @@ def add_hero_slide(request):
             
             if request.FILES.get('image'):
                 slide.image = request.FILES['image']
-            
-            # Features as JSON
-            features = []
-            feature_texts = request.POST.getlist('feature_text[]')
-            feature_icons = request.POST.getlist('feature_icon[]')
-            for i, text in enumerate(feature_texts):
-                if text:
-                    features.append({
-                        'text': text,
-                        'icon': feature_icons[i] if i < len(feature_icons) else 'check',
-                        'color': 'brand'
-                    })
-            slide.features = features
             
             slide.save()
             messages.success(request, f'✅ Hero slide "{slide.title}" added successfully!')
@@ -2628,19 +2645,6 @@ def edit_hero_slide(request, slide_id):
                     slide.image.delete()
                 slide.image = request.FILES['image']
             
-            # Features as JSON
-            features = []
-            feature_texts = request.POST.getlist('feature_text[]')
-            feature_icons = request.POST.getlist('feature_icon[]')
-            for i, text in enumerate(feature_texts):
-                if text:
-                    features.append({
-                        'text': text,
-                        'icon': feature_icons[i] if i < len(feature_icons) else 'check',
-                        'color': 'brand'
-                    })
-            slide.features = features
-            
             slide.save()
             messages.success(request, f'✅ Hero slide "{slide.title}" updated successfully!')
             return redirect('site_settings')
@@ -2649,16 +2653,6 @@ def edit_hero_slide(request, slide_id):
             messages.error(request, f'❌ Error updating slide: {str(e)}')
     
     return render(request, 'admin/edit_hero_slide.html', {'slide': slide})
-
-
-@staff_member_required
-def delete_hero_slide(request, slide_id):
-    """Delete hero slide"""
-    slide = get_object_or_404(HeroSlide, id=slide_id)
-    slide_title = slide.title
-    slide.delete()
-    messages.success(request, f'✅ Hero slide "{slide_title}" deleted successfully!')
-    return redirect('site_settings')
 
 
 @staff_member_required
@@ -2673,6 +2667,21 @@ def toggle_hero_slide(request, slide_id):
 
 
 @staff_member_required
+def delete_hero_slide(request, slide_id):
+    """Delete hero slide"""
+    slide = get_object_or_404(HeroSlide, id=slide_id)
+    slide_title = slide.title
+    
+    # Delete image file
+    if slide.image:
+        slide.image.delete()
+    
+    slide.delete()
+    messages.success(request, f'✅ Hero slide "{slide_title}" deleted successfully!')
+    return redirect('site_settings')
+
+
+@staff_member_required
 def reorder_hero_slides(request):
     """Reorder hero slides"""
     if request.method == 'POST':
@@ -2682,4 +2691,23 @@ def reorder_hero_slides(request):
             slide.order = index
             slide.save()
         messages.success(request, '✅ Hero slides reordered successfully!')
+    return redirect('site_settings')
+
+
+# ==================== LOGO UPLOAD ====================
+@staff_member_required
+def upload_logo(request):
+    """Upload site logo"""
+    if request.method == 'POST' and request.FILES.get('logo'):
+        settings = SiteSettings.objects.first()
+        if not settings:
+            settings = SiteSettings()
+        
+        if settings.site_logo:
+            settings.site_logo.delete()
+        
+        settings.site_logo = request.FILES['logo']
+        settings.save()
+        messages.success(request, '✅ Logo uploaded successfully!')
+    
     return redirect('site_settings')
