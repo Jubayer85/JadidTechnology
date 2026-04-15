@@ -2579,32 +2579,98 @@ def site_settings_view(request):
     }
     return render(request, 'admin/site_settings.html', context)
 
-
 # ==================== HERO SLIDE MANAGEMENT ====================
 @staff_member_required
 def add_hero_slide(request):
-    """Add new hero slide"""
+    """Add new hero slide with custom design options"""
     if request.method == 'POST':
         try:
             slide = HeroSlide()
+            
+            # ========== BASIC INFORMATION ==========
             slide.title = request.POST.get('title')
             slide.highlight_text = request.POST.get('highlight_text', '')
             slide.subtitle = request.POST.get('subtitle', '')
+            
+            # ========== DESIGN STYLE (NEW) ==========
+            slide.layout_style = request.POST.get('layout_style', 'default')
+            slide.theme_style = request.POST.get('theme_style', 'light')
+            slide.content_alignment = request.POST.get('content_alignment', 'left')
+            slide.animation_effect = request.POST.get('animation_effect', 'fadeInUp')
+            
+            # ========== CUSTOM COLORS (NEW) ==========
+            slide.slide_bg_color = request.POST.get('slide_bg_color') or None
+            slide.slide_text_color = request.POST.get('slide_text_color') or None
+            slide.slide_accent_color = request.POST.get('slide_accent_color') or None
+            
+            # Get from text input if color picker is empty
+            if not slide.slide_bg_color and request.POST.get('slide_bg_color_text'):
+                slide.slide_bg_color = request.POST.get('slide_bg_color_text')
+            if not slide.slide_text_color and request.POST.get('slide_text_color_text'):
+                slide.slide_text_color = request.POST.get('slide_text_color_text')
+            if not slide.slide_accent_color and request.POST.get('slide_accent_color_text'):
+                slide.slide_accent_color = request.POST.get('slide_accent_color_text')
+            
+            # ========== ANIMATION DELAYS (NEW) ==========
+            try:
+                slide.title_delay = int(request.POST.get('title_delay', 100))
+            except:
+                slide.title_delay = 100
+            try:
+                slide.subtitle_delay = int(request.POST.get('subtitle_delay', 200))
+            except:
+                slide.subtitle_delay = 200
+            try:
+                slide.button_delay = int(request.POST.get('button_delay', 300))
+            except:
+                slide.button_delay = 300
+            
+            # ========== BADGES ==========
             slide.badge_text = request.POST.get('badge_text', '')
             slide.badge_icon = request.POST.get('badge_icon', 'fire')
+            slide.badge = request.POST.get('badge', '')
+            
+            # ========== BUTTONS ==========
             slide.button1_text = request.POST.get('button1_text', 'Shop Now')
             slide.button1_url = request.POST.get('button1_url', '/shop/')
+            slide.button1_icon = request.POST.get('button1_icon', 'shopping-cart')
+            slide.button1_color = request.POST.get('button1_color', 'brand')
+            
             slide.button2_text = request.POST.get('button2_text', '')
             slide.button2_url = request.POST.get('button2_url', '')
+            slide.button2_icon = request.POST.get('button2_icon', 'star')
+            slide.button2_color = request.POST.get('button2_color', 'accent')
+            
+            # ========== PRICE & RATING ==========
             slide.price_tag = request.POST.get('price_tag', '')
             slide.price_label = request.POST.get('price_label', 'From')
-            slide.badge = request.POST.get('badge', '')
             slide.rating = request.POST.get('rating') or None
-            slide.order = request.POST.get('order', HeroSlide.objects.count() + 1)
-            slide.is_active = request.POST.get('is_active') == 'on'
             
+            # ========== IMAGES ==========
             if request.FILES.get('image'):
                 slide.image = request.FILES['image']
+            
+            if request.FILES.get('side_image'):
+                slide.side_image = request.FILES['side_image']
+            
+            # ========== FEATURES ==========
+            features = []
+            feature_texts = request.POST.getlist('feature_text[]')
+            feature_icons = request.POST.getlist('feature_icon[]')
+            for i, text in enumerate(feature_texts):
+                if text and text.strip():
+                    features.append({
+                        'text': text.strip(),
+                        'icon': feature_icons[i] if i < len(feature_icons) and feature_icons[i] else 'check'
+                    })
+            slide.features = features
+            
+            # ========== ORDER & STATUS ==========
+            try:
+                slide.order = int(request.POST.get('order', HeroSlide.objects.count() + 1))
+            except:
+                slide.order = HeroSlide.objects.count() + 1
+            slide.is_active = request.POST.get('is_active') == 'on'
             
             slide.save()
             messages.success(request, f'✅ Hero slide "{slide.title}" added successfully!')
@@ -2614,36 +2680,107 @@ def add_hero_slide(request):
             messages.error(request, f'❌ Error adding slide: {str(e)}')
             return redirect('add_hero_slide')
     
-    return render(request, 'admin/add_hero_slide.html')
+    context = {
+        'hero_slides_count': HeroSlide.objects.count(),
+    }
+    return render(request, 'admin/add_hero_slide.html', context)
 
 
 @staff_member_required
 def edit_hero_slide(request, slide_id):
-    """Edit hero slide"""
+    """Edit hero slide with custom design options"""
     slide = get_object_or_404(HeroSlide, id=slide_id)
     
     if request.method == 'POST':
         try:
+            # ========== BASIC INFORMATION ==========
             slide.title = request.POST.get('title')
             slide.highlight_text = request.POST.get('highlight_text', '')
             slide.subtitle = request.POST.get('subtitle', '')
+            
+            # ========== DESIGN STYLE (NEW) ==========
+            slide.layout_style = request.POST.get('layout_style', 'default')
+            slide.theme_style = request.POST.get('theme_style', 'light')
+            slide.content_alignment = request.POST.get('content_alignment', 'left')
+            slide.animation_effect = request.POST.get('animation_effect', 'fadeInUp')
+            
+            # ========== CUSTOM COLORS (NEW) ==========
+            slide.slide_bg_color = request.POST.get('slide_bg_color') or None
+            slide.slide_text_color = request.POST.get('slide_text_color') or None
+            slide.slide_accent_color = request.POST.get('slide_accent_color') or None
+            
+            # Get from text input if color picker is empty
+            if not slide.slide_bg_color and request.POST.get('slide_bg_color_text'):
+                slide.slide_bg_color = request.POST.get('slide_bg_color_text')
+            if not slide.slide_text_color and request.POST.get('slide_text_color_text'):
+                slide.slide_text_color = request.POST.get('slide_text_color_text')
+            if not slide.slide_accent_color and request.POST.get('slide_accent_color_text'):
+                slide.slide_accent_color = request.POST.get('slide_accent_color_text')
+            
+            # ========== ANIMATION DELAYS (NEW) ==========
+            try:
+                slide.title_delay = int(request.POST.get('title_delay', 100))
+            except:
+                slide.title_delay = 100
+            try:
+                slide.subtitle_delay = int(request.POST.get('subtitle_delay', 200))
+            except:
+                slide.subtitle_delay = 200
+            try:
+                slide.button_delay = int(request.POST.get('button_delay', 300))
+            except:
+                slide.button_delay = 300
+            
+            # ========== BADGES ==========
             slide.badge_text = request.POST.get('badge_text', '')
             slide.badge_icon = request.POST.get('badge_icon', 'fire')
+            slide.badge = request.POST.get('badge', '')
+            
+            # ========== BUTTONS ==========
             slide.button1_text = request.POST.get('button1_text', 'Shop Now')
             slide.button1_url = request.POST.get('button1_url', '/shop/')
+            slide.button1_icon = request.POST.get('button1_icon', 'shopping-cart')
+            slide.button1_color = request.POST.get('button1_color', 'brand')
+            
             slide.button2_text = request.POST.get('button2_text', '')
             slide.button2_url = request.POST.get('button2_url', '')
+            slide.button2_icon = request.POST.get('button2_icon', 'star')
+            slide.button2_color = request.POST.get('button2_color', 'accent')
+            
+            # ========== PRICE & RATING ==========
             slide.price_tag = request.POST.get('price_tag', '')
             slide.price_label = request.POST.get('price_label', 'From')
-            slide.badge = request.POST.get('badge', '')
             slide.rating = request.POST.get('rating') or None
-            slide.order = request.POST.get('order', slide.order)
-            slide.is_active = request.POST.get('is_active') == 'on'
             
+            # ========== IMAGES ==========
             if request.FILES.get('image'):
                 if slide.image:
                     slide.image.delete()
                 slide.image = request.FILES['image']
+            
+            if request.FILES.get('side_image'):
+                if slide.side_image:
+                    slide.side_image.delete()
+                slide.side_image = request.FILES['side_image']
+            
+            # ========== FEATURES ==========
+            features = []
+            feature_texts = request.POST.getlist('feature_text[]')
+            feature_icons = request.POST.getlist('feature_icon[]')
+            for i, text in enumerate(feature_texts):
+                if text and text.strip():
+                    features.append({
+                        'text': text.strip(),
+                        'icon': feature_icons[i] if i < len(feature_icons) and feature_icons[i] else 'check'
+                    })
+            slide.features = features
+            
+            # ========== ORDER & STATUS ==========
+            try:
+                slide.order = int(request.POST.get('order', slide.order))
+            except:
+                pass
+            slide.is_active = request.POST.get('is_active') == 'on'
             
             slide.save()
             messages.success(request, f'✅ Hero slide "{slide.title}" updated successfully!')
@@ -2652,7 +2789,10 @@ def edit_hero_slide(request, slide_id):
         except Exception as e:
             messages.error(request, f'❌ Error updating slide: {str(e)}')
     
-    return render(request, 'admin/edit_hero_slide.html', {'slide': slide})
+    context = {
+        'slide': slide,
+    }
+    return render(request, 'admin/edit_hero_slide.html', context)
 
 
 @staff_member_required
@@ -2672,9 +2812,11 @@ def delete_hero_slide(request, slide_id):
     slide = get_object_or_404(HeroSlide, id=slide_id)
     slide_title = slide.title
     
-    # Delete image file
+    # Delete image files
     if slide.image:
         slide.image.delete()
+    if slide.side_image:
+        slide.side_image.delete()
     
     slide.delete()
     messages.success(request, f'✅ Hero slide "{slide_title}" deleted successfully!')
@@ -2687,9 +2829,12 @@ def reorder_hero_slides(request):
     if request.method == 'POST':
         slide_ids = request.POST.getlist('slide_order[]')
         for index, slide_id in enumerate(slide_ids, 1):
-            slide = HeroSlide.objects.get(id=slide_id)
-            slide.order = index
-            slide.save()
+            try:
+                slide = HeroSlide.objects.get(id=slide_id)
+                slide.order = index
+                slide.save()
+            except HeroSlide.DoesNotExist:
+                pass
         messages.success(request, '✅ Hero slides reordered successfully!')
     return redirect('site_settings')
 

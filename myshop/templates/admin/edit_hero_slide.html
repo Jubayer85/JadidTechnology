@@ -1,164 +1,308 @@
 {% extends 'admin/base_admin.html' %}
 {% load static %}
 
-{% block title %}Edit Hero Slide - Admin Dashboard{% endblock %}
+{% block title %}Edit Hero Slide - Admin{% endblock %}
 
 {% block extra_css %}
 <style>
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-    .form-group label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: #374151;
-    }
-    .form-group input, .form-group textarea, .form-group select {
-        width: 100%;
-        padding: 0.75rem;
+    .design-preview {
         border: 2px solid #e5e7eb;
-        border-radius: 0.75rem;
-        transition: all 0.2s;
-    }
-    .form-group input:focus, .form-group textarea:focus {
-        outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
-    }
-    .feature-item {
-        background: #f9fafb;
+        border-radius: 1rem;
         padding: 1rem;
-        border-radius: 0.75rem;
-        margin-bottom: 1rem;
+        transition: all 0.3s;
+        cursor: pointer;
     }
-    .image-preview {
-        width: 150px;
-        height: 150px;
-        border-radius: 0.75rem;
-        border: 2px dashed #e5e7eb;
+    .design-preview:hover {
+        border-color: #4f46e5;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .design-preview.selected {
+        border-color: #4f46e5;
+        background: #eef2ff;
+    }
+    .preview-box {
+        min-height: 150px;
+        border-radius: 0.5rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        overflow: hidden;
-        margin-top: 0.5rem;
+        margin-bottom: 1rem;
     }
-    .image-preview img {
-        width: 100%;
-        height: 100%;
+    .form-section {
+        background: #f9fafb;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    .current-image {
+        position: relative;
+        display: inline-block;
+    }
+    .current-image img {
+        width: 100px;
+        height: 100px;
         object-fit: cover;
+        border-radius: 0.5rem;
+        border: 1px solid #e5e7eb;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto">
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Edit Hero Slide</h1>
-        <p class="text-gray-600">Update slide "{{ slide.title }}"</p>
+<div class="max-w-5xl mx-auto">
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold mb-2">Edit Hero Slide</h1>
+                <p class="text-gray-500">Update slide design, content, and animations</p>
+            </div>
+            <div class="text-sm text-gray-400">
+                <i class="fas fa-info-circle"></i> Slide ID: {{ slide.id }}
+            </div>
+        </div>
+        
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Basic Information -->
+            <div class="form-section">
+                <h3 class="font-semibold text-gray-800 mb-3">
+                    <i class="fas fa-info-circle text-indigo-500 mr-2"></i> Basic Information
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Title *</label>
+                        <input type="text" name="title" required value="{{ slide.title }}" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Highlight Text</label>
+                        <input type="text" name="highlight_text" value="{{ slide.highlight_text }}" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium mb-1">Subtitle</label>
+                        <textarea name="subtitle" rows="2" class="w-full border rounded-lg px-3 py-2">{{ slide.subtitle }}</textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Design Style Selection -->
+            <div class="form-section">
+                <h3 class="font-semibold text-gray-800 mb-3">
+                    <i class="fas fa-palette text-indigo-500 mr-2"></i> Design Style
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="design-preview {% if slide.layout_style == 'default' %}selected{% endif %}" data-layout="default" onclick="selectDesign(this, 'default')">
+                        <div class="preview-box bg-white border">
+                            <div class="text-center">
+                                <i class="fas fa-align-left text-3xl text-gray-400 mb-2"></i>
+                                <p class="font-medium text-sm">Default</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="design-preview {% if slide.layout_style == 'centered' %}selected{% endif %}" data-layout="centered" onclick="selectDesign(this, 'centered')">
+                        <div class="preview-box bg-white border">
+                            <div class="text-center">
+                                <i class="fas fa-align-center text-3xl text-gray-400 mb-2"></i>
+                                <p class="font-medium text-sm">Centered</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="design-preview {% if slide.layout_style == 'split' %}selected{% endif %}" data-layout="split" onclick="selectDesign(this, 'split')">
+                        <div class="preview-box bg-white border flex items-center justify-center">
+                            <div class="w-1/2 text-center"><i class="fas fa-image text-2xl text-gray-400"></i></div>
+                            <div class="w-1/2 text-center"><i class="fas fa-text-height text-2xl text-gray-400"></i></div>
+                        </div>
+                        <div class="text-center mt-2">
+                            <p class="font-medium text-sm">Split Screen</p>
+                        </div>
+                    </div>
+                    <div class="design-preview {% if slide.layout_style == 'fullscreen' %}selected{% endif %}" data-layout="fullscreen" onclick="selectDesign(this, 'fullscreen')">
+                        <div class="preview-box bg-gradient-to-r from-purple-500 to-pink-500">
+                            <div class="text-center text-white">
+                                <i class="fas fa-expand text-3xl mb-2"></i>
+                                <p class="font-medium text-sm">Full Screen</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="layout_style" id="layout_style" value="{{ slide.layout_style|default:'default' }}">
+            </div>
+            
+            <!-- Theme Selection -->
+            <div class="form-section">
+                <h3 class="font-semibold text-gray-800 mb-3">
+                    <i class="fas fa-fill-drip text-indigo-500 mr-2"></i> Color Theme
+                </h3>
+                <div class="flex flex-wrap gap-4">
+                    <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 {% if slide.theme_style == 'light' %}bg-indigo-50 border-indigo-300{% endif %}">
+                        <input type="radio" name="theme_style" value="light" {% if slide.theme_style == 'light' %}checked{% endif %}> 
+                        <span class="w-8 h-8 bg-white border-2 border-gray-300 rounded-full"></span>
+                        <span>Light</span>
+                    </label>
+                    <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 {% if slide.theme_style == 'dark' %}bg-indigo-50 border-indigo-300{% endif %}">
+                        <input type="radio" name="theme_style" value="dark" {% if slide.theme_style == 'dark' %}checked{% endif %}> 
+                        <span class="w-8 h-8 bg-gray-800 rounded-full"></span>
+                        <span>Dark</span>
+                    </label>
+                    <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 {% if slide.theme_style == 'glass' %}bg-indigo-50 border-indigo-300{% endif %}">
+                        <input type="radio" name="theme_style" value="glass" {% if slide.theme_style == 'glass' %}checked{% endif %}> 
+                        <span class="w-8 h-8 bg-white/30 backdrop-blur border rounded-full"></span>
+                        <span>Glassmorphism</span>
+                    </label>
+                    <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 {% if slide.theme_style == 'neon' %}bg-indigo-50 border-indigo-300{% endif %}">
+                        <input type="radio" name="theme_style" value="neon" {% if slide.theme_style == 'neon' %}checked{% endif %}> 
+                        <span class="w-8 h-8 bg-pink-500 rounded-full" style="box-shadow: 0 0 10px #ec4899;"></span>
+                        <span>Neon</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Custom Colors -->
+            <div class="form-section">
+                <h3 class="font-semibold text-gray-800 mb-3">
+                    <i class="fas fa-eyedropper text-indigo-500 mr-2"></i> Custom Colors
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Background Color</label>
+                        <input type="color" name="slide_bg_color" value="{{ slide.slide_bg_color|default:'#000000' }}" class="w-full h-10 border rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Text Color</label>
+                        <input type="color" name="slide_text_color" value="{{ slide.slide_text_color|default:'#ffffff' }}" class="w-full h-10 border rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Accent Color</label>
+                        <input type="color" name="slide_accent_color" value="{{ slide.slide_accent_color|default:'#f59e0b' }}" class="w-full h-10 border rounded">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Content Alignment -->
+            <div class="form-section">
+                <h3 class="font-semibold text-gray-800 mb-3">
+                    <i class="fas fa-align-center text-indigo-500 mr-2"></i> Content Alignment
+                </h3>
+                <div class="flex gap-4">
+                    <label class="flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer {% if slide.content_alignment == 'left' %}bg-indigo-50 border-indigo-300{% endif %}">
+                        <input type="radio" name="content_alignment" value="left" {% if slide.content_alignment == 'left' %}checked{% endif %}> 
+                        <i class="fas fa-align-left"></i> Left
+                    </label>
+                    <label class="flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer {% if slide.content_alignment == 'center' %}bg-indigo-50 border-indigo-300{% endif %}">
+                        <input type="radio" name="content_alignment" value="center" {% if slide.content_alignment == 'center' %}checked{% endif %}> 
+                        <i class="fas fa-align-center"></i> Center
+                    </label>
+                    <label class="flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer {% if slide.content_alignment == 'right' %}bg-indigo-50 border-indigo-300{% endif %}">
+                        <input type="radio" name="content_alignment" value="right" {% if slide.content_alignment == 'right' %}checked{% endif %}> 
+                        <i class="fas fa-align-right"></i> Right
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Animation -->
+            <div class="form-section">
+                <h3 class="font-semibold text-gray-800 mb-3">
+                    <i class="fas fa-magic text-indigo-500 mr-2"></i> Animation
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Animation Effect</label>
+                        <select name="animation_effect" class="w-full border rounded-lg px-3 py-2">
+                            <option value="fadeInUp" {% if slide.animation_effect == 'fadeInUp' %}selected{% endif %}>Fade In Up</option>
+                            <option value="fadeIn" {% if slide.animation_effect == 'fadeIn' %}selected{% endif %}>Fade In</option>
+                            <option value="zoomIn" {% if slide.animation_effect == 'zoomIn' %}selected{% endif %}>Zoom In</option>
+                            <option value="slideInLeft" {% if slide.animation_effect == 'slideInLeft' %}selected{% endif %}>Slide In Left</option>
+                            <option value="slideInRight" {% if slide.animation_effect == 'slideInRight' %}selected{% endif %}>Slide In Right</option>
+                            <option value="bounce" {% if slide.animation_effect == 'bounce' %}selected{% endif %}>Bounce</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Images -->
+            <div class="form-section">
+                <h3 class="font-semibold text-gray-800 mb-3">
+                    <i class="fas fa-image text-indigo-500 mr-2"></i> Images
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Main Image</label>
+                        {% if slide.image %}
+                        <div class="current-image mb-2">
+                            <img src="{{ slide.image.url }}" alt="Current image">
+                            <p class="text-xs text-gray-400 mt-1">Current image</p>
+                        </div>
+                        {% endif %}
+                        <input type="file" name="image" accept="image/*" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Side Image (for Split Layout)</label>
+                        {% if slide.side_image %}
+                        <div class="current-image mb-2">
+                            <img src="{{ slide.side_image.url }}" alt="Current side image">
+                            <p class="text-xs text-gray-400 mt-1">Current side image</p>
+                        </div>
+                        {% endif %}
+                        <input type="file" name="side_image" accept="image/*" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Buttons -->
+            <div class="form-section">
+                <h3 class="font-semibold text-gray-800 mb-3">
+                    <i class="fas fa-hand-pointer text-indigo-500 mr-2"></i> Buttons
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Button 1 Text</label>
+                        <input type="text" name="button1_text" value="{{ slide.button1_text }}" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Button 1 URL</label>
+                        <input type="text" name="button1_url" value="{{ slide.button1_url }}" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Button 2 Text</label>
+                        <input type="text" name="button2_text" value="{{ slide.button2_text }}" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Button 2 URL</label>
+                        <input type="text" name="button2_url" value="{{ slide.button2_url }}" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order & Status -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Display Order</label>
+                    <input type="number" name="order" value="{{ slide.order }}" class="w-full border rounded-lg px-3 py-2">
+                </div>
+                <div class="flex items-center gap-3 mt-6">
+                    <input type="checkbox" name="is_active" id="is_active" {% if slide.is_active %}checked{% endif %} class="w-4 h-4 text-indigo-600">
+                    <label for="is_active" class="text-sm font-medium">Active</label>
+                </div>
+            </div>
+            
+            <!-- Submit -->
+            <div class="flex justify-end gap-3 pt-4 border-t">
+                <a href="{% url 'site_settings' %}" class="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</a>
+                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                    <i class="fas fa-save"></i> Update Slide
+                </button>
+            </div>
+        </form>
     </div>
-    
-    <form method="POST" enctype="multipart/form-data" class="bg-white rounded-xl shadow-sm p-6">
-        {% csrf_token %}
-        
-        <!-- Basic Info -->
-        <div class="grid grid-cols-2 gap-4">
-            <div class="form-group">
-                <label><i class="fas fa-heading text-indigo-500 mr-2"></i> Slide Title *</label>
-                <input type="text" name="title" value="{{ slide.title }}" required>
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-highlighter text-indigo-500 mr-2"></i> Highlight Text</label>
-                <input type="text" name="highlight_text" value="{{ slide.highlight_text|default:'' }}">
-            </div>
-        </div>
-        
-        <div class="form-group">
-            <label><i class="fas fa-paragraph text-indigo-500 mr-2"></i> Subtitle</label>
-            <textarea name="subtitle" rows="3">{{ slide.subtitle|default:'' }}</textarea>
-        </div>
-        
-        <div class="grid grid-cols-2 gap-4">
-            <div class="form-group">
-                <label><i class="fas fa-tag text-indigo-500 mr-2"></i> Badge Text</label>
-                <input type="text" name="badge_text" value="{{ slide.badge_text|default:'' }}">
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-icons text-indigo-500 mr-2"></i> Badge Icon</label>
-                <input type="text" name="badge_icon" value="{{ slide.badge_icon|default:'fire' }}">
-            </div>
-        </div>
-        
-        <!-- Image -->
-        <div class="form-group">
-            <label><i class="fas fa-image text-indigo-500 mr-2"></i> Slide Image</label>
-            {% if slide.image %}
-            <div class="image-preview">
-                <img src="{{ slide.image.url }}" alt="{{ slide.title }}">
-            </div>
-            {% endif %}
-            <input type="file" name="image" accept="image/*" class="mt-2">
-            <small class="text-gray-400 text-xs">Leave empty to keep current image</small>
-        </div>
-        
-        <!-- Buttons -->
-        <div class="grid grid-cols-2 gap-4">
-            <div class="form-group">
-                <label><i class="fas fa-button text-indigo-500 mr-2"></i> Button 1 Text</label>
-                <input type="text" name="button1_text" value="{{ slide.button1_text|default:'Shop Now' }}">
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-link text-indigo-500 mr-2"></i> Button 1 URL</label>
-                <input type="text" name="button1_url" value="{{ slide.button1_url|default:'/shop/' }}">
-            </div>
-        </div>
-        
-        <div class="grid grid-cols-2 gap-4">
-            <div class="form-group">
-                <label><i class="fas fa-button text-indigo-500 mr-2"></i> Button 2 Text</label>
-                <input type="text" name="button2_text" value="{{ slide.button2_text|default:'' }}">
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-link text-indigo-500 mr-2"></i> Button 2 URL</label>
-                <input type="text" name="button2_url" value="{{ slide.button2_url|default:'' }}">
-            </div>
-        </div>
-        
-        <!-- Price & Rating -->
-        <div class="grid grid-cols-3 gap-4">
-            <div class="form-group">
-                <label><i class="fas fa-tag text-indigo-500 mr-2"></i> Price Tag</label>
-                <input type="text" name="price_tag" value="{{ slide.price_tag|default:'' }}">
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-star text-indigo-500 mr-2"></i> Rating</label>
-                <input type="number" name="rating" step="0.1" min="0" max="5" value="{{ slide.rating|default:'' }}">
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-sort-numeric-down text-indigo-500 mr-2"></i> Order</label>
-                <input type="number" name="order" value="{{ slide.order|default:'1' }}">
-            </div>
-        </div>
-        
-        <!-- Status -->
-        <div class="checkbox-group mb-4">
-            <input type="checkbox" name="is_active" id="is_active" {% if slide.is_active %}checked{% endif %}>
-            <label for="is_active"><i class="fas fa-power-off"></i> Active (Show on website)</label>
-        </div>
-        
-        <div class="flex gap-3 mt-6">
-            <button type="submit" class="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                <i class="fas fa-save mr-2"></i> Update Slide
-            </button>
-            <a href="{% url 'site_settings' %}" class="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-                <i class="fas fa-times mr-2"></i> Cancel
-            </a>
-            <a href="{% url 'delete_hero_slide' slide.id %}" 
-               onclick="return confirm('Delete this slide?')"
-               class="px-6 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 ml-auto">
-                <i class="fas fa-trash mr-2"></i> Delete
-            </a>
-        </div>
-    </form>
 </div>
+
+<script>
+    function selectDesign(element, layout) {
+        document.querySelectorAll('.design-preview').forEach(el => {
+            el.classList.remove('selected');
+        });
+        element.classList.add('selected');
+        document.getElementById('layout_style').value = layout;
+    }
+</script>
 {% endblock %}
