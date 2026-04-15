@@ -2,215 +2,333 @@
 {% load static %}
 
 {% if site_settings.hero_enabled %}
-<section class="relative overflow-hidden py-8 md:py-12 lg:py-16"
-         style="background: linear-gradient(135deg, {{ site_settings.hero_bg_color|default:'#1e1b4b' }}, {{ site_settings.primary_color|default:'#6366f1' }})">
+<section class="relative overflow-hidden py-8 md:py-12 lg:py-16 hero-main-section">
     
-    <!-- Animated Background Elements -->
-    <div class="absolute inset-0 opacity-10">
-        <div class="absolute top-20 left-10 w-72 h-72 rounded-full bg-white/20 blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-20 right-10 w-96 h-96 rounded-full bg-white/10 blur-3xl animate-pulse delay-1000"></div>
-    </div>
+    <!-- Dynamic Background per Slide will be handled by individual slides -->
     
-    <!-- Grid Pattern -->
-    <div class="absolute inset-0 opacity-[0.03]"
-         style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 40px 40px;">
-    </div>
-
     <!-- Slider Container -->
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="slider-container relative overflow-hidden rounded-2xl shadow-2xl">
+        <div class="slider-container relative overflow-hidden rounded-2xl shadow-2xl" style="min-height: var(--hero-height, 500px);">
+            
             <!-- Slides Wrapper -->
             <div class="slider-wrapper flex transition-transform duration-700 ease-out">
                 
                 {% with hero_slides=site_settings.get_hero_slides %}
                 {% if hero_slides %}
-                    <!-- Dynamic Slides from Database -->
+                    <!-- Dynamic Slides from Database with Individual Designs -->
                     {% for slide in hero_slides %}
-                    <div class="slide min-w-full p-6 md:p-8 lg:p-10">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-12">
-                            
-                            <!-- Text Content -->
-                            <div class="text-white order-2 lg:order-1" data-aos="fade-right" data-aos-duration="800">
-                                {% if slide.badge_text %}
-                                <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-4 animate-pulse">
-                                    <i class="fas fa-{{ slide.badge_icon|default:'fire' }} mr-2 text-sm" 
-                                       style="color: {{ site_settings.accent_color|default:'#f59e0b' }}"></i>
-                                    <span class="text-white font-semibold text-xs uppercase tracking-wider">
+                    <div class="slide min-w-full relative hero-slide-{{ slide.id }}"
+                         style="{% if slide.slide_bg_color %}background-color: {{ slide.slide_bg_color }};{% endif %}
+                                {% if slide.image %}background-image: url('{{ slide.image.url }}'); background-size: cover; background-position: center;{% endif %}">
+                        
+                        <!-- Background Overlay (for better text readability) -->
+                        <div class="absolute inset-0" 
+                             style="background: {% if slide.theme_style == 'dark' %}linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)){% elif slide.theme_style == 'light' %}linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7)){% else %}linear-gradient(135deg, rgba(0,0,0,0.5), rgba(0,0,0,0.3)){% endif %};">
+                        </div>
+                        
+                        <!-- Glassmorphism Effect -->
+                        {% if slide.theme_style == 'glass' %}
+                        <div class="absolute inset-0 backdrop-blur-md bg-white/10"></div>
+                        {% endif %}
+                        
+                        <!-- Neon Glow Effect -->
+                        {% if slide.theme_style == 'neon' %}
+                        <div class="absolute inset-0">
+                            <div class="absolute top-20 left-20 w-72 h-72 rounded-full bg-{{ slide.slide_accent_color|default:'pink' }}-500/30 blur-3xl animate-pulse"></div>
+                            <div class="absolute bottom-20 right-20 w-96 h-96 rounded-full bg-{{ slide.slide_accent_color|default:'purple' }}-500/30 blur-3xl animate-pulse delay-1000"></div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Different Layouts Based on slide.layout_style -->
+                        {% if slide.layout_style == 'centered' %}
+                            <!-- ========== CENTERED LAYOUT ========== -->
+                            <div class="relative z-10 flex items-center justify-center h-full min-h-[400px] text-center p-8">
+                                <div class="max-w-3xl mx-auto">
+                                    {% if slide.badge_text %}
+                                    <div class="hero-badge inline-flex items-center px-4 py-2 rounded-full mb-6"
+                                         style="background: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}; color: white;"
+                                         data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="100">
+                                        <i class="fas fa-{{ slide.badge_icon|default:'fire' }} mr-2"></i>
                                         {{ slide.badge_text }}
-                                    </span>
-                                </div>
-                                {% endif %}
-                                
-                                <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 leading-tight">
-                                    {{ slide.title|default:'Premium Smartphones' }}
-                                    {% if slide.highlight_text %}
-                                    <span class="block mt-2 bg-gradient-to-r from-white to-{{ site_settings.accent_color|default:'#f59e0b' }} bg-clip-text text-transparent">
-                                        {{ slide.highlight_text }}
-                                    </span>
-                                    {% endif %}
-                                </h1>
-                                
-                                <p class="text-base text-gray-200 mb-6 max-w-md leading-relaxed">
-                                    {{ slide.subtitle|default:'Cutting-edge technology with exceptional performance.' }}
-                                </p>
-                                
-                                <div class="flex flex-wrap gap-3">
-                                    {% if slide.button1_text %}
-                                    <a href="{{ slide.button1_url|default:'#' }}" 
-                                       class="group relative px-6 py-3 rounded-xl font-semibold text-white overflow-hidden transition-all duration-300 hover:scale-105"
-                                       style="background: linear-gradient(135deg, {{ site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#3b82f6' }})">
-                                        <span class="relative z-10 flex items-center gap-2">
-                                            <i class="fas fa-{{ slide.button1_icon|default:'shopping-cart' }} text-sm"></i>
-                                            {{ slide.button1_text }}
-                                        </span>
-                                        <div class="absolute inset-0 bg-white/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
-                                    </a>
+                                    </div>
                                     {% endif %}
                                     
-                                    {% if slide.button2_text %}
-                                    <a href="{{ slide.button2_url|default:'#' }}" 
-                                       class="px-6 py-3 rounded-xl font-semibold text-white border-2 border-white/30 hover:bg-white/10 transition-all duration-300 flex items-center gap-2 hover:scale-105">
-                                        <i class="fas fa-{{ slide.button2_icon|default:'star' }} text-sm"></i>
-                                        {{ slide.button2_text }}
-                                    </a>
+                                    <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold mb-4"
+                                        style="color: {% if slide.slide_text_color %}{{ slide.slide_text_color }}{% elif slide.theme_style == 'dark' %}white{% else %}#1f2937{% endif %}"
+                                        data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="200">
+                                        {{ slide.title }}
+                                    </h1>
+                                    
+                                    {% if slide.highlight_text %}
+                                    <div class="text-xl md:text-2xl font-semibold mb-4"
+                                         style="color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}"
+                                         data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="250">
+                                        {{ slide.highlight_text }}
+                                    </div>
                                     {% endif %}
+                                    
+                                    <p class="text-base md:text-lg mb-8 max-w-2xl mx-auto"
+                                       style="color: {% if slide.slide_text_color %}{{ slide.slide_text_color }}{% elif slide.theme_style == 'dark' %}#e5e7eb{% else %}#4b5563{% endif %}"
+                                       data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="300">
+                                        {{ slide.subtitle }}
+                                    </p>
+                                    
+                                    <div class="flex flex-wrap gap-4 justify-center" data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="400">
+                                        {% if slide.button1_text %}
+                                        <a href="{{ slide.button1_url|default:'#' }}" 
+                                           class="btn-hero-primary px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
+                                           style="background: linear-gradient(135deg, {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#3b82f6' }}); color: white;">
+                                            <i class="fas fa-{{ slide.button1_icon|default:'shopping-cart' }} mr-2"></i>
+                                            {{ slide.button1_text }}
+                                        </a>
+                                        {% endif %}
+                                        
+                                        {% if slide.button2_text %}
+                                        <a href="{{ slide.button2_url|default:'#' }}" 
+                                           class="btn-hero-secondary px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
+                                           style="border: 2px solid {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }}; color: {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }};">
+                                            {{ slide.button2_text }}
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        {% elif slide.layout_style == 'split' %}
+                            <!-- ========== SPLIT SCREEN LAYOUT ========== -->
+                            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 h-full min-h-[400px]">
+                                <!-- Left: Content -->
+                                <div class="flex items-center justify-center p-8 lg:p-12 order-2 lg:order-1"
+                                     style="background: {% if slide.theme_style == 'dark' %}rgba(0,0,0,0.6){% else %}rgba(255,255,255,0.9){% endif %};">
+                                    <div class="max-w-md">
+                                        {% if slide.badge_text %}
+                                        <div class="inline-flex items-center px-3 py-1 rounded-full mb-4"
+                                             style="background: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}; color: white;">
+                                            <i class="fas fa-{{ slide.badge_icon|default:'fire' }} mr-1 text-xs"></i>
+                                            <span class="text-xs">{{ slide.badge_text }}</span>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <h2 class="text-2xl md:text-4xl font-bold mb-3"
+                                            style="color: {% if slide.slide_text_color %}{{ slide.slide_text_color }}{% else %}#1f2937{% endif %}">
+                                            {{ slide.title }}
+                                        </h2>
+                                        
+                                        <p class="text-gray-600 mb-6">{{ slide.subtitle }}</p>
+                                        
+                                        <div class="flex gap-3">
+                                            <a href="{{ slide.button1_url|default:'#' }}" 
+                                               class="px-6 py-2 rounded-lg font-semibold text-white transition-all hover:scale-105"
+                                               style="background: {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }};">
+                                                {{ slide.button1_text|default:'Shop Now' }}
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                                 
-                                <!-- Features -->
-                                {% if slide.features %}
-                                <div class="mt-6 grid grid-cols-2 gap-3">
-                                    {% for feature in slide.features %}
-                                    <div class="flex items-center gap-2 group">
-                                        <div class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                            <i class="fas fa-{{ feature.icon|default:'check' }} text-xs" 
-                                               style="color: {{ site_settings.accent_color|default:'#f59e0b' }}"></i>
-                                        </div>
-                                        <span class="text-gray-200 text-sm">{{ feature.text }}</span>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                            </div>
-
-                            <!-- Image Content -->
-                            <div class="relative order-1 lg:order-2 group" data-aos="fade-left" data-aos-duration="800">
-                                <div class="relative">
-                                    {% if slide.image %}
-                                    <div class="relative rounded-2xl overflow-hidden shadow-2xl">
-                                        <img src="{{ slide.image.url }}" 
-                                             alt="{{ slide.title }}" 
-                                             class="relative w-full max-w-md mx-auto transform group-hover:scale-105 transition-transform duration-500" />
-                                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    </div>
+                                <!-- Right: Image -->
+                                <div class="relative order-1 lg:order-2">
+                                    {% if slide.side_image %}
+                                    <img src="{{ slide.side_image.url }}" alt="{{ slide.title }}" 
+                                         class="w-full h-full object-cover">
+                                    {% elif slide.image %}
+                                    <img src="{{ slide.image.url }}" alt="{{ slide.title }}" 
+                                         class="w-full h-full object-cover">
                                     {% else %}
-                                    <div class="w-full max-w-md mx-auto h-64 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center border border-white/20">
-                                        <i class="fas fa-mobile-alt text-6xl text-white/30"></i>
+                                    <div class="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                                        <i class="fas fa-image text-6xl text-gray-400"></i>
                                     </div>
                                     {% endif %}
                                 </div>
-                                
-                                <!-- Price Tag -->
-                                {% if slide.price_tag %}
-                                <div class="absolute -bottom-3 -right-3 px-4 py-2 rounded-xl shadow-xl transform rotate-3 hover:rotate-0 transition-transform"
-                                     style="background: linear-gradient(135deg, {{ site_settings.accent_color|default:'#f59e0b' }}, {{ site_settings.primary_color|default:'#6366f1' }})">
-                                    <div class="text-white text-center">
-                                        <div class="text-xs opacity-90">{{ slide.price_label|default:'Starting from' }}</div>
-                                        <div class="text-xl font-bold">{{ slide.price_tag }}</div>
-                                    </div>
-                                </div>
-                                {% endif %}
-                                
-                                <!-- Corner Badge -->
-                                {% if slide.badge %}
-                                <div class="absolute -top-3 -left-3 px-3 py-1.5 rounded-lg shadow-lg"
-                                     style="background: linear-gradient(135deg, #ef4444, #dc2626)">
-                                    <div class="text-white text-xs font-bold flex items-center gap-1">
-                                        <i class="fas fa-tag"></i>
-                                        {{ slide.badge }}
-                                    </div>
-                                </div>
-                                {% endif %}
-                                
-                                <!-- Rating -->
-                                {% if slide.rating %}
-                                <div class="absolute -bottom-3 -left-3 bg-black/80 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-lg">
-                                    <div class="flex items-center gap-1">
-                                        <div class="flex text-yellow-400 text-xs">
-                                            {% with rating=slide.rating|floatformat:"0" %}
-                                            {% for i in "12345"|make_list %}
-                                                {% if forloop.counter <= rating|add:"0" %}
-                                                    <i class="fas fa-star"></i>
-                                                {% elif forloop.counter <= rating|add:"1" %}
-                                                    <i class="fas fa-star-half-alt"></i>
-                                                {% else %}
-                                                    <i class="far fa-star"></i>
-                                                {% endif %}
-                                            {% endfor %}
-                                            {% endwith %}
-                                        </div>
-                                        <span class="text-white text-sm font-bold ml-1">{{ slide.rating }}</span>
-                                    </div>
-                                </div>
-                                {% endif %}
                             </div>
-                        </div>
+                            
+                        {% elif slide.layout_style == 'fullscreen' %}
+                            <!-- ========== FULLSCREEN LAYOUT ========== -->
+                            <div class="relative z-10 flex items-center justify-center h-full min-h-[500px] text-center text-white p-8">
+                                <div class="max-w-4xl mx-auto">
+                                    <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-4"
+                                        data-animation="{{ slide.animation_effect|default:'zoomIn' }}" data-delay="100">
+                                        {{ slide.title }}
+                                    </h1>
+                                    
+                                    {% if slide.highlight_text %}
+                                    <div class="text-2xl md:text-3xl font-semibold mb-6"
+                                         style="color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}"
+                                         data-animation="{{ slide.animation_effect|default:'zoomIn' }}" data-delay="200">
+                                        {{ slide.highlight_text }}
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <p class="text-lg md:text-xl mb-8 max-w-2xl mx-auto"
+                                       data-animation="{{ slide.animation_effect|default:'zoomIn' }}" data-delay="300">
+                                        {{ slide.subtitle }}
+                                    </p>
+                                    
+                                    <a href="{{ slide.button1_url|default:'#' }}" 
+                                       class="inline-block px-10 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 hover:shadow-2xl"
+                                       style="background: {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }}; color: white;"
+                                       data-animation="{{ slide.animation_effect|default:'zoomIn' }}" data-delay="400">
+                                        {{ slide.button1_text|default:'Get Started' }}
+                                    </a>
+                                </div>
+                            </div>
+                            
+                        {% elif slide.layout_style == 'minimal' %}
+                            <!-- ========== MINIMAL LAYOUT ========== -->
+                            <div class="relative z-10 flex items-center justify-start h-full min-h-[400px] p-8 lg:p-12">
+                                <div class="max-w-2xl" style="padding-left: 5%;">
+                                    <h1 class="text-3xl md:text-5xl font-light mb-3"
+                                        style="color: {% if slide.slide_text_color %}{{ slide.slide_text_color }}{% else %}#1f2937{% endif %}">
+                                        {{ slide.title }}
+                                    </h1>
+                                    
+                                    <p class="text-gray-500 mb-6">{{ slide.subtitle }}</p>
+                                    
+                                    <a href="{{ slide.button1_url|default:'#' }}" 
+                                       class="inline-block border-b-2 pb-1 font-medium transition-all hover:pb-2"
+                                       style="border-color: {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }}; color: {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }};">
+                                        {{ slide.button1_text|default:'Learn More' }} →
+                                    </a>
+                                </div>
+                            </div>
+                            
+                        {% elif slide.layout_style == 'card' %}
+                            <!-- ========== CARD STYLE LAYOUT ========== -->
+                            <div class="relative z-10 flex items-center justify-center h-full min-h-[400px] p-8">
+                                <div class="max-w-md w-full rounded-2xl shadow-2xl overflow-hidden transition-all hover:scale-105 duration-300"
+                                     style="background: {% if slide.theme_style == 'dark' %}rgba(0,0,0,0.85){% else %}white{% endif %};">
+                                    {% if slide.image %}
+                                    <img src="{{ slide.image.url }}" alt="{{ slide.title }}" class="w-full h-48 object-cover">
+                                    {% endif %}
+                                    
+                                    <div class="p-6">
+                                        <h3 class="text-xl font-bold mb-2"
+                                            style="color: {% if slide.theme_style == 'dark' %}white{% else %}#1f2937{% endif %}">
+                                            {{ slide.title }}
+                                        </h3>
+                                        <p class="text-gray-500 mb-4">{{ slide.subtitle|truncatechars:80 }}</p>
+                                        <a href="{{ slide.button1_url|default:'#' }}" 
+                                           class="inline-block px-4 py-2 rounded-lg text-white transition-all hover:scale-105"
+                                           style="background: {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }};">
+                                            {{ slide.button1_text|default:'Learn More' }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        {% else %}
+                            <!-- ========== DEFAULT LAYOUT (Original Design) ========== -->
+                            <div class="relative z-10 p-6 md:p-8 lg:p-10">
+                                <div class="grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-12">
+                                    <!-- Text Content -->
+                                    <div class="order-2 lg:order-1"
+                                         style="color: {% if slide.slide_text_color %}{{ slide.slide_text_color }}{% elif slide.theme_style == 'dark' %}white{% else %}#1f2937{% endif %}">
+                                        
+                                        {% if slide.badge_text %}
+                                        <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-4">
+                                            <i class="fas fa-{{ slide.badge_icon|default:'fire' }} mr-2 text-sm" 
+                                               style="color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}"></i>
+                                            <span class="font-semibold text-xs uppercase tracking-wider">{{ slide.badge_text }}</span>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 leading-tight">
+                                            {{ slide.title }}
+                                            {% if slide.highlight_text %}
+                                            <span class="block mt-2" style="color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}">
+                                                {{ slide.highlight_text }}
+                                            </span>
+                                            {% endif %}
+                                        </h1>
+                                        
+                                        <p class="text-base mb-6 max-w-md leading-relaxed"
+                                           style="color: {% if slide.theme_style == 'dark' %}#e5e7eb{% else %}#4b5563{% endif %}">
+                                            {{ slide.subtitle }}
+                                        </p>
+                                        
+                                        <div class="flex flex-wrap gap-3">
+                                            {% if slide.button1_text %}
+                                            <a href="{{ slide.button1_url|default:'#' }}" 
+                                               class="group relative px-6 py-3 rounded-xl font-semibold text-white overflow-hidden transition-all duration-300 hover:scale-105">
+                                                <span class="relative z-10 flex items-center gap-2">
+                                                    <i class="fas fa-{{ slide.button1_icon|default:'shopping-cart' }} text-sm"></i>
+                                                    {{ slide.button1_text }}
+                                                </span>
+                                                <div class="absolute inset-0 bg-white/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"
+                                                     style="background: linear-gradient(135deg, {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#3b82f6' }})">
+                                                </div>
+                                            </a>
+                                            {% endif %}
+                                            
+                                            {% if slide.button2_text %}
+                                            <a href="{{ slide.button2_url|default:'#' }}" 
+                                               class="px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 hover:scale-105"
+                                               style="border: 2px solid {% if slide.theme_style == 'dark' %}white{% else %}{{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }}{% endif %}; color: {% if slide.theme_style == 'dark' %}white{% else %}{{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }}{% endif %};">
+                                                {{ slide.button2_text }}
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <!-- Features -->
+                                        {% if slide.features %}
+                                        <div class="mt-6 grid grid-cols-2 gap-3">
+                                            {% for feature in slide.features %}
+                                            <div class="flex items-center gap-2 group">
+                                                <div class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                                    <i class="fas fa-{{ feature.icon|default:'check' }} text-xs" 
+                                                       style="color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}"></i>
+                                                </div>
+                                                <span class="text-sm">{{ feature.text }}</span>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Image Content -->
+                                    <div class="relative order-1 lg:order-2 group">
+                                        {% if slide.image %}
+                                        <div class="relative rounded-2xl overflow-hidden shadow-2xl">
+                                            <img src="{{ slide.image.url }}" 
+                                                 alt="{{ slide.title }}" 
+                                                 class="relative w-full max-w-md mx-auto transform group-hover:scale-105 transition-transform duration-500" />
+                                        </div>
+                                        {% else %}
+                                        <div class="w-full max-w-md mx-auto h-64 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center border border-white/20">
+                                            <i class="fas fa-mobile-alt text-6xl text-white/30"></i>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <!-- Price Tag -->
+                                        {% if slide.price_tag %}
+                                        <div class="absolute -bottom-3 -right-3 px-4 py-2 rounded-xl shadow-xl transform rotate-3 hover:rotate-0 transition-transform"
+                                             style="background: linear-gradient(135deg, {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}, {{ site_settings.primary_color|default:'#6366f1' }})">
+                                            <div class="text-white text-center">
+                                                <div class="text-xs opacity-90">{{ slide.price_label|default:'Starting from' }}</div>
+                                                <div class="text-xl font-bold">{{ slide.price_tag }}</div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                     {% endfor %}
                     
                 {% else %}
-                    <!-- Default Static Slide -->
+                    <!-- Default Static Slide (No slides available) -->
                     <div class="slide min-w-full p-6 md:p-8 lg:p-10">
+                        <!-- Your existing default slide content -->
                         <div class="grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-12">
-                            <div class="text-white order-2 lg:order-1" data-aos="fade-right">
-                                <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-4">
-                                    <i class="fas fa-fire mr-2 text-sm" style="color: {{ site_settings.accent_color|default:'#f59e0b' }}"></i>
-                                    <span class="text-white font-semibold text-xs uppercase">Limited Offer</span>
-                                </div>
-                                
-                                <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4">
-                                    {{ site_settings.hero_title|default:'Welcome to' }}
-                                    <span class="block mt-2 bg-gradient-to-r from-white to-{{ site_settings.accent_color|default:'#f59e0b' }} bg-clip-text text-transparent">
-                                        {{ site_settings.site_name|default:'Jadid Technology' }}
-                                    </span>
-                                </h1>
-                                
-                                <p class="text-base text-gray-200 mb-6 max-w-md">
-                                    {{ site_settings.hero_subtitle|default:'Discover the latest smartphones, laptops, and gadgets at best prices with genuine warranty and fast delivery.' }}
-                                </p>
-                                
-                                <div class="flex flex-wrap gap-3">
-                                    <a href="{{ site_settings.hero_button_url|default:'/shop/' }}" 
-                                       class="group relative px-6 py-3 rounded-xl font-semibold text-white overflow-hidden transition-all duration-300 hover:scale-105"
-                                       style="background: linear-gradient(135deg, {{ site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#3b82f6' }})">
-                                        <span class="relative z-10 flex items-center gap-2">
-                                            <i class="fas fa-shopping-cart text-sm"></i>
-                                            {{ site_settings.hero_button_text|default:'Shop Now' }}
-                                        </span>
-                                        <div class="absolute inset-0 bg-white/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div class="relative order-1 lg:order-2" data-aos="fade-left">
-                                <div class="relative">
-                                    {% if site_settings.hero_image_1 %}
-                                    <img src="{{ site_settings.hero_image_1.url }}" 
-                                         alt="Hero" 
-                                         class="relative w-full max-w-md mx-auto rounded-2xl shadow-2xl" />
-                                    {% else %}
-                                    <div class="w-full max-w-md mx-auto h-64 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center border border-white/20">
-                                        <i class="fas fa-mobile-alt text-7xl text-white/30"></i>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
+                            <!-- ... existing default content ... -->
                         </div>
                     </div>
                 {% endif %}
                 {% endwith %}
             </div>
 
-            <!-- Navigation Arrows -->
+            <!-- Navigation Arrows (only show if more than 1 slide) -->
             {% with hero_slides=site_settings.get_hero_slides %}
             {% if hero_slides|length > 1 %}
             <button class="slider-prev absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-all z-20 hover:scale-110">
@@ -235,19 +353,112 @@
 </section>
 
 <style>
+    /* Individual Slide Animations */
+    [data-animation] {
+        opacity: 0;
+    }
+    
+    .slick-active [data-animation] {
+        animation-fill-mode: both;
+    }
+    
+    .slick-active [data-animation="fadeInUp"] {
+        animation: fadeInUp 0.6s ease forwards;
+    }
+    
+    .slick-active [data-animation="fadeIn"] {
+        animation: fadeIn 0.5s ease forwards;
+    }
+    
+    .slick-active [data-animation="zoomIn"] {
+        animation: zoomIn 0.6s ease forwards;
+    }
+    
+    .slick-active [data-animation="slideInLeft"] {
+        animation: slideInLeft 0.5s ease forwards;
+    }
+    
+    .slick-active [data-animation="slideInRight"] {
+        animation: slideInRight 0.5s ease forwards;
+    }
+    
+    .slick-active [data-animation="bounce"] {
+        animation: bounce 0.8s ease forwards;
+    }
+    
+    /* Animation Delays */
+    [data-delay="100"] { animation-delay: 0.1s; }
+    [data-delay="200"] { animation-delay: 0.2s; }
+    [data-delay="250"] { animation-delay: 0.25s; }
+    [data-delay="300"] { animation-delay: 0.3s; }
+    [data-delay="400"] { animation-delay: 0.4s; }
+    [data-delay="500"] { animation-delay: 0.5s; }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes zoomIn {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes bounce {
+        0%, 100% {
+            opacity: 0;
+            transform: translateY(0);
+        }
+        50% {
+            opacity: 1;
+            transform: translateY(-20px);
+        }
+    }
+    
     .slider-container {
         overflow: hidden;
         border-radius: 1.5rem;
         background: rgba(0, 0, 0, 0.3);
         backdrop-filter: blur(10px);
-        height: auto;
-        min-height: 320px;
-    }
-
-    @media (min-width: 1024px) {
-        .slider-container {
-            min-height: 400px;
-        }
     }
 
     .slider-wrapper {
@@ -257,6 +468,9 @@
 
     .slide {
         flex: 0 0 100%;
+        background-size: cover;
+        background-position: center;
+        min-height: 400px;
     }
 
     .slider-dot.active {
@@ -264,35 +478,15 @@
         background-color: white !important;
     }
     
-    /* Smooth animations */
-    @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
+    .btn-hero-primary, .btn-hero-secondary {
+        display: inline-flex;
+        align-items: center;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
     }
     
-    .float-animation {
-        animation: float 4s ease-in-out infinite;
-    }
-    
-    /* Hover effects */
-    .btn-hover-effect {
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .btn-hover-effect::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.5s;
-    }
-    
-    .btn-hover-effect:hover::before {
-        left: 100%;
+    .btn-hero-primary:hover, .btn-hero-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
     }
 </style>
 
@@ -310,13 +504,6 @@
             let slideInterval;
             let isTransitioning = false;
             
-            // Initialize dots
-            if (dots.length > 0) {
-                dots[0].classList.add('active');
-                dots[0].style.backgroundColor = 'white';
-            }
-            
-            // Function to go to specific slide
             function goToSlide(slideIndex) {
                 if (isTransitioning) return;
                 isTransitioning = true;
@@ -324,7 +511,6 @@
                 currentSlide = (slideIndex + totalSlides) % totalSlides;
                 sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
                 
-                // Update dots
                 dots.forEach((dot, index) => {
                     if (index === currentSlide) {
                         dot.classList.add('active');
@@ -342,27 +528,18 @@
                 }, 700);
             }
             
-            // Next slide
-            function nextSlide() {
-                goToSlide(currentSlide + 1);
-            }
+            function nextSlide() { goToSlide(currentSlide + 1); }
+            function prevSlide() { goToSlide(currentSlide - 1); }
             
-            // Previous slide
-            function prevSlide() {
-                goToSlide(currentSlide - 1);
-            }
-            
-            // Auto-play
             function startAutoPlay() {
                 if (slideInterval) clearInterval(slideInterval);
-                slideInterval = setInterval(nextSlide, 5000);
+                slideInterval = setInterval(nextSlide, {{ site_settings.hero_slideshow_speed|default:5000 }});
             }
             
             function stopAutoPlay() {
                 if (slideInterval) clearInterval(slideInterval);
             }
             
-            // Event Listeners
             if (nextBtn) {
                 nextBtn.addEventListener('click', () => {
                     nextSlide();
@@ -379,7 +556,6 @@
                 });
             }
             
-            // Dot navigation
             dots.forEach(dot => {
                 dot.addEventListener('click', function() {
                     const slideIndex = parseInt(this.getAttribute('data-slide'));
@@ -389,27 +565,19 @@
                 });
             });
             
-            // Pause on hover
             const sliderContainer = document.querySelector('.slider-container');
             if (sliderContainer) {
                 sliderContainer.addEventListener('mouseenter', stopAutoPlay);
                 sliderContainer.addEventListener('mouseleave', startAutoPlay);
             }
             
-            // Keyboard navigation
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'ArrowLeft') {
-                    prevSlide();
-                    stopAutoPlay();
-                    startAutoPlay();
-                } else if (e.key === 'ArrowRight') {
-                    nextSlide();
-                    stopAutoPlay();
-                    startAutoPlay();
-                }
-            });
+            // Initialize first dot
+            if (dots.length > 0) {
+                dots[0].classList.add('active');
+                dots[0].style.backgroundColor = 'white';
+                dots[0].style.width = '24px';
+            }
             
-            // Start auto-play
             startAutoPlay();
         }
     });

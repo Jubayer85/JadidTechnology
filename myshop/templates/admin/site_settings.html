@@ -15,13 +15,11 @@
         --gray-900: #111827;
     }
     
-    /* Settings Container */
     .settings-container {
         max-width: 1400px;
         margin: 0 auto;
     }
     
-    /* Stats Grid */
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -75,7 +73,6 @@
         margin-top: 0.25rem;
     }
     
-    /* Section Cards */
     .config-card {
         background: white;
         border-radius: 1rem;
@@ -142,7 +139,6 @@
         display: none;
     }
     
-    /* Form Elements */
     .form-row {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -189,7 +185,6 @@
         min-height: 80px;
     }
     
-    /* Dimension Input Group */
     .dimension-group {
         display: flex;
         align-items: center;
@@ -208,7 +203,6 @@
         border-radius: 0.5rem;
     }
     
-    /* Toggle Switch */
     .toggle-switch {
         display: flex;
         align-items: center;
@@ -265,7 +259,6 @@
         transform: translateX(1.25rem);
     }
     
-    /* Image Preview */
     .image-upload-area {
         display: flex;
         gap: 1rem;
@@ -314,7 +307,6 @@
         opacity: 1;
     }
     
-    /* Slides Table */
     .slides-table {
         width: 100%;
         border-collapse: collapse;
@@ -404,7 +396,6 @@
         background: #fecaca;
     }
     
-    /* Submit Area */
     .submit-area {
         display: flex;
         justify-content: flex-end;
@@ -451,14 +442,12 @@
         background: var(--gray-50);
     }
     
-    /* Helper Text */
     .helper-text {
         font-size: 0.7rem;
         color: var(--gray-600);
         margin-top: 0.25rem;
     }
     
-    /* Color Preview */
     .color-preview-row {
         display: flex;
         align-items: center;
@@ -473,7 +462,33 @@
         box-shadow: 0 0 0 1px var(--gray-200);
     }
     
-    /* Responsive */
+    /* Top Bar Preview */
+    .top-bar-preview {
+        background: #4f46e5;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        margin-top: 0.5rem;
+        text-align: center;
+        font-size: 0.75rem;
+        color: white;
+    }
+    
+    .nav-bar-preview {
+        background: white;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        margin-top: 0.5rem;
+        border: 1px solid var(--gray-200);
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+    
+    .nav-bar-preview span {
+        font-size: 0.7rem;
+        color: #1f2937;
+    }
+    
     @media (max-width: 768px) {
         .config-body {
             padding: 1rem;
@@ -491,7 +506,6 @@
         }
     }
     
-    /* Toast */
     .toast-message {
         position: fixed;
         bottom: 2rem;
@@ -603,68 +617,121 @@
             </div>
         </div>
         
-        <!-- Header Configuration -->
+        <!-- Header & Navigation Configuration -->
         <div class="config-card">
             <div class="config-header" onclick="toggleSection(this)">
-                <h3><i class="fas fa-header"></i> Header Configuration <span class="header-badge">Layout & Dimensions</span></h3>
+                <h3><i class="fas fa-header"></i> Header & Navigation <span class="header-badge">Top Bar + Nav Bar</span></h3>
                 <i class="fas fa-chevron-down toggle-icon"></i>
             </div>
             <div class="config-body">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label><i class="fas fa-arrows-alt-v"></i> Header Height</label>
-                        <div class="dimension-group">
-                            <input type="number" name="header_height" class="form-control" value="{{ settings.header_height|default:'70' }}" min="50" max="150" step="1">
-                            <span class="dimension-unit">pixels</span>
-                        </div>
-                        <div class="helper-text">Recommended: 60-80px for optimal display</div>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-layer-group"></i> Header Layout Style</label>
-                        <select name="header_layout" class="form-control">
-                            <option value="standard" {% if settings.header_layout == 'standard' %}selected{% endif %}>Standard (Logo left, nav right)</option>
-                            <option value="centered" {% if settings.header_layout == 'centered' %}selected{% endif %}>Centered (Logo center)</option>
-                            <option value="compact" {% if settings.header_layout == 'compact' %}selected{% endif %}>Compact (Reduced padding)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label><i class="fas fa-fill"></i> Header Background</label>
-                        <div class="color-preview-row">
-                            <input type="color" name="header_bg_color" class="form-control" style="width: 80px; padding: 0.25rem;" value="{{ settings.header_bg_color|default:'#ffffff' }}">
-                            <div class="color-preview" style="background: {{ settings.header_bg_color|default:'#ffffff' }}"></div>
-                            <span class="helper-text">White (#ffffff) or transparent (#00000000)</span>
+                <!-- Top Bar Settings -->
+                <div class="mb-4 pb-3 border-b border-gray-200">
+                    <h4 class="text-sm font-semibold text-gray-800 mb-3"><i class="fas fa-bell text-indigo-500"></i> Top Bar Settings</h4>
+                    <div class="form-row">
+                        <div class="toggle-switch">
+                            <span class="toggle-label"><i class="fas fa-eye"></i> Show Top Bar</span>
+                            <label class="toggle-checkbox">
+                                <input type="checkbox" name="show_top_bar" {% if settings.show_top_bar %}checked{% endif %}>
+                                <span class="toggle-checkbox"></span>
+                            </label>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-palette"></i> Header Text Color</label>
-                        <div class="color-preview-row">
-                            <input type="color" name="header_text_color" class="form-control" style="width: 80px; padding: 0.25rem;" value="{{ settings.header_text_color|default:'#1f2937' }}">
-                            <div class="color-preview" style="background: {{ settings.header_text_color|default:'#1f2937' }}"></div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-megaphone"></i> Top Bar Message</label>
+                            <input type="text" name="top_bar_text" class="form-control" value="{{ settings.top_bar_text|default:'Welcome to Jadid Technology' }}">
+                            <div class="helper-text">Displayed above main navigation bar</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-fill-drip"></i> Top Bar Background Color</label>
+                            <div class="color-preview-row">
+                                <input type="color" name="top_bar_bg_color" class="form-control" style="width: 80px; padding: 0.25rem;" value="{{ settings.top_bar_bg_color|default:'#4f46e5' }}">
+                                <div class="color-preview" style="background: {{ settings.top_bar_bg_color|default:'#4f46e5' }}"></div>
+                            </div>
+                            <div class="helper-text">Background color for the top announcement bar</div>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-palette"></i> Top Bar Text Color</label>
+                            <div class="color-preview-row">
+                                <input type="color" name="top_bar_text_color" class="form-control" style="width: 80px; padding: 0.25rem;" value="{{ settings.top_bar_text_color|default:'#ffffff' }}">
+                                <div class="color-preview" style="background: {{ settings.top_bar_text_color|default:'#ffffff' }}"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="toggle-switch">
-                        <span class="toggle-label"><i class="fas fa-thumbtack"></i> Sticky Header</span>
-                        <label class="toggle-checkbox">
-                            <input type="checkbox" name="header_sticky" {% if settings.header_sticky %}checked{% endif %}>
-                            <span class="toggle-checkbox"></span>
-                        </label>
+                
+                <!-- Navigation Bar Settings -->
+                <div class="mb-4 pb-3 border-b border-gray-200">
+                    <h4 class="text-sm font-semibold text-gray-800 mb-3"><i class="fas fa-bars text-indigo-500"></i> Navigation Bar Settings</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-arrows-alt-v"></i> Nav Bar Height</label>
+                            <div class="dimension-group">
+                                <input type="number" name="header_height" class="form-control" value="{{ settings.header_height|default:'70' }}" min="50" max="150" step="1">
+                                <span class="dimension-unit">pixels</span>
+                            </div>
+                            <div class="helper-text">Recommended: 60-80px for optimal display</div>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-layer-group"></i> Nav Bar Layout</label>
+                            <select name="header_layout" class="form-control">
+                                <option value="standard" {% if settings.header_layout == 'standard' %}selected{% endif %}>Standard (Logo left, nav right)</option>
+                                <option value="centered" {% if settings.header_layout == 'centered' %}selected{% endif %}>Centered (Logo center)</option>
+                                <option value="compact" {% if settings.header_layout == 'compact' %}selected{% endif %}>Compact (Reduced padding)</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="toggle-switch">
-                        <span class="toggle-label"><i class="fas fa-bell"></i> Show Top Announcement Bar</span>
-                        <label class="toggle-checkbox">
-                            <input type="checkbox" name="show_top_bar" {% if settings.show_top_bar %}checked{% endif %}>
-                            <span class="toggle-checkbox"></span>
-                        </label>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-fill"></i> Nav Bar Background Color</label>
+                            <div class="color-preview-row">
+                                <input type="color" name="header_bg_color" class="form-control" style="width: 80px; padding: 0.25rem;" value="{{ settings.header_bg_color|default:'#ffffff' }}">
+                                <div class="color-preview" style="background: {{ settings.header_bg_color|default:'#ffffff' }}"></div>
+                            </div>
+                            <div class="helper-text">Background color for the main navigation bar</div>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-palette"></i> Nav Bar Text/Link Color</label>
+                            <div class="color-preview-row">
+                                <input type="color" name="header_text_color" class="form-control" style="width: 80px; padding: 0.25rem;" value="{{ settings.header_text_color|default:'#1f2937' }}">
+                                <div class="color-preview" style="background: {{ settings.header_text_color|default:'#1f2937' }}"></div>
+                            </div>
+                            <div class="helper-text">Color for navigation links and icons</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-fill"></i> Nav Bar Hover Color</label>
+                            <div class="color-preview-row">
+                                <input type="color" name="header_hover_color" class="form-control" style="width: 80px; padding: 0.25rem;" value="{{ settings.header_hover_color|default:'#4f46e5' }}">
+                                <div class="color-preview" style="background: {{ settings.header_hover_color|default:'#4f46e5' }}"></div>
+                            </div>
+                            <div class="helper-text">Color when hovering over navigation links</div>
+                        </div>
+                        <div class="toggle-switch">
+                            <span class="toggle-label"><i class="fas fa-thumbtack"></i> Sticky Navigation</span>
+                            <label class="toggle-checkbox">
+                                <input type="checkbox" name="header_sticky" {% if settings.header_sticky %}checked{% endif %}>
+                                <span class="toggle-checkbox"></span>
+                            </label>
+                        </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label><i class="fas fa-megaphone"></i> Top Bar Message</label>
-                    <input type="text" name="top_bar_text" class="form-control" value="{{ settings.top_bar_text|default:'Free shipping on orders over $50 • 24/7 Customer Support' }}">
-                    <div class="helper-text">Displayed above main header when enabled</div>
+                
+                <!-- Live Preview -->
+                <div class="mt-3 p-3 bg-gray-50 rounded-lg">
+                    <p class="text-xs font-semibold text-gray-600 mb-2"><i class="fas fa-eye"></i> Live Preview:</p>
+                    <div class="top-bar-preview" id="topBarPreview" style="background: {{ settings.top_bar_bg_color|default:'#4f46e5' }}; color: {{ settings.top_bar_text_color|default:'#ffffff' }}">
+                        {{ settings.top_bar_text|default:'Welcome to Jadid Technology' }}
+                    </div>
+                    <div class="nav-bar-preview" id="navBarPreview" style="background: {{ settings.header_bg_color|default:'#ffffff' }}">
+                        <span style="color: {{ settings.header_text_color|default:'#1f2937' }}">🏠 Home</span>
+                        <span style="color: {{ settings.header_text_color|default:'#1f2937' }}">🛍️ Shop</span>
+                        <span style="color: {{ settings.header_text_color|default:'#1f2937' }}">📦 Products</span>
+                        <span style="color: {{ settings.header_text_color|default:'#1f2937' }}">📞 Contact</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -750,65 +817,92 @@
             </div>
         </div>
         
-        <!-- Hero Slides Manager -->
-        <div class="config-card">
-            <div class="config-header" onclick="toggleSection(this)">
-                <h3><i class="fas fa-sliders-h"></i> Hero Slides Manager <span class="header-badge">{{ hero_slides|length }} Slides</span></h3>
-                <i class="fas fa-chevron-down toggle-icon"></i>
-            </div>
-            <div class="config-body">
-                <div class="mb-4">
-                    <a href="{% url 'add_hero_slide' %}" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem; text-decoration: none;">
-                        <i class="fas fa-plus"></i> Add New Slide
-                    </a>
-                </div>
-                
-                {% if hero_slides %}
-                <div class="overflow-x-auto">
-                    <table class="slides-table">
-                        <thead>
-                            <tr><th>Order</th><th>Preview</th><th>Title / Subtitle</th><th>Badge</th><th>Status</th><th>Actions</th></tr>
-                        </thead>
-                        <tbody>
-                            {% for slide in hero_slides %}
-                            <tr>
-                                <td style="width: 60px;"><span class="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full">{{ forloop.counter }}</span></td>
-                                <td style="width: 80px;">
-                                    {% if slide.image %}
-                                    <img src="{{ slide.image.url }}" class="w-12 h-12 rounded-lg object-cover">
-                                    {% else %}
-                                    <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center"><i class="fas fa-image text-gray-400"></i></div>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="font-medium text-gray-900">{{ slide.title }}</div>
-                                    <div class="text-xs text-gray-500">{{ slide.subtitle|truncatechars:50 }}</div>
-                                </td>
-                                <td>{% if slide.badge_text %}<span class="status-badge status-active">{{ slide.badge_text }}</span>{% else %}—{% endif %}</td>
-                                <td>{% if slide.is_active %}<span class="status-badge status-active"><i class="fas fa-check-circle"></i> Active</span>{% else %}<span class="status-badge status-inactive"><i class="fas fa-circle"></i> Inactive</span>{% endif %}</td>
-                                <td class="action-buttons">
-                                    <a href="{% url 'edit_hero_slide' slide.id %}" class="action-btn action-edit"><i class="fas fa-edit"></i> Edit</a>
-                                    <a href="{% url 'toggle_hero_slide' slide.id %}" class="action-btn action-toggle"><i class="fas {% if slide.is_active %}fa-eye-slash{% else %}fa-eye{% endif %}"></i> {% if slide.is_active %}Disable{% else %}Enable{% endif %}</a>
-                                    <a href="{% url 'delete_hero_slide' slide.id %}" onclick="return confirm('Permanently delete this slide?')" class="action-btn action-delete"><i class="fas fa-trash"></i> Delete</a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="text-center py-12 bg-gray-50 rounded-xl">
-                    <i class="fas fa-sliders-h text-4xl text-gray-300 mb-3"></i>
-                    <p class="text-gray-500">No hero slides configured</p>
-                    <a href="{% url 'add_hero_slide' %}" class="inline-block mt-3 text-indigo-600 hover:text-indigo-700">Create your first slide →</a>
-                </div>
-                {% endif %}
-                
-                <div class="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
-                    <i class="fas fa-lightbulb"></i> Slides appear in order | Recommended image size: 1920x800px | Each slide displays for {{ settings.hero_slideshow_speed|default:'5000' }}ms
-                </div>
-            </div>
+        <!-- Hero Slides Manager Section - Update this part -->
+<div class="config-card">
+    <div class="config-header" onclick="toggleSection(this)">
+        <h3><i class="fas fa-sliders-h"></i> Hero Slides Manager <span class="header-badge">{{ hero_slides|length }} Slides</span></h3>
+        <i class="fas fa-chevron-down toggle-icon"></i>
+    </div>
+    <div class="config-body">
+        <div class="mb-4">
+            <a href="{% url 'add_hero_slide' %}" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem; text-decoration: none;">
+                <i class="fas fa-plus"></i> Add New Slide
+            </a>
         </div>
+        
+        {% if hero_slides %}
+        <div class="overflow-x-auto">
+            <table class="slides-table">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Preview</th>
+                        <th>Title / Subtitle</th>
+                        <th>Design Style</th>
+                        <th>Layout</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for slide in hero_slides %}
+                    <tr>
+                        <td style="width: 60px;"><span class="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full">{{ forloop.counter }}</span></td>
+                        <td style="width: 80px;">
+                            {% if slide.image %}
+                            <img src="{{ slide.image.url }}" class="w-12 h-12 rounded-lg object-cover">
+                            {% else %}
+                            <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center"><i class="fas fa-image text-gray-400"></i></div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="font-medium text-gray-900">{{ slide.title }}</div>
+                            <div class="text-xs text-gray-500">{{ slide.subtitle|truncatechars:50 }}</div>
+                        </td>
+                        <td>
+                            <span class="status-badge" style="background: {{ slide.theme_style|default:'light' }}20">
+                                <i class="fas fa-palette"></i> {{ slide.get_theme_style_display|default:'Light' }}
+                            </span>
+                            <div class="text-xs text-gray-400 mt-1">{{ slide.get_layout_style_display|default:'Default' }}</div>
+                        </td>
+                        <td>
+                            <div class="flex gap-1">
+                                {% if slide.layout_style == 'centered' %}
+                                <i class="fas fa-align-center text-blue-500"></i>
+                                {% elif slide.layout_style == 'split' %}
+                                <i class="fas fa-columns text-green-500"></i>
+                                {% elif slide.layout_style == 'fullscreen' %}
+                                <i class="fas fa-expand text-purple-500"></i>
+                                {% else %}
+                                <i class="fas fa-align-left text-gray-500"></i>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>{% if slide.is_active %}<span class="status-badge status-active"><i class="fas fa-check-circle"></i> Active</span>{% else %}<span class="status-badge status-inactive"><i class="fas fa-circle"></i> Inactive</span>{% endif %}</td>
+                        <td class="action-buttons">
+                            <a href="{% url 'edit_hero_slide' slide.id %}" class="action-btn action-edit"><i class="fas fa-edit"></i> Edit</a>
+                            <a href="{% url 'toggle_hero_slide' slide.id %}" class="action-btn action-toggle"><i class="fas {% if slide.is_active %}fa-eye-slash{% else %}fa-eye{% endif %}"></i> {% if slide.is_active %}Disable{% else %}Enable{% endif %}</a>
+                            <a href="{% url 'delete_hero_slide' slide.id %}" onclick="return confirm('Permanently delete this slide?')" class="action-btn action-delete"><i class="fas fa-trash"></i> Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-12 bg-gray-50 rounded-xl">
+            <i class="fas fa-sliders-h text-4xl text-gray-300 mb-3"></i>
+            <p class="text-gray-500">No hero slides configured</p>
+            <a href="{% url 'add_hero_slide' %}" class="inline-block mt-3 text-indigo-600 hover:text-indigo-700">Create your first slide →</a>
+        </div>
+        {% endif %}
+        
+        <div class="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
+            <i class="fas fa-lightbulb"></i> 
+            <strong>Design Tips:</strong> Each slide can have unique design - Centered, Split Screen, Full Screen, or Card style. Choose from Light, Dark, Glassmorphism, or Neon themes.
+        </div>
+    </div>
+</div>
         
         <!-- Color Scheme -->
         <div class="config-card">
@@ -854,7 +948,7 @@
                     <div class="form-group">
                         <label><i class="fas fa-arrows-alt-v"></i> Footer Height</label>
                         <div class="dimension-group">
-                            <input type="number" name="footer_height" class="form-control" value="{{ settings.footer_height|default:'auto' }}" placeholder="auto">
+                            <input type="text" name="footer_height" class="form-control" value="{{ settings.footer_height|default:'auto' }}" placeholder="auto">
                             <span class="dimension-unit">pixels or auto</span>
                         </div>
                     </div>
@@ -952,11 +1046,11 @@
                 </div>
                 <div class="form-group">
                     <label><i class="fas fa-code"></i> Custom CSS</label>
-                    <textarea name="custom_css" class="form-control code-editor" rows="4" style="font-family: monospace; background: #1e1e2e; color: #cdd6f4;">{{ settings.custom_css|default:'' }}</textarea>
+                    <textarea name="custom_css" class="form-control" rows="4" style="font-family: monospace; background: #1e1e2e; color: #cdd6f4;">{{ settings.custom_css|default:'' }}</textarea>
                 </div>
                 <div class="form-group">
                     <label><i class="fab fa-js"></i> Custom JavaScript</label>
-                    <textarea name="custom_js" class="form-control code-editor" rows="4" style="font-family: monospace; background: #1e1e2e; color: #cdd6f4;">{{ settings.custom_js|default:'' }}</textarea>
+                    <textarea name="custom_js" class="form-control" rows="4" style="font-family: monospace; background: #1e1e2e; color: #cdd6f4;">{{ settings.custom_js|default:'' }}</textarea>
                 </div>
             </div>
         </div>
@@ -995,7 +1089,6 @@
 </div>
 
 <script>
-    // Toggle section collapse/expand
     function toggleSection(headerElement) {
         const card = headerElement.closest('.config-card');
         const body = card.querySelector('.config-body');
@@ -1004,12 +1097,10 @@
         body.classList.toggle('collapsed');
         headerElement.classList.toggle('collapsed');
         
-        // Store preference
         const sectionTitle = headerElement.querySelector('h3').innerText;
         localStorage.setItem(`section_${sectionTitle}`, body.classList.contains('collapsed'));
     }
     
-    // Restore collapsed states
     document.querySelectorAll('.config-card').forEach(card => {
         const header = card.querySelector('.config-header');
         const title = header.querySelector('h3').innerText;
@@ -1023,7 +1114,6 @@
         }
     });
     
-    // Clear image field
     function clearImageField(fieldName) {
         const fileInput = document.querySelector(`input[name="${fieldName}"]`);
         if (fileInput) fileInput.value = '';
@@ -1031,16 +1121,21 @@
         if (preview) preview.remove();
     }
     
-    // Reset to defaults
     function resetToDefaults() {
         if (confirm('Reset all configuration to default values? This cannot be undone.')) {
             const defaultValues = {
                 site_name: 'Jadid Technology',
                 site_tagline: 'Premium Tech Solutions',
+                show_top_bar: true,
+                top_bar_text: 'Welcome to Jadid Technology',
+                top_bar_bg_color: '#4f46e5',
+                top_bar_text_color: '#ffffff',
                 header_height: '70',
                 header_layout: 'standard',
                 header_bg_color: '#ffffff',
                 header_text_color: '#1f2937',
+                header_hover_color: '#4f46e5',
+                header_sticky: true,
                 hero_enabled: true,
                 hero_height: '500',
                 hero_slideshow_speed: '5000',
@@ -1071,11 +1166,35 @@
                 }
             }
             
+            updatePreview();
             showToast('Defaults loaded. Click Save to apply changes.');
         }
     }
     
-    // Show toast notification
+    function updatePreview() {
+        const topBarBg = document.querySelector('[name="top_bar_bg_color"]')?.value || '#4f46e5';
+        const topBarText = document.querySelector('[name="top_bar_text_color"]')?.value || '#ffffff';
+        const topBarMessage = document.querySelector('[name="top_bar_text"]')?.value || 'Welcome to Jadid Technology';
+        const navBarBg = document.querySelector('[name="header_bg_color"]')?.value || '#ffffff';
+        const navBarText = document.querySelector('[name="header_text_color"]')?.value || '#1f2937';
+        
+        const topBarPreview = document.getElementById('topBarPreview');
+        if (topBarPreview) {
+            topBarPreview.style.background = topBarBg;
+            topBarPreview.style.color = topBarText;
+            topBarPreview.textContent = topBarMessage;
+        }
+        
+        const navBarPreview = document.getElementById('navBarPreview');
+        if (navBarPreview) {
+            navBarPreview.style.background = navBarBg;
+            const spans = navBarPreview.querySelectorAll('span');
+            spans.forEach(span => {
+                span.style.color = navBarText;
+            });
+        }
+    }
+    
     function showToast(message, type = 'success') {
         const toast = document.createElement('div');
         toast.className = `toast-message ${type === 'error' ? 'bg-red-500' : 'bg-green-500'}`;
@@ -1084,25 +1203,25 @@
         setTimeout(() => toast.remove(), 3000);
     }
     
-    // Form submission handler
     document.getElementById('settingsForm')?.addEventListener('submit', function(e) {
         const saveBtn = document.getElementById('saveButton');
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         saveBtn.disabled = true;
         
-        // Allow form to submit naturally
         setTimeout(() => {
             saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Configuration';
             saveBtn.disabled = false;
         }, 3000);
     });
     
-    // Live color preview
-    document.querySelectorAll('input[type="color"]').forEach(colorInput => {
-        colorInput.addEventListener('input', function() {
+    document.querySelectorAll('input[type="color"], input[name="top_bar_text"], input[name="header_bg_color"], input[name="header_text_color"]').forEach(input => {
+        input.addEventListener('input', function() {
+            updatePreview();
             const preview = this.closest('.color-preview-row')?.querySelector('.color-preview');
             if (preview) preview.style.background = this.value;
         });
     });
+    
+    updatePreview();
 </script>
 {% endblock %}

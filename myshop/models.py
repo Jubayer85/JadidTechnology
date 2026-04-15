@@ -20,7 +20,7 @@ from django.utils.html import format_html
 class HeroSlide(models.Model):
     """Individual hero slide for slider"""
     
-    # Content
+    # Existing fields...
     title = models.CharField(max_length=200, default='Premium Smartphones', verbose_name="Slide Title")
     highlight_text = models.CharField(max_length=100, blank=True, verbose_name="Highlight Text")
     subtitle = models.TextField(default='Cutting-edge technology with exceptional performance.', verbose_name="Subtitle")
@@ -61,6 +61,70 @@ class HeroSlide(models.Model):
     # Features (JSON field for multiple features)
     features = models.JSONField(default=list, blank=True, verbose_name="Features")
     
+    # ========== NEW FIELDS FOR INDIVIDUAL SLIDE DESIGN ==========
+    
+    # Layout & Design Styles
+    LAYOUT_CHOICES = [
+        ('default', 'Default (Original Design)'),
+        ('centered', 'Centered Layout'),
+        ('split', 'Split Screen (Image + Text)'),
+        ('fullscreen', 'Full Screen Overlay'),
+        ('minimal', 'Minimal Design'),
+        ('card', 'Card Style'),
+        ('hero', 'Hero Bold'),
+        ('gradient', 'Gradient Overlay'),
+    ]
+    
+    THEME_CHOICES = [
+        ('light', 'Light Theme'),
+        ('dark', 'Dark Theme'),
+        ('glass', 'Glassmorphism'),
+        ('neon', 'Neon Glow'),
+        ('gradient', 'Gradient Theme'),
+    ]
+    
+    ALIGNMENT_CHOICES = [
+        ('left', 'Left Aligned'),
+        ('center', 'Center Aligned'),
+        ('right', 'Right Aligned'),
+    ]
+    
+    ANIMATION_CHOICES = [
+        ('fadeInUp', 'Fade In Up'),
+        ('fadeIn', 'Fade In'),
+        ('zoomIn', 'Zoom In'),
+        ('slideInLeft', 'Slide In Left'),
+        ('slideInRight', 'Slide In Right'),
+        ('bounce', 'Bounce'),
+        ('flipInX', 'Flip In X'),
+        ('rotateIn', 'Rotate In'),
+        ('lightSpeedIn', 'Light Speed In'),
+    ]
+    
+    # Design Configuration
+    layout_style = models.CharField(max_length=20, choices=LAYOUT_CHOICES, default='default', verbose_name="Layout Style")
+    theme_style = models.CharField(max_length=20, choices=THEME_CHOICES, default='light', verbose_name="Theme Style")
+    content_alignment = models.CharField(max_length=10, choices=ALIGNMENT_CHOICES, default='left', verbose_name="Content Alignment")
+    animation_effect = models.CharField(max_length=30, choices=ANIMATION_CHOICES, default='fadeInUp', verbose_name="Animation Effect")
+    
+    # Custom Colors for this slide (override global settings)
+    slide_bg_color = models.CharField(max_length=20, blank=True, null=True, verbose_name="Slide Background Color")
+    slide_text_color = models.CharField(max_length=20, blank=True, null=True, verbose_name="Slide Text Color")
+    slide_accent_color = models.CharField(max_length=20, blank=True, null=True, verbose_name="Slide Accent Color")
+    slide_overlay_opacity = models.DecimalField(max_digits=3, decimal_places=2, default=0.5, help_text="0 to 1", verbose_name="Overlay Opacity")
+    
+    # Additional Images for Split Layout
+    side_image = models.ImageField(upload_to='hero/side_images/', blank=True, null=True, verbose_name="Side Image (for Split Layout)")
+    background_pattern = models.CharField(max_length=100, blank=True, null=True, verbose_name="Background Pattern")
+    
+    # Custom CSS Class
+    custom_css_class = models.CharField(max_length=100, blank=True, verbose_name="Custom CSS Class")
+    
+    # Animation Delays for different elements
+    title_delay = models.IntegerField(default=100, help_text="Delay in ms", verbose_name="Title Animation Delay")
+    subtitle_delay = models.IntegerField(default=200, help_text="Delay in ms", verbose_name="Subtitle Animation Delay")
+    button_delay = models.IntegerField(default=300, help_text="Delay in ms", verbose_name="Button Animation Delay")
+    
     # Order & Status
     order = models.IntegerField(default=0, verbose_name="Display Order")
     is_active = models.BooleanField(default=True, verbose_name="Active")
@@ -75,6 +139,42 @@ class HeroSlide(models.Model):
     
     def __str__(self):
         return self.title
+    
+    def get_button1_color(self):
+        """Get button 1 color"""
+        if self.button1_color == 'brand':
+            return 'var(--primary-color)'
+        elif self.button1_color == 'accent':
+            return 'var(--accent-color)'
+        return self.button1_color or 'var(--primary-color)'
+    
+    def get_button2_color(self):
+        """Get button 2 color"""
+        if self.button2_color == 'brand':
+            return 'var(--primary-color)'
+        elif self.button2_color == 'accent':
+            return 'var(--accent-color)'
+        return self.button2_color or 'var(--accent-color)'
+    
+    def get_slide_bg(self):
+        """Get slide background style"""
+        if self.slide_bg_color:
+            return self.slide_bg_color
+        if self.theme_style == 'dark':
+            return '#1f2937'
+        elif self.theme_style == 'light':
+            return '#ffffff'
+        return None
+    
+    def get_slide_text_color(self):
+        """Get slide text color"""
+        if self.slide_text_color:
+            return self.slide_text_color
+        if self.theme_style == 'dark':
+            return '#ffffff'
+        elif self.theme_style == 'light':
+            return '#1f2937'
+        return None
 
 
 class SiteSettings(models.Model):
