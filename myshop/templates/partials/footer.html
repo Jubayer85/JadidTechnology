@@ -22,16 +22,16 @@
                                 <span class="text-white">{{ site_settings.site_name|default:'Jadid' }}</span>
                                 <span style="color: {{ site_settings.accent_color|default:'#f59e0b' }}">Tech</span>
                             </h2>
-                            <p class="text-primary-300 text-xs -mt-0.5">{{ site_settings.site_tagline|default:'Premium Tech Store' }}</p>
+                            <p class="text-primary-300 text-xs -mt-0.5 text-white">{{ site_settings.site_tagline|default:'Premium Tech Store' }}</p>
                         </div>
                     </div>
-                    <p class="text-primary-300 mb-6 leading-relaxed">
+                    <p class="text-primary-300 mb-6 leading-relaxed text-white">
                         {{ site_settings.meta_description|default:'Your trusted partner for authentic smartphones in Bangladesh. We deliver cutting-edge technology with genuine warranty.'|truncatewords:25 }}
                     </p>
                     
                     <!-- Social Media -->
                     <div>
-                        <p class="text-primary-300 text-sm mb-3">Follow Us</p>
+                        <p class="text-primary-300 text-sm mb-3 text-white">Follow Us</p>
                         <div class="flex space-x-3">
                             {% if site_settings.facebook_url %}
                             <a href="{{ site_settings.facebook_url }}" 
@@ -191,7 +191,7 @@
                                 <i class="fas fa-envelope" style="color: {{ site_settings.accent_color|default:'#f59e0b' }}"></i>
                             </div>
                             <div>
-                                <p class="font-medium">Email Us</p>
+                                <p class="font-medium text-white">Email Us</p>
                                 <a href="mailto:{{ site_settings.contact_email|default:'info@jadidtech.com' }}" class="text-sm hover:text-white transition-colors">
                                     {{ site_settings.contact_email|default:'info@jadidtech.com' }}
                                 </a>
@@ -202,7 +202,7 @@
                                 <i class="fas fa-phone" style="color: {{ site_settings.accent_color|default:'#f59e0b' }}"></i>
                             </div>
                             <div>
-                                <p class="font-medium">Call Us</p>
+                                <p class="font-medium text-white">Call Us</p>
                                 <a href="tel:{{ site_settings.contact_phone|default:'+8801234567890' }}" class="text-sm hover:text-white transition-colors">
                                     {{ site_settings.contact_phone|default:'+880 1234 567890' }}
                                 </a>
@@ -214,8 +214,8 @@
                                 <i class="fas fa-map-marker-alt" style="color: {{ site_settings.accent_color|default:'#f59e0b' }}"></i>
                             </div>
                             <div>
-                                <p class="font-medium">Office Address</p>
-                                <p class="text-sm">{{ site_settings.contact_address }}</p>
+                                <p class="font-medium text-white">Office Address</p>
+                                <p class="text-sm text-white">{{ site_settings.contact_address }}</p>
                             </div>
                         </li>
                         {% endif %}
@@ -257,7 +257,7 @@
             <div class="flex flex-col md:flex-row justify-between items-center text-center md:text-left">
                 <!-- Copyright -->
                 <div class="mb-4 md:mb-0">
-                    <p class="text-primary-300 text-sm">
+                    <p class="text-primary-300 text-sm text-white">
                         {{ site_settings.footer_copyright|default:'© 2024 Jadid Technology. All rights reserved.' }}
                     </p>
                 </div>

@@ -22,7 +22,7 @@
                     {% if site_settings.site_logo %}
                     <img src="{{ site_settings.site_logo.url }}" 
                          alt="{{ site_settings.site_name }}"
-                         class="h-8 lg:h-10 w-auto object-contain">
+                         class="h-18 lg:h-16 w-auto object-contain">
                     {% else %}
                     <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all group-hover:scale-105"
                          style="background: linear-gradient(135deg, {{ site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#3b82f6' }})">
@@ -35,10 +35,10 @@
                         <span class="text-gray-900">{{ site_settings.site_name|default:'Jadid' }}</span>
                         <span class="text-transparent bg-clip-text"
                              style="background-image: linear-gradient(135deg, {{ site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#3b82f6' }})">
-                            Technology
+                            
                         </span>
                     </p>
-                    <p class="text-[10px] lg:text-xs text-gray-400 font-medium tracking-wide hidden sm:block">
+                    <p class="text-[10px] lg:text-xs text-gray-600 font-medium tracking-wide hidden sm:block">
                         {{ site_settings.site_tagline|default:'Premium Tech Store' }}
                     </p>
                 </div>
