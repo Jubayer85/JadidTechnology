@@ -54,6 +54,157 @@
     .animation-demo:hover {
         transform: translateY(-5px);
     }
+    
+    /* Live Preview Styles */
+    .live-preview-container {
+        position: fixed;
+        top: 0;
+        right: -450px;
+        width: 450px;
+        height: 100vh;
+        background: white;
+        box-shadow: -5px 0 30px rgba(0,0,0,0.2);
+        z-index: 1000;
+        transition: right 0.3s ease;
+        overflow-y: auto;
+    }
+    .live-preview-container.open {
+        right: 0;
+    }
+    .preview-toggle-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 100px;
+        width: 50px;
+        height: 50px;
+        background: #4f46e5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        z-index: 1001;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        transition: all 0.3s;
+    }
+    .preview-toggle-btn:hover {
+        transform: scale(1.1);
+        background: #6366f1;
+    }
+    .preview-header {
+        padding: 1rem;
+        background: #4f46e5;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .preview-content {
+        padding: 1rem;
+        min-height: 300px;
+    }
+    .slide-preview {
+        background-size: cover;
+        background-position: center;
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+    
+    /* Image Preview Container */
+    .image-preview-container {
+        position: relative;
+        display: inline-block;
+        margin-top: 10px;
+    }
+    .image-preview-container img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 0.5rem;
+        border: 1px solid #e5e7eb;
+    }
+    .remove-image-btn {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #ef4444;
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 12px;
+        border: none;
+        transition: all 0.2s;
+    }
+    .remove-image-btn:hover {
+        background: #dc2626;
+        transform: scale(1.1);
+    }
+    .current-image-info {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+    }
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.3s;
+        border-radius: 24px;
+    }
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.3s;
+        border-radius: 50%;
+    }
+    input:checked + .toggle-slider {
+        background-color: #4f46e5;
+    }
+    input:checked + .toggle-slider:before {
+        transform: translateX(26px);
+    }
+    .bg-option-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        margin-left: 10px;
+    }
+    .bg-option-image {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    .bg-option-solid {
+        background: #fef3c7;
+        color: #92400e;
+    }
 </style>
 {% endblock %}
 
@@ -70,7 +221,7 @@
             </div>
         </div>
         
-        <form method="POST" enctype="multipart/form-data">
+        <form method="POST" enctype="multipart/form-data" id="heroSlideForm">
             {% csrf_token %}
             
             <!-- ==================== BASIC INFORMATION ==================== -->
@@ -81,17 +232,17 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium mb-1">Title <span class="text-red-500">*</span></label>
-                        <input type="text" name="title" required class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <input type="text" name="title" id="preview-title" required class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
                         <p class="text-xs text-gray-400 mt-1">Main headline of the slide</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1">Highlight Text</label>
-                        <input type="text" name="highlight_text" class="w-full border rounded-lg px-3 py-2">
+                        <input type="text" name="highlight_text" id="preview-highlight" class="w-full border rounded-lg px-3 py-2">
                         <p class="text-xs text-gray-400 mt-1">Optional colored text (e.g., "Limited Offer")</p>
                     </div>
                     <div class="col-span-2">
                         <label class="block text-sm font-medium mb-1">Subtitle</label>
-                        <textarea name="subtitle" rows="2" class="w-full border rounded-lg px-3 py-2"></textarea>
+                        <textarea name="subtitle" id="preview-subtitle" rows="2" class="w-full border rounded-lg px-3 py-2"></textarea>
                     </div>
                 </div>
             </div>
@@ -176,6 +327,65 @@
                 <p class="text-xs text-gray-400 mt-2"><i class="fas fa-lightbulb text-yellow-500"></i> Choose a layout that best fits your content</p>
             </div>
             
+            <!-- ==================== BACKGROUND IMAGE TOGGLE ==================== -->
+            <div class="form-section">
+                <h3 class="font-semibold text-gray-800">
+                    <i class="fas fa-image text-indigo-500 mr-2"></i> Background Settings
+                </h3>
+                
+                <!-- Toggle for Background Image -->
+                <div class="mb-4 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div>
+                            <label class="font-medium text-gray-700">Use Image as Background</label>
+                            <p class="text-xs text-gray-400 mt-1">Enable this to set the main image as full slide background</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm text-gray-500">No</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="use-image-bg" name="use_image_as_bg" onchange="toggleBackgroundMode()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="text-sm text-gray-500">Yes</span>
+                        </div>
+                    </div>
+                    <div id="bg-mode-indicator" class="mt-2">
+                        <span class="bg-option-badge bg-option-solid">
+                            <i class="fas fa-palette"></i> Current: Solid Color/Gradient Mode
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Images Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Main Image</label>
+                        <input type="file" name="image" id="main-image-input" accept="image/*" class="w-full border rounded-lg px-3 py-2" onchange="previewMainImage(this)">
+                        <div id="mainImagePreview" class="image-preview-container hidden">
+                            <img src="" alt="Preview">
+                            <button type="button" class="remove-image-btn" onclick="removeMainImage()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">
+                            <i class="fas fa-info-circle"></i> 
+                            <span id="image-mode-text">When "Yes" is selected, this image will be used as full slide background</span>
+                        </p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Side Image (for Split Layout)</label>
+                        <input type="file" name="side_image" accept="image/*" class="w-full border rounded-lg px-3 py-2" onchange="previewSideImage(this)">
+                        <div id="sideImagePreview" class="image-preview-container hidden">
+                            <img src="" alt="Preview">
+                            <button type="button" class="remove-image-btn" onclick="removeSideImage()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">Used as content image in split screen layout</p>
+                    </div>
+                </div>
+            </div>
+            
             <!-- ==================== THEME SELECTION ==================== -->
             <div class="form-section">
                 <h3 class="font-semibold text-gray-800">
@@ -183,27 +393,27 @@
                 </h3>
                 <div class="flex flex-wrap gap-4">
                     <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
-                        <input type="radio" name="theme_style" value="light" checked> 
+                        <input type="radio" name="theme_style" value="light" checked onchange="updatePreview()"> 
                         <span class="w-8 h-8 bg-white border-2 border-gray-300 rounded-full shadow-sm"></span>
                         <span class="font-medium">Light</span>
                     </label>
                     <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
-                        <input type="radio" name="theme_style" value="dark"> 
+                        <input type="radio" name="theme_style" value="dark" onchange="updatePreview()"> 
                         <span class="w-8 h-8 bg-gray-800 border-2 border-gray-700 rounded-full shadow-sm"></span>
                         <span class="font-medium">Dark</span>
                     </label>
                     <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
-                        <input type="radio" name="theme_style" value="glass"> 
+                        <input type="radio" name="theme_style" value="glass" onchange="updatePreview()"> 
                         <span class="w-8 h-8 bg-white/30 backdrop-blur border-2 border-white rounded-full shadow-sm" style="background: rgba(255,255,255,0.3);"></span>
                         <span class="font-medium">Glassmorphism</span>
                     </label>
                     <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
-                        <input type="radio" name="theme_style" value="neon"> 
+                        <input type="radio" name="theme_style" value="neon" onchange="updatePreview()"> 
                         <span class="w-8 h-8 bg-pink-500 rounded-full shadow-sm" style="box-shadow: 0 0 10px #ec4899;"></span>
                         <span class="font-medium">Neon Glow</span>
                     </label>
                     <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
-                        <input type="radio" name="theme_style" value="gradient"> 
+                        <input type="radio" name="theme_style" value="gradient" onchange="updatePreview()"> 
                         <span class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-sm"></span>
                         <span class="font-medium">Gradient</span>
                     </label>
@@ -215,27 +425,27 @@
                 <h3 class="font-semibold text-gray-800">
                     <i class="fas fa-eyedropper text-indigo-500 mr-2"></i> Custom Colors (Optional)
                 </h3>
-                <p class="text-xs text-gray-400 mb-3">Leave empty to use theme defaults</p>
+                <p class="text-xs text-gray-400 mb-3">Leave empty to use theme defaults (only used when image background is OFF)</p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-sm font-medium mb-1">Background Color</label>
                         <div class="flex items-center gap-2">
-                            <input type="color" name="slide_bg_color" class="w-16 h-10 border rounded cursor-pointer">
-                            <input type="text" name="slide_bg_color_text" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="#hex or rgba()">
+                            <input type="color" name="slide_bg_color" id="preview-bg-color" class="w-16 h-10 border rounded cursor-pointer" onchange="updatePreview()">
+                            <input type="text" name="slide_bg_color_text" id="preview-bg-color-text" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="#hex or rgba()" oninput="updatePreview()">
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1">Text Color</label>
                         <div class="flex items-center gap-2">
-                            <input type="color" name="slide_text_color" class="w-16 h-10 border rounded cursor-pointer">
-                            <input type="text" name="slide_text_color_text" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="#hex or rgba()">
+                            <input type="color" name="slide_text_color" id="preview-text-color" class="w-16 h-10 border rounded cursor-pointer" onchange="updatePreview()">
+                            <input type="text" name="slide_text_color_text" id="preview-text-color-text" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="#hex or rgba()" oninput="updatePreview()">
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1">Accent Color</label>
                         <div class="flex items-center gap-2">
-                            <input type="color" name="slide_accent_color" class="w-16 h-10 border rounded cursor-pointer">
-                            <input type="text" name="slide_accent_color_text" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="#hex or rgba()">
+                            <input type="color" name="slide_accent_color" id="preview-accent-color" class="w-16 h-10 border rounded cursor-pointer" onchange="updatePreview()">
+                            <input type="text" name="slide_accent_color_text" id="preview-accent-color-text" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="#hex or rgba()" oninput="updatePreview()">
                         </div>
                     </div>
                 </div>
@@ -248,17 +458,17 @@
                 </h3>
                 <div class="flex gap-4">
                     <label class="flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50">
-                        <input type="radio" name="content_alignment" value="left" checked> 
+                        <input type="radio" name="content_alignment" value="left" checked onchange="updatePreview()"> 
                         <i class="fas fa-align-left text-lg"></i>
                         <span>Left</span>
                     </label>
                     <label class="flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50">
-                        <input type="radio" name="content_alignment" value="center"> 
+                        <input type="radio" name="content_alignment" value="center" onchange="updatePreview()"> 
                         <i class="fas fa-align-center text-lg"></i>
                         <span>Center</span>
                     </label>
                     <label class="flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50">
-                        <input type="radio" name="content_alignment" value="right"> 
+                        <input type="radio" name="content_alignment" value="right" onchange="updatePreview()"> 
                         <i class="fas fa-align-right text-lg"></i>
                         <span>Right</span>
                     </label>
@@ -273,16 +483,16 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium mb-1">Animation Type</label>
-                        <select name="animation_effect" class="w-full border rounded-lg px-3 py-2" onchange="previewAnimation(this.value)">
-                            <option value="fadeInUp">✨ Fade In Up</option>
-                            <option value="fadeIn">🌊 Fade In</option>
-                            <option value="zoomIn">🔍 Zoom In</option>
-                            <option value="slideInLeft">⬅️ Slide In Left</option>
-                            <option value="slideInRight">➡️ Slide In Right</option>
-                            <option value="bounce">🏀 Bounce</option>
-                            <option value="flipInX">🔄 Flip In X</option>
-                            <option value="rotateIn">🔄 Rotate In</option>
-                            <option value="lightSpeedIn">⚡ Light Speed In</option>
+                        <select name="animation_effect" id="preview-animation" class="w-full border rounded-lg px-3 py-2" onchange="previewAnimation(this.value)">
+                            <option value="fadeInUp">Fade In Up</option>
+                            <option value="fadeIn">Fade In</option>
+                            <option value="zoomIn">Zoom In</option>
+                            <option value="slideInLeft">Slide In Left</option>
+                            <option value="slideInRight">Slide In Right</option>
+                            <option value="bounce">Bounce</option>
+                            <option value="flipInX">Flip In X</option>
+                            <option value="rotateIn">Rotate In</option>
+                            <option value="lightSpeedIn">Light Speed In</option>
                         </select>
                     </div>
                     <div class="animation-demo flex items-center justify-center border rounded-lg p-4 bg-gray-50" id="animationPreview">
@@ -306,31 +516,6 @@
                 </div>
             </div>
             
-            <!-- ==================== IMAGES ==================== -->
-            <div class="form-section">
-                <h3 class="font-semibold text-gray-800">
-                    <i class="fas fa-image text-indigo-500 mr-2"></i> Images
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Main Image</label>
-                        <input type="file" name="image" accept="image/*" class="w-full border rounded-lg px-3 py-2" onchange="previewImage(this, 'mainImagePreview')">
-                        <div id="mainImagePreview" class="mt-2 hidden">
-                            <img src="" alt="Preview" class="w-32 h-32 object-cover rounded-lg border">
-                        </div>
-                        <p class="text-xs text-gray-400 mt-1">Recommended: 800x800px or larger</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Side Image (for Split Layout)</label>
-                        <input type="file" name="side_image" accept="image/*" class="w-full border rounded-lg px-3 py-2" onchange="previewImage(this, 'sideImagePreview')">
-                        <div id="sideImagePreview" class="mt-2 hidden">
-                            <img src="" alt="Preview" class="w-32 h-32 object-cover rounded-lg border">
-                        </div>
-                        <p class="text-xs text-gray-400 mt-1">Used in split screen layout</p>
-                    </div>
-                </div>
-            </div>
-            
             <!-- ==================== BADGES & TAGS ==================== -->
             <div class="form-section">
                 <h3 class="font-semibold text-gray-800">
@@ -339,16 +524,16 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-sm font-medium mb-1">Badge Text</label>
-                        <input type="text" name="badge_text" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., Limited Offer">
+                        <input type="text" name="badge_text" id="preview-badge-text" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., Limited Offer" oninput="updatePreview()">
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1">Badge Icon</label>
-                        <input type="text" name="badge_icon" value="fire" class="w-full border rounded-lg px-3 py-2" placeholder="fa-icon name">
+                        <input type="text" name="badge_icon" value="fire" id="preview-badge-icon" class="w-full border rounded-lg px-3 py-2" placeholder="fa-icon name" oninput="updatePreview()">
                         <p class="text-xs text-gray-400 mt-1">Font Awesome icon name</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1">Corner Badge</label>
-                        <input type="text" name="badge" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., HOT, SALE">
+                        <input type="text" name="badge" id="preview-corner-badge" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., HOT, SALE" oninput="updatePreview()">
                     </div>
                 </div>
             </div>
@@ -361,7 +546,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium mb-1">Button 1 Text</label>
-                        <input type="text" name="button1_text" value="Shop Now" class="w-full border rounded-lg px-3 py-2">
+                        <input type="text" name="button1_text" value="Shop Now" id="preview-btn1-text" class="w-full border rounded-lg px-3 py-2" oninput="updatePreview()">
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1">Button 1 URL</label>
@@ -369,11 +554,11 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1">Button 1 Icon</label>
-                        <input type="text" name="button1_icon" value="shopping-cart" class="w-full border rounded-lg px-3 py-2">
+                        <input type="text" name="button1_icon" value="shopping-cart" id="preview-btn1-icon" class="w-full border rounded-lg px-3 py-2" oninput="updatePreview()">
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1">Button 1 Color</label>
-                        <select name="button1_color" class="w-full border rounded-lg px-3 py-2">
+                        <select name="button1_color" id="preview-btn1-color" class="w-full border rounded-lg px-3 py-2" onchange="updatePreview()">
                             <option value="brand">Brand Color</option>
                             <option value="accent">Accent Color</option>
                             <option value="white">White</option>
@@ -384,7 +569,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                     <div>
                         <label class="block text-sm font-medium mb-1">Button 2 Text (Optional)</label>
-                        <input type="text" name="button2_text" class="w-full border rounded-lg px-3 py-2">
+                        <input type="text" name="button2_text" id="preview-btn2-text" class="w-full border rounded-lg px-3 py-2" oninput="updatePreview()">
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1">Button 2 URL</label>
@@ -392,11 +577,11 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1">Button 2 Icon</label>
-                        <input type="text" name="button2_icon" value="star" class="w-full border rounded-lg px-3 py-2">
+                        <input type="text" name="button2_icon" value="star" id="preview-btn2-icon" class="w-full border rounded-lg px-3 py-2" oninput="updatePreview()">
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1">Button 2 Color</label>
-                        <select name="button2_color" class="w-full border rounded-lg px-3 py-2">
+                        <select name="button2_color" id="preview-btn2-color" class="w-full border rounded-lg px-3 py-2" onchange="updatePreview()">
                             <option value="accent">Accent Color</option>
                             <option value="brand">Brand Color</option>
                             <option value="white">White</option>
@@ -414,15 +599,15 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-sm font-medium mb-1">Price Label</label>
-                        <input type="text" name="price_label" value="From" class="w-full border rounded-lg px-3 py-2">
+                        <input type="text" name="price_label" value="From" id="preview-price-label" class="w-full border rounded-lg px-3 py-2" oninput="updatePreview()">
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1">Price Tag</label>
-                        <input type="text" name="price_tag" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., $999">
+                        <input type="text" name="price_tag" id="preview-price-tag" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., $999" oninput="updatePreview()">
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1">Rating</label>
-                        <input type="number" name="rating" step="0.1" min="0" max="5" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., 4.5">
+                        <input type="number" name="rating" step="0.1" min="0" max="5" id="preview-rating" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., 4.5" oninput="updatePreview()">
                     </div>
                 </div>
             </div>
@@ -434,8 +619,8 @@
                 </h3>
                 <div id="features-container">
                     <div class="feature-item flex gap-2 mb-2">
-                        <input type="text" name="feature_text[]" class="flex-1 border rounded-lg px-3 py-2" placeholder="Feature text">
-                        <input type="text" name="feature_icon[]" class="w-32 border rounded-lg px-3 py-2" placeholder="Icon name" value="check">
+                        <input type="text" name="feature_text[]" class="flex-1 border rounded-lg px-3 py-2 feature-text" placeholder="Feature text" oninput="updatePreview()">
+                        <input type="text" name="feature_icon[]" class="w-32 border rounded-lg px-3 py-2 feature-icon" placeholder="Icon name" value="check" oninput="updatePreview()">
                         <button type="button" onclick="removeFeature(this)" class="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -472,71 +657,301 @@
     </div>
 </div>
 
+<!-- Live Preview Button -->
+<div class="preview-toggle-btn" onclick="togglePreview()">
+    <i class="fas fa-eye"></i>
+</div>
+
+<!-- Live Preview Panel -->
+<div class="live-preview-container" id="livePreview">
+    <div class="preview-header">
+        <h4 class="font-semibold">Live Preview</h4>
+        <button onclick="togglePreview()" class="text-white hover:text-gray-200">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="preview-content">
+        <div id="slide-preview" class="slide-preview relative min-h-[300px] rounded-xl overflow-hidden">
+            <!-- Preview content will be injected here -->
+        </div>
+    </div>
+</div>
+
 <script>
-    // Design selection
-    function selectDesign(element, layout) {
-        document.querySelectorAll('.design-preview').forEach(el => {
-            el.classList.remove('selected');
-        });
-        element.classList.add('selected');
-        document.getElementById('layout_style').value = layout;
+    // Global variables
+    var mainImageData = null;
+    var sideImageData = null;
+    
+    // Toggle background mode
+    function toggleBackgroundMode() {
+        var isImageBg = document.getElementById('use-image-bg').checked;
+        var indicator = document.getElementById('bg-mode-indicator');
+        var imageModeText = document.getElementById('image-mode-text');
+        
+        if (isImageBg) {
+            indicator.innerHTML = '<span class="bg-option-badge bg-option-image"><i class="fas fa-image"></i> Current: Image Background Mode (Image will be full slide background)</span>';
+            imageModeText.innerHTML = '<i class="fas fa-check-circle text-green-500"></i> Image will be used as full slide background when "Yes" is selected';
+        } else {
+            indicator.innerHTML = '<span class="bg-option-badge bg-option-solid"><i class="fas fa-palette"></i> Current: Solid Color/Gradient Mode</span>';
+            imageModeText.innerHTML = '<i class="fas fa-info-circle"></i> When "Yes" is selected, this image will be used as full slide background';
+        }
+        updatePreview();
     }
     
-    // Animation preview
-    function previewAnimation(animation) {
-        const preview = document.getElementById('animationPreview');
-        preview.style.animation = 'none';
-        setTimeout(() => {
-            preview.style.animation = `${animation} 0.6s ease`;
-        }, 10);
-        setTimeout(() => {
-            preview.style.animation = '';
-        }, 600);
-    }
-    
-    // Image preview
-    function previewImage(input, previewId) {
-        const preview = document.getElementById(previewId);
+    // Preview main image
+    function previewMainImage(input) {
+        var preview = document.getElementById('mainImagePreview');
         if (input.files && input.files[0]) {
-            const reader = new FileReader();
+            var reader = new FileReader();
             reader.onload = function(e) {
-                preview.querySelector('img').src = e.target.result;
+                mainImageData = e.target.result;
+                var img = preview.querySelector('img');
+                if (img) img.src = e.target.result;
                 preview.classList.remove('hidden');
+                updatePreview();
             }
             reader.readAsDataURL(input.files[0]);
         }
     }
     
+    // Preview side image
+    function previewSideImage(input) {
+        var preview = document.getElementById('sideImagePreview');
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                sideImageData = e.target.result;
+                var img = preview.querySelector('img');
+                if (img) img.src = e.target.result;
+                preview.classList.remove('hidden');
+                updatePreview();
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    // Remove main image
+    function removeMainImage() {
+        mainImageData = null;
+        document.getElementById('mainImagePreview').classList.add('hidden');
+        document.getElementById('main-image-input').value = '';
+        updatePreview();
+    }
+    
+    // Remove side image
+    function removeSideImage() {
+        sideImageData = null;
+        document.getElementById('sideImagePreview').classList.add('hidden');
+        document.getElementById('side-image-input') && (document.getElementById('side-image-input').value = '');
+        updatePreview();
+    }
+    
+    // Design selection
+    function selectDesign(element, layout) {
+        document.querySelectorAll('.design-preview').forEach(function(el) {
+            el.classList.remove('selected');
+        });
+        element.classList.add('selected');
+        document.getElementById('layout_style').value = layout;
+        updatePreview();
+    }
+    
+    // Animation preview
+    function previewAnimation(animation) {
+        var preview = document.getElementById('animationPreview');
+        preview.style.animation = 'none';
+        setTimeout(function() {
+            preview.style.animation = animation + ' 0.6s ease';
+        }, 10);
+        setTimeout(function() {
+            preview.style.animation = '';
+        }, 600);
+        updatePreview();
+    }
+    
     // Features management
     function addFeature() {
-        const container = document.getElementById('features-container');
-        const newFeature = document.createElement('div');
+        var container = document.getElementById('features-container');
+        var newFeature = document.createElement('div');
         newFeature.className = 'feature-item flex gap-2 mb-2';
         newFeature.innerHTML = `
-            <input type="text" name="feature_text[]" class="flex-1 border rounded-lg px-3 py-2" placeholder="Feature text">
-            <input type="text" name="feature_icon[]" class="w-32 border rounded-lg px-3 py-2" placeholder="Icon name" value="check">
+            <input type="text" name="feature_text[]" class="flex-1 border rounded-lg px-3 py-2 feature-text" placeholder="Feature text" oninput="updatePreview()">
+            <input type="text" name="feature_icon[]" class="w-32 border rounded-lg px-3 py-2 feature-icon" placeholder="Icon name" value="check" oninput="updatePreview()">
             <button type="button" onclick="removeFeature(this)" class="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200">
                 <i class="fas fa-trash"></i>
             </button>
         `;
         container.appendChild(newFeature);
+        updatePreview();
     }
     
     function removeFeature(button) {
         button.closest('.feature-item').remove();
+        updatePreview();
     }
     
-    // Color input sync with text input
-    document.querySelectorAll('input[type="color"]').forEach(colorInput => {
+    // Color input sync
+    document.querySelectorAll('input[type="color"]').forEach(function(colorInput) {
         colorInput.addEventListener('change', function() {
-            const textInput = this.nextElementSibling;
+            var textInput = this.nextElementSibling;
             if (textInput && textInput.tagName === 'INPUT') {
                 textInput.value = this.value;
             }
+            updatePreview();
         });
+    });
+    
+    // Get all features
+    function getFeatures() {
+        var features = [];
+        var featureItems = document.querySelectorAll('.feature-item');
+        featureItems.forEach(function(item) {
+            var text = item.querySelector('.feature-text').value;
+            var icon = item.querySelector('.feature-icon').value;
+            if (text) {
+                features.push({text: text, icon: icon || 'check'});
+            }
+        });
+        return features;
+    }
+    
+    // Update live preview
+    function updatePreview() {
+        var layout = document.getElementById('layout_style').value;
+        var title = document.getElementById('preview-title').value || 'Sample Title';
+        var highlight = document.getElementById('preview-highlight').value;
+        var subtitle = document.getElementById('preview-subtitle').value || 'Sample subtitle text goes here';
+        var badgeText = document.getElementById('preview-badge-text').value;
+        var badgeIcon = document.getElementById('preview-badge-icon').value || 'fire';
+        var btn1Text = document.getElementById('preview-btn1-text').value || 'Shop Now';
+        var btn1Icon = document.getElementById('preview-btn1-icon').value || 'shopping-cart';
+        var btn2Text = document.getElementById('preview-btn2-text').value;
+        var btn2Icon = document.getElementById('preview-btn2-icon').value || 'star';
+        var priceLabel = document.getElementById('preview-price-label').value || 'From';
+        var priceTag = document.getElementById('preview-price-tag').value;
+        var rating = document.getElementById('preview-rating').value;
+        var theme = document.querySelector('input[name="theme_style"]:checked').value;
+        var alignment = document.querySelector('input[name="content_alignment"]:checked').value;
+        var bgColor = document.getElementById('preview-bg-color-text').value;
+        var textColor = document.getElementById('preview-text-color-text').value;
+        var accentColor = document.getElementById('preview-accent-color-text').value || '#f59e0b';
+        var features = getFeatures();
+        var useImageBg = document.getElementById('use-image-bg').checked;
+        
+        var previewHtml = '';
+        var textColorStyle = textColor ? 'color: ' + textColor + ';' : (theme === 'dark' ? 'color: white;' : 'color: #1f2937;');
+        var subtitleColorStyle = textColor ? 'color: ' + textColor + ';' : (theme === 'dark' ? 'color: #e5e7eb;' : 'color: #4b5563;');
+        
+        // Background style based on toggle
+        var bgStyle = '';
+        if (useImageBg && mainImageData) {
+            bgStyle = 'background-image: url(' + mainImageData + '); background-size: cover; background-position: center;';
+        } else if (bgColor) {
+            bgStyle = 'background-color: ' + bgColor + ';';
+        } else if (theme === 'dark') {
+            bgStyle = 'background-color: #1f2937;';
+        } else if (theme === 'light') {
+            bgStyle = 'background-color: #ffffff;';
+        } else if (theme === 'gradient') {
+            bgStyle = 'background: linear-gradient(135deg, ' + accentColor + ', #4f46e5);';
+        } else {
+            bgStyle = 'background-color: #f3f4f6;';
+        }
+        
+        // Add overlay for image background
+        var overlayStyle = '';
+        if (useImageBg && mainImageData) {
+            overlayStyle = '<div class="absolute inset-0" style="background: rgba(0,0,0,0.4);"></div>';
+        } else {
+            overlayStyle = '';
+        }
+        
+        if (layout === 'centered') {
+            previewHtml = '<div class="relative p-8 text-center min-h-[300px] flex items-center justify-center" style="' + bgStyle + ' ' + textColorStyle + '">' + overlayStyle +
+                '<div class="relative z-10">' +
+                (badgeText ? '<div class="inline-flex items-center px-4 py-2 rounded-full mb-4" style="background: ' + accentColor + '; color: white;"><i class="fas fa-' + badgeIcon + ' mr-2"></i>' + badgeText + '</div>' : '') +
+                '<h2 class="text-3xl font-bold mb-2">' + title + '</h2>' +
+                (highlight ? '<div class="text-xl font-semibold mb-2" style="color: ' + accentColor + '">' + highlight + '</div>' : '') +
+                '<p class="mb-4" style="' + subtitleColorStyle + '">' + subtitle + '</p>' +
+                '<div class="flex gap-3 justify-center">' +
+                '<a href="#" class="px-6 py-2 rounded-lg font-semibold text-white" style="background: ' + accentColor + '"><i class="fas fa-' + btn1Icon + ' mr-2"></i>' + btn1Text + '</a>' +
+                (btn2Text ? '<a href="#" class="px-6 py-2 rounded-lg font-semibold border-2" style="border-color: ' + accentColor + '; color: ' + accentColor + '">' + btn2Text + '</a>' : '') +
+                '</div></div></div>';
+        } else if (layout === 'split') {
+            previewHtml = '<div class="relative grid grid-cols-2 h-full min-h-[300px]" style="' + bgStyle + '">' + overlayStyle +
+                '<div class="relative z-10 p-6 flex items-center justify-center" style="background: ' + (useImageBg ? 'rgba(0,0,0,0.5)' : (theme === 'dark' ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)')) + '">' +
+                '<div><h2 class="text-2xl font-bold mb-2" style="' + textColorStyle + '">' + title + '</h2>' +
+                '<p class="mb-4" style="' + subtitleColorStyle + '">' + subtitle + '</p>' +
+                '<a href="#" class="px-4 py-2 rounded-lg text-white" style="background: ' + accentColor + '">' + btn1Text + '</a></div></div>' +
+                '<div class="relative z-10 bg-gray-300 flex items-center justify-center">' + 
+                (sideImageData ? '<img src="' + sideImageData + '" class="w-full h-full object-cover">' : '<i class="fas fa-image text-4xl text-gray-500"></i>') +
+                '</div></div>';
+        } else if (layout === 'fullscreen') {
+            previewHtml = '<div class="relative p-12 text-center text-white min-h-[300px] flex items-center justify-center" style="background: linear-gradient(135deg, ' + accentColor + ', #4f46e5);">' +
+                '<div class="relative z-10"><h2 class="text-4xl font-bold mb-3">' + title + '</h2>' +
+                '<p class="mb-5">' + subtitle + '</p>' +
+                '<a href="#" class="inline-block px-8 py-3 bg-white rounded-full font-semibold" style="color: ' + accentColor + '">' + btn1Text + '</a></div></div>';
+        } else if (layout === 'minimal') {
+            previewHtml = '<div class="relative p-8 min-h-[300px]" style="' + bgStyle + ' ' + textColorStyle + '">' + overlayStyle +
+                '<div class="relative z-10"><h2 class="text-3xl font-light mb-2">' + title + '</h2>' +
+                '<p class="mb-4" style="' + subtitleColorStyle + '">' + subtitle + '</p>' +
+                '<a href="#" class="inline-block border-b-2 pb-1" style="border-color: ' + accentColor + '; color: ' + accentColor + '">' + btn1Text + ' →</a></div></div>';
+        } else if (layout === 'card') {
+            previewHtml = '<div class="relative p-6 flex items-center justify-center h-full min-h-[300px]" style="' + bgStyle + '">' + overlayStyle +
+                '<div class="relative z-10 max-w-sm bg-white rounded-xl shadow-lg overflow-hidden"><div class="h-32 bg-gray-300">' + 
+                (mainImageData ? '<img src="' + mainImageData + '" class="w-full h-32 object-cover">' : '') + '</div>' +
+                '<div class="p-4"><h3 class="font-bold mb-1">' + title + '</h3><p class="text-gray-500 text-sm mb-3">' + subtitle.substring(0, 60) + '</p>' +
+                '<a href="#" class="inline-block px-3 py-1 rounded-lg text-white text-sm" style="background: ' + accentColor + '">' + btn1Text + '</a></div></div></div>';
+        } else {
+            // Default layout
+            previewHtml = '<div class="relative p-6 min-h-[300px]" style="' + bgStyle + ' ' + textColorStyle + '">' + overlayStyle +
+                '<div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">' +
+                '<div>' +
+                (badgeText ? '<div class="inline-flex items-center px-3 py-1 rounded-full mb-3" style="background: ' + accentColor + '; color: white;"><i class="fas fa-' + badgeIcon + ' mr-1 text-xs"></i><span class="text-xs">' + badgeText + '</span></div>' : '') +
+                '<h2 class="text-2xl font-bold mb-2">' + title + '</h2>' +
+                (highlight ? '<div class="text-lg font-semibold mb-2" style="color: ' + accentColor + '">' + highlight + '</div>' : '') +
+                '<p class="mb-4 text-sm" style="' + subtitleColorStyle + '">' + subtitle + '</p>' +
+                '<div class="flex gap-3">' +
+                '<a href="#" class="px-4 py-2 rounded-lg text-white text-sm" style="background: ' + accentColor + '"><i class="fas fa-' + btn1Icon + ' mr-1"></i>' + btn1Text + '</a>' +
+                (btn2Text ? '<a href="#" class="px-4 py-2 rounded-lg text-sm border-2" style="border-color: ' + accentColor + '; color: ' + accentColor + '">' + btn2Text + '</a>' : '') +
+                '</div>' +
+                (features.length > 0 ? '<div class="mt-4 grid grid-cols-2 gap-2">' + features.map(function(f) { return '<div class="flex items-center gap-1 text-xs"><i class="fas fa-' + f.icon + '" style="color: ' + accentColor + '"></i><span>' + f.text + '</span></div>'; }).join('') + '</div>' : '') +
+                '</div>' +
+                '<div class="relative"><div class="h-40 bg-gray-300 rounded-lg flex items-center justify-center">' + 
+                (sideImageData ? '<img src="' + sideImageData + '" class="w-full h-40 object-cover rounded-lg">' : (mainImageData && !useImageBg ? '<img src="' + mainImageData + '" class="w-full h-40 object-cover rounded-lg">' : '<i class="fas fa-image text-3xl text-gray-500"></i>')) +
+                '</div>' +
+                (priceTag ? '<div class="absolute -bottom-2 -right-2 px-3 py-1 rounded-lg text-white text-xs" style="background: ' + accentColor + '"><div>' + priceLabel + '</div><div class="font-bold">' + priceTag + '</div></div>' : '') +
+                '</div></div></div>';
+        }
+        
+        document.getElementById('slide-preview').innerHTML = previewHtml;
+    }
+    
+    // Toggle preview panel
+    function togglePreview() {
+        var panel = document.getElementById('livePreview');
+        panel.classList.toggle('open');
+    }
+    
+    // Input event listeners
+    var inputFields = ['preview-title', 'preview-highlight', 'preview-subtitle', 'preview-badge-text', 'preview-badge-icon', 'preview-corner-badge', 'preview-btn1-text', 'preview-btn1-icon', 'preview-btn2-text', 'preview-btn2-icon', 'preview-price-label', 'preview-price-tag', 'preview-rating'];
+    inputFields.forEach(function(field) {
+        var el = document.getElementById(field);
+        if (el) {
+            el.addEventListener('input', updatePreview);
+        }
+    });
+    
+    // Radio button listeners
+    var radios = document.querySelectorAll('input[type="radio"]');
+    radios.forEach(function(radio) {
+        radio.addEventListener('change', updatePreview);
     });
     
     // Default select first design
     document.querySelector('.design-preview').classList.add('selected');
+    
+    // Initialize preview
+    setTimeout(updatePreview, 100);
 </script>
 {% endblock %}
