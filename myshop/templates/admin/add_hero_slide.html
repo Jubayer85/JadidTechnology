@@ -15,7 +15,6 @@
     .design-preview:hover {
         border-color: #4f46e5;
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        transform: translateY(-2px);
     }
     .design-preview.selected {
         border-color: #4f46e5;
@@ -35,175 +34,43 @@
         padding: 1.25rem;
         margin-bottom: 1.5rem;
     }
-    .form-section h3 {
-        margin-top: 0;
-        margin-bottom: 1rem;
-        font-size: 1rem;
-    }
-    
-    /* Toggle Switch */
-    .toggle-switch {
+    .current-image {
         position: relative;
         display: inline-block;
-        width: 50px;
-        height: 24px;
     }
-    .toggle-switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-    .toggle-slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        transition: 0.3s;
-        border-radius: 24px;
-    }
-    .toggle-slider:before {
-        position: absolute;
-        content: "";
-        height: 18px;
-        width: 18px;
-        left: 3px;
-        bottom: 3px;
-        background-color: white;
-        transition: 0.3s;
-        border-radius: 50%;
-    }
-    input:checked + .toggle-slider {
-        background-color: #4f46e5;
-    }
-    input:checked + .toggle-slider:before {
-        transform: translateX(26px);
-    }
-    
-    /* Image Preview */
-    .image-preview-container {
-        position: relative;
-        display: inline-block;
-        margin-top: 10px;
-    }
-    .image-preview-container img {
+    .current-image img {
         width: 100px;
         height: 100px;
         object-fit: cover;
         border-radius: 0.5rem;
         border: 1px solid #e5e7eb;
     }
-    .remove-image-btn {
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        background: #ef4444;
-        color: white;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 12px;
-        border: none;
-    }
-    .remove-image-btn:hover {
-        background: #dc2626;
-    }
-    
-    /* Badge Styles */
-    .bg-option-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
-    }
-    .bg-option-image {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-    .bg-option-solid {
-        background: #fef3c7;
-        color: #92400e;
-    }
-    
-    /* Live Preview */
-    .live-preview-container {
-        position: fixed;
-        top: 0;
-        right: -450px;
-        width: 450px;
-        height: 100vh;
-        background: white;
-        box-shadow: -5px 0 30px rgba(0,0,0,0.2);
-        z-index: 1000;
-        transition: right 0.3s ease;
-        overflow-y: auto;
-    }
-    .live-preview-container.open {
-        right: 0;
-    }
-    .preview-toggle-btn {
-        position: fixed;
-        right: 20px;
-        bottom: 100px;
-        width: 50px;
-        height: 50px;
-        background: #4f46e5;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        cursor: pointer;
-        z-index: 1001;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        transition: all 0.3s;
-    }
-    .preview-toggle-btn:hover {
-        transform: scale(1.1);
-        background: #6366f1;
-    }
-    .preview-header {
-        padding: 1rem;
-        background: #4f46e5;
-        color: white;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .preview-content {
-        padding: 1rem;
-    }
     .feature-item {
         display: flex;
         gap: 0.5rem;
         margin-bottom: 0.5rem;
     }
-    .feature-text {
-        flex: 1;
+    .animation-demo {
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
     }
-    .feature-icon {
-        width: 120px;
-    }
-    
-    /* Font Style Select */
-    .font-style-select {
-        width: 100%;
-        border: 1px solid #e5e7eb;
+    .color-preview {
+        width: 40px;
+        height: 40px;
         border-radius: 0.5rem;
-        padding: 0.5rem;
+        border: 2px solid white;
+        box-shadow: 0 0 0 1px #e5e7eb;
     }
-    .font-size-input {
-        width: 100%;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.5rem;
-        padding: 0.5rem;
+    .font-size-control {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .font-size-control input {
+        width: 80px;
     }
 </style>
 {% endblock %}
@@ -214,166 +81,95 @@
         <div class="flex items-center justify-between mb-6">
             <div>
                 <h1 class="text-2xl font-bold mb-2">Add New Hero Slide</h1>
-                <p class="text-gray-500">Create a unique slide with custom design, layout, and animations</p>
+                <p class="text-gray-500">Create a new slide with design, content, and animations</p>
             </div>
             <div class="text-sm text-gray-400">
-                <i class="fas fa-info-circle"></i> Each slide can have unique design
+                <i class="fas fa-plus-circle"></i> New Slide
             </div>
         </div>
         
-        <form method="POST" enctype="multipart/form-data" id="heroSlideForm">
+        <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             
             <!-- ==================== BASIC INFORMATION ==================== -->
             <div class="form-section">
-                <h3 class="font-semibold text-gray-800">
+                <h3 class="font-semibold text-gray-800 mb-3">
                     <i class="fas fa-info-circle text-indigo-500 mr-2"></i> Basic Information
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium mb-1">Title <span class="text-red-500">*</span></label>
-                        <input type="text" name="title" id="preview-title" required class="w-full border rounded-lg px-3 py-2">
+                        <input type="text" name="title" required value="{{ form.title.value|default:'' }}" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                        <p class="text-xs text-gray-400 mt-1">Main headline of the slide</p>
                     </div>
+                    
+                    <!-- Title Font Size Control -->
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Title Font Size</label>
+                        <div class="font-size-control">
+                            <input type="number" name="title_font_size" value="{{ form.title_font_size.value|default:'48' }}" min="24" max="96" step="2" class="w-24 border rounded-lg px-3 py-2">
+                            <span class="text-gray-500">px</span>
+                            <div class="flex gap-1 ml-2">
+                                <button type="button" onclick="adjustFontSize('title_font_size', -2)" class="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">-</button>
+                                <button type="button" onclick="adjustFontSize('title_font_size', 2)" class="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">+</button>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">Recommended: 36-72px for desktop</p>
+                    </div>
+                    
                     <div>
                         <label class="block text-sm font-medium mb-1">Highlight Text</label>
-                        <input type="text" name="highlight_text" id="preview-highlight" class="w-full border rounded-lg px-3 py-2">
+                        <input type="text" name="highlight_text" value="{{ form.highlight_text.value|default:'' }}" class="w-full border rounded-lg px-3 py-2">
+                        <p class="text-xs text-gray-400 mt-1">Optional colored text (e.g., "Limited Offer")</p>
                     </div>
+                    
+                    <!-- Highlight Text Font Size Control -->
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Highlight Text Font Size</label>
+                        <div class="font-size-control">
+                            <input type="number" name="highlight_font_size" value="{{ form.highlight_font_size.value|default:'36' }}" min="16" max="80" step="2" class="w-24 border rounded-lg px-3 py-2">
+                            <span class="text-gray-500">px</span>
+                            <div class="flex gap-1 ml-2">
+                                <button type="button" onclick="adjustFontSize('highlight_font_size', -2)" class="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">-</button>
+                                <button type="button" onclick="adjustFontSize('highlight_font_size', 2)" class="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">+</button>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">Recommended: 28-52px for highlight text</p>
+                    </div>
+                    
                     <div class="col-span-2">
                         <label class="block text-sm font-medium mb-1">Subtitle</label>
-                        <textarea name="subtitle" id="preview-subtitle" rows="2" class="w-full border rounded-lg px-3 py-2"></textarea>
+                        <textarea name="subtitle" rows="2" class="w-full border rounded-lg px-3 py-2">{{ form.subtitle.value|default:'' }}</textarea>
                     </div>
-                </div>
-            </div>
-            
-            <!-- ==================== FONT STYLE & SIZE SETTINGS ==================== -->
-            <div class="form-section">
-                <h3 class="font-semibold text-gray-800">
-                    <i class="fas fa-font text-indigo-500 mr-2"></i> Font Style & Size Settings
-                </h3>
-                
-                <!-- Title Font Settings -->
-                <div class="mb-4 p-3 bg-white rounded-lg border">
-                    <h4 class="font-medium text-gray-700 mb-2">Title Font</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">Font Family</label>
-                            <select name="title_font_family" id="title-font-family" class="w-full border rounded-lg px-2 py-1.5 text-sm" onchange="updatePreview()">
-                                <option value="'Inter', sans-serif">Inter (Default)</option>
-                                <option value="'Poppins', sans-serif">Poppins</option>
-                                <option value="'Roboto', sans-serif">Roboto</option>
-                                <option value="'Montserrat', sans-serif">Montserrat</option>
-                                <option value="'Open Sans', sans-serif">Open Sans</option>
-                                <option value="'Playfair Display', serif">Playfair Display</option>
-                                <option value="'Merriweather', serif">Merriweather</option>
-                                <option value="'Oswald', sans-serif">Oswald</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">Font Size</label>
-                            <div class="flex gap-2">
-                                <input type="range" name="title_font_size" id="title-font-size" min="24" max="80" value="48" class="flex-1" oninput="updateTitleSizeValue(this.value)">
-                                <input type="number" id="title-font-size-value" value="48" class="w-16 border rounded-lg px-2 py-1 text-center text-sm" onchange="updateTitleSize(this.value)">
+                    
+                    <!-- Subtitle Font Size Control -->
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Subtitle Font Size</label>
+                        <div class="font-size-control">
+                            <input type="number" name="subtitle_font_size" value="{{ form.subtitle_font_size.value|default:'20' }}" min="12" max="48" step="2" class="w-24 border rounded-lg px-3 py-2">
+                            <span class="text-gray-500">px</span>
+                            <div class="flex gap-1 ml-2">
+                                <button type="button" onclick="adjustFontSize('subtitle_font_size', -2)" class="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">-</button>
+                                <button type="button" onclick="adjustFontSize('subtitle_font_size', 2)" class="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">+</button>
                             </div>
                         </div>
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">Font Weight</label>
-                            <select name="title_font_weight" id="title-font-weight" class="w-full border rounded-lg px-2 py-1.5 text-sm" onchange="updatePreview()">
-                                <option value="300">Light (300)</option>
-                                <option value="400">Regular (400)</option>
-                                <option value="500">Medium (500)</option>
-                                <option value="600">Semi-Bold (600)</option>
-                                <option value="700" selected>Bold (700)</option>
-                                <option value="800">Extra Bold (800)</option>
-                                <option value="900">Black (900)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Highlight Text Font Settings -->
-                <div class="mb-4 p-3 bg-white rounded-lg border">
-                    <h4 class="font-medium text-gray-700 mb-2">Highlight Text Font</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">Font Family</label>
-                            <select name="highlight_font_family" id="highlight-font-family" class="w-full border rounded-lg px-2 py-1.5 text-sm" onchange="updatePreview()">
-                                <option value="'Inter', sans-serif">Inter (Default)</option>
-                                <option value="'Poppins', sans-serif">Poppins</option>
-                                <option value="'Roboto', sans-serif">Roboto</option>
-                                <option value="'Montserrat', sans-serif">Montserrat</option>
-                                <option value="'Open Sans', sans-serif">Open Sans</option>
-                                <option value="'Playfair Display', serif">Playfair Display</option>
-                                <option value="'Merriweather', serif">Merriweather</option>
-                                <option value="'Oswald', sans-serif">Oswald</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">Font Size</label>
-                            <div class="flex gap-2">
-                                <input type="range" name="highlight_font_size" id="highlight-font-size" min="18" max="60" value="32" class="flex-1" oninput="updateHighlightSizeValue(this.value)">
-                                <input type="number" id="highlight-font-size-value" value="32" class="w-16 border rounded-lg px-2 py-1 text-center text-sm" onchange="updateHighlightSize(this.value)">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">Font Weight</label>
-                            <select name="highlight_font_weight" id="highlight-font-weight" class="w-full border rounded-lg px-2 py-1.5 text-sm" onchange="updatePreview()">
-                                <option value="300">Light (300)</option>
-                                <option value="400">Regular (400)</option>
-                                <option value="500">Medium (500)</option>
-                                <option value="600">Semi-Bold (600)</option>
-                                <option value="700" selected>Bold (700)</option>
-                                <option value="800">Extra Bold (800)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Subtitle Font Settings -->
-                <div class="p-3 bg-white rounded-lg border">
-                    <h4 class="font-medium text-gray-700 mb-2">Subtitle Font</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">Font Family</label>
-                            <select name="subtitle_font_family" id="subtitle-font-family" class="w-full border rounded-lg px-2 py-1.5 text-sm" onchange="updatePreview()">
-                                <option value="'Inter', sans-serif">Inter (Default)</option>
-                                <option value="'Poppins', sans-serif">Poppins</option>
-                                <option value="'Roboto', sans-serif">Roboto</option>
-                                <option value="'Montserrat', sans-serif">Montserrat</option>
-                                <option value="'Open Sans', sans-serif">Open Sans</option>
-                                <option value="'Lato', sans-serif">Lato</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">Font Size</label>
-                            <div class="flex gap-2">
-                                <input type="range" name="subtitle_font_size" id="subtitle-font-size" min="12" max="30" value="16" class="flex-1" oninput="updateSubtitleSizeValue(this.value)">
-                                <input type="number" id="subtitle-font-size-value" value="16" class="w-16 border rounded-lg px-2 py-1 text-center text-sm" onchange="updateSubtitleSize(this.value)">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">Font Weight</label>
-                            <select name="subtitle_font_weight" id="subtitle-font-weight" class="w-full border rounded-lg px-2 py-1.5 text-sm" onchange="updatePreview()">
-                                <option value="300">Light (300)</option>
-                                <option value="400" selected>Regular (400)</option>
-                                <option value="500">Medium (500)</option>
-                                <option value="600">Semi-Bold (600)</option>
-                            </select>
-                        </div>
+                        <p class="text-xs text-gray-400 mt-1">Recommended: 16-24px for subtitles</p>
                     </div>
                 </div>
             </div>
             
             <!-- ==================== DESIGN STYLE SELECTION ==================== -->
             <div class="form-section">
-                <h3 class="font-semibold text-gray-800">
+                <h3 class="font-semibold text-gray-800 mb-3">
                     <i class="fas fa-palette text-indigo-500 mr-2"></i> Design Style
                 </h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="design-preview selected" data-layout="default" onclick="selectDesign(this, 'default')">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div class="design-preview" data-layout="default" onclick="selectDesign(this, 'default')">
                         <div class="preview-box bg-white border">
                             <div class="text-center">
                                 <i class="fas fa-align-left text-3xl text-gray-400 mb-2"></i>
                                 <p class="font-medium text-sm">Default</p>
+                                <p class="text-xs text-gray-500">Standard layout</p>
                             </div>
                         </div>
                     </div>
@@ -382,6 +178,7 @@
                             <div class="text-center">
                                 <i class="fas fa-align-center text-3xl text-gray-400 mb-2"></i>
                                 <p class="font-medium text-sm">Centered</p>
+                                <p class="text-xs text-gray-500">Content in center</p>
                             </div>
                         </div>
                     </div>
@@ -392,6 +189,7 @@
                         </div>
                         <div class="text-center mt-2">
                             <p class="font-medium text-sm">Split Screen</p>
+                            <p class="text-xs text-gray-500">Image + Text side by side</p>
                         </div>
                     </div>
                     <div class="design-preview" data-layout="fullscreen" onclick="selectDesign(this, 'fullscreen')">
@@ -399,544 +197,452 @@
                             <div class="text-center text-white">
                                 <i class="fas fa-expand text-3xl mb-2"></i>
                                 <p class="font-medium text-sm">Full Screen</p>
+                                <p class="text-xs text-white/80">Full width</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="design-preview" data-layout="minimal" onclick="selectDesign(this, 'minimal')">
+                        <div class="preview-box bg-gray-100">
+                            <div class="text-center">
+                                <i class="fas fa-minus-circle text-3xl text-gray-400 mb-2"></i>
+                                <p class="font-medium text-sm">Minimal</p>
+                                <p class="text-xs text-gray-500">Clean & simple</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="design-preview" data-layout="card" onclick="selectDesign(this, 'card')">
+                        <div class="preview-box bg-white shadow-lg rounded-lg">
+                            <div class="text-center p-3">
+                                <i class="fas fa-credit-card text-3xl text-gray-400"></i>
+                                <p class="font-medium text-sm mt-2">Card Style</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="design-preview" data-layout="hero" onclick="selectDesign(this, 'hero')">
+                        <div class="preview-box bg-gradient-to-r from-indigo-600 to-purple-600">
+                            <div class="text-center text-white">
+                                <i class="fas fa-star text-3xl mb-2"></i>
+                                <p class="font-medium text-sm">Hero Bold</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="design-preview" data-layout="gradient" onclick="selectDesign(this, 'gradient')">
+                        <div class="preview-box bg-gradient-to-r from-emerald-500 to-teal-500">
+                            <div class="text-center text-white">
+                                <i class="fas fa-fill-drip text-3xl mb-2"></i>
+                                <p class="font-medium text-sm">Gradient</p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <input type="hidden" name="layout_style" id="layout_style" value="default">
+                <p class="text-xs text-gray-400 mt-2"><i class="fas fa-lightbulb text-yellow-500"></i> Choose a layout that best fits your content</p>
             </div>
             
-            <!-- ==================== BACKGROUND SETTINGS ==================== -->
+            <!-- ==================== THEME SELECTION ==================== -->
             <div class="form-section">
-                <h3 class="font-semibold text-gray-800">
-                    <i class="fas fa-image text-indigo-500 mr-2"></i> Image Settings
-                </h3>
-                
-                <div class="mb-4 p-4 bg-gray-50 rounded-lg">
-                    <div class="flex items-center justify-between flex-wrap gap-3">
-                        <div>
-                            <label class="font-medium text-gray-700">Use Image as Background</label>
-                            <p class="text-xs text-gray-400 mt-1">Enable to set image as full slide background</p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm">No</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="use-image-bg" name="use_image_as_bg" onchange="toggleBackgroundMode()">
-                                <span class="toggle-slider"></span>
-                            </label>
-                            <span class="text-sm">Yes</span>
-                        </div>
-                    </div>
-                    <div id="bg-mode-indicator" class="mt-2">
-                        <span class="bg-option-badge bg-option-solid">
-                            <i class="fas fa-palette"></i> Product Image Mode
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Product/Main Image</label>
-                        <input type="file" name="image" id="main-image-input" accept="image/*" class="w-full border rounded-lg px-3 py-2" onchange="previewMainImage(this)">
-                        <div id="mainImagePreview" class="image-preview-container hidden">
-                            <img src="" alt="Preview">
-                            <button type="button" class="remove-image-btn" onclick="removeMainImage()">✕</button>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Side Image (Split Layout)</label>
-                        <input type="file" name="side_image" id="side-image-input" accept="image/*" class="w-full border rounded-lg px-3 py-2" onchange="previewSideImage(this)">
-                        <div id="sideImagePreview" class="image-preview-container hidden">
-                            <img src="" alt="Preview">
-                            <button type="button" class="remove-image-btn" onclick="removeSideImage()">✕</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- ==================== COLOR THEME ==================== -->
-            <div class="form-section">
-                <h3 class="font-semibold text-gray-800">
+                <h3 class="font-semibold text-gray-800 mb-3">
                     <i class="fas fa-fill-drip text-indigo-500 mr-2"></i> Color Theme
                 </h3>
-                <div class="flex flex-wrap gap-3">
-                    <label class="flex items-center gap-2 px-3 py-1 border rounded-lg cursor-pointer">
-                        <input type="radio" name="theme_style" value="light" checked onchange="updatePreview()"> Light
+                <div class="flex flex-wrap gap-4">
+                    <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                        <input type="radio" name="theme_style" value="light" checked> 
+                        <span class="w-8 h-8 bg-white border-2 border-gray-300 rounded-full shadow-sm"></span>
+                        <span class="font-medium">Light</span>
                     </label>
-                    <label class="flex items-center gap-2 px-3 py-1 border rounded-lg cursor-pointer">
-                        <input type="radio" name="theme_style" value="dark" onchange="updatePreview()"> Dark
+                    <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                        <input type="radio" name="theme_style" value="dark"> 
+                        <span class="w-8 h-8 bg-gray-800 border-2 border-gray-700 rounded-full shadow-sm"></span>
+                        <span class="font-medium">Dark</span>
                     </label>
-                    <label class="flex items-center gap-2 px-3 py-1 border rounded-lg cursor-pointer">
-                        <input type="radio" name="theme_style" value="gradient" onchange="updatePreview()"> Gradient
+                    <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                        <input type="radio" name="theme_style" value="glass"> 
+                        <span class="w-8 h-8 bg-white/30 backdrop-blur border-2 border-white rounded-full shadow-sm" style="background: rgba(255,255,255,0.3);"></span>
+                        <span class="font-medium">Glassmorphism</span>
+                    </label>
+                    <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                        <input type="radio" name="theme_style" value="neon"> 
+                        <span class="w-8 h-8 bg-pink-500 rounded-full shadow-sm" style="box-shadow: 0 0 10px #ec4899;"></span>
+                        <span class="font-medium">Neon Glow</span>
+                    </label>
+                    <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                        <input type="radio" name="theme_style" value="gradient"> 
+                        <span class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-sm"></span>
+                        <span class="font-medium">Gradient</span>
+                    </label>
+                    <!-- None Option -->
+                    <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                        <input type="radio" name="theme_style" value="none"> 
+                        <span class="w-8 h-8 bg-gray-200 rounded-full shadow-sm flex items-center justify-center">
+                            <i class="fas fa-ban text-gray-500 text-sm"></i>
+                        </span>
+                        <span class="font-medium">None</span>
                     </label>
                 </div>
+                <p class="text-xs text-gray-400 mt-2"><i class="fas fa-info-circle"></i> "None" will use default website styling</p>
             </div>
             
             <!-- ==================== CUSTOM COLORS ==================== -->
             <div class="form-section">
-                <h3 class="font-semibold text-gray-800">
-                    <i class="fas fa-eyedropper text-indigo-500 mr-2"></i> Custom Colors
+                <h3 class="font-semibold text-gray-800 mb-3">
+                    <i class="fas fa-eyedropper text-indigo-500 mr-2"></i> Custom Colors (Optional)
                 </h3>
+                <p class="text-xs text-gray-400 mb-3">Leave empty to use theme defaults</p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm mb-1">Background Color</label>
-                        <input type="color" name="slide_bg_color" id="preview-bg-color" class="w-full h-10 border rounded" onchange="updatePreview()">
-                        <input type="text" id="preview-bg-color-text" class="w-full mt-1 border rounded-lg px-2 py-1 text-sm" placeholder="#hex" oninput="updatePreview()">
+                        <label class="block text-sm font-medium mb-1">Background Color</label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" name="slide_bg_color" value="#000000" class="w-16 h-10 border rounded cursor-pointer">
+                            <input type="text" name="slide_bg_color_text" value="" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="#hex or rgba()">
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-sm mb-1">Text Color</label>
-                        <input type="color" name="slide_text_color" id="preview-text-color" class="w-full h-10 border rounded" onchange="updatePreview()">
-                        <input type="text" id="preview-text-color-text" class="w-full mt-1 border rounded-lg px-2 py-1 text-sm" placeholder="#hex" oninput="updatePreview()">
+                        <label class="block text-sm font-medium mb-1">Text Color</label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" name="slide_text_color" value="#ffffff" class="w-16 h-10 border rounded cursor-pointer">
+                            <input type="text" name="slide_text_color_text" value="" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="#hex or rgba()">
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-sm mb-1">Accent Color</label>
-                        <input type="color" name="slide_accent_color" id="preview-accent-color" value="#f59e0b" class="w-full h-10 border rounded" onchange="updatePreview()">
-                        <input type="text" id="preview-accent-color-text" value="#f59e0b" class="w-full mt-1 border rounded-lg px-2 py-1 text-sm" oninput="updatePreview()">
+                        <label class="block text-sm font-medium mb-1">Accent Color</label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" name="slide_accent_color" value="#f59e0b" class="w-16 h-10 border rounded cursor-pointer">
+                            <input type="text" name="slide_accent_color_text" value="" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="#hex or rgba()">
+                        </div>
                     </div>
                 </div>
             </div>
             
             <!-- ==================== CONTENT ALIGNMENT ==================== -->
             <div class="form-section">
-                <h3 class="font-semibold text-gray-800">
+                <h3 class="font-semibold text-gray-800 mb-3">
                     <i class="fas fa-align-center text-indigo-500 mr-2"></i> Content Alignment
                 </h3>
-                <div class="flex gap-3">
-                    <label class="flex items-center gap-2"><input type="radio" name="content_alignment" value="left" checked onchange="updatePreview()"> Left</label>
-                    <label class="flex items-center gap-2"><input type="radio" name="content_alignment" value="center" onchange="updatePreview()"> Center</label>
-                    <label class="flex items-center gap-2"><input type="radio" name="content_alignment" value="right" onchange="updatePreview()"> Right</label>
+                <div class="flex gap-4">
+                    <label class="flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                        <input type="radio" name="content_alignment" value="left" checked> 
+                        <i class="fas fa-align-left text-lg"></i>
+                        <span>Left</span>
+                    </label>
+                    <label class="flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                        <input type="radio" name="content_alignment" value="center"> 
+                        <i class="fas fa-align-center text-lg"></i>
+                        <span>Center</span>
+                    </label>
+                    <label class="flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                        <input type="radio" name="content_alignment" value="right"> 
+                        <i class="fas fa-align-right text-lg"></i>
+                        <span>Right</span>
+                    </label>
                 </div>
             </div>
             
-            <!-- ==================== ANIMATION ==================== -->
+            <!-- ==================== ANIMATION EFFECTS ==================== -->
             <div class="form-section">
-                <h3 class="font-semibold text-gray-800">
-                    <i class="fas fa-magic text-indigo-500 mr-2"></i> Animation
+                <h3 class="font-semibold text-gray-800 mb-3">
+                    <i class="fas fa-magic text-indigo-500 mr-2"></i> Animation Effects
                 </h3>
-                <select name="animation_effect" id="preview-animation" class="w-full border rounded-lg px-3 py-2" onchange="updatePreview()">
-                    <option value="fadeInUp">Fade In Up</option>
-                    <option value="fadeIn">Fade In</option>
-                    <option value="zoomIn">Zoom In</option>
-                    <option value="slideInLeft">Slide In Left</option>
-                    <option value="slideInRight">Slide In Right</option>
-                </select>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Animation Type</label>
+                        <select name="animation_effect" class="w-full border rounded-lg px-3 py-2" onchange="previewAnimation(this.value)">
+                            <option value="fadeInUp" selected>✨ Fade In Up</option>
+                            <option value="fadeIn">🌊 Fade In</option>
+                            <option value="zoomIn">🔍 Zoom In</option>
+                            <option value="slideInLeft">⬅️ Slide In Left</option>
+                            <option value="slideInRight">➡️ Slide In Right</option>
+                            <option value="bounce">🏀 Bounce</option>
+                            <option value="flipInX">🔄 Flip In X</option>
+                            <option value="rotateIn">🔄 Rotate In</option>
+                            <option value="lightSpeedIn">⚡ Light Speed In</option>
+                            <option value="none">⛔ No Animation</option>
+                        </select>
+                    </div>
+                    <div class="animation-demo flex items-center justify-center border rounded-lg p-4 bg-gray-50" id="animationPreview">
+                        <i class="fas fa-play-circle text-4xl text-indigo-400"></i>
+                        <span class="ml-2 text-gray-600">Preview animation</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Title Delay (ms)</label>
+                        <input type="number" name="title_delay" value="100" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Subtitle Delay (ms)</label>
+                        <input type="number" name="subtitle_delay" value="200" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Button Delay (ms)</label>
+                        <input type="number" name="button_delay" value="300" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                </div>
             </div>
             
-            <!-- ==================== BADGES ==================== -->
+            <!-- ==================== IMAGES ==================== -->
             <div class="form-section">
-                <h3 class="font-semibold text-gray-800">
-                    <i class="fas fa-tag text-indigo-500 mr-2"></i> Badges
+                <h3 class="font-semibold text-gray-800 mb-3">
+                    <i class="fas fa-image text-indigo-500 mr-2"></i> Images
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Main Image <span class="text-red-500">*</span></label>
+                        <input type="file" name="image" accept="image/*" class="w-full border rounded-lg px-3 py-2" onchange="previewImage(this, 'mainImagePreview')" required>
+                        <div id="mainImagePreview" class="mt-2 hidden">
+                            <img src="" alt="Preview" class="w-32 h-32 object-cover rounded-lg border">
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">Recommended: 800x800px or larger</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Side Image (for Split Layout)</label>
+                        <input type="file" name="side_image" accept="image/*" class="w-full border rounded-lg px-3 py-2" onchange="previewImage(this, 'sideImagePreview')">
+                        <div id="sideImagePreview" class="mt-2 hidden">
+                            <img src="" alt="Preview" class="w-32 h-32 object-cover rounded-lg border">
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">Used in split screen layout</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ==================== BADGES & TAGS ==================== -->
+            <div class="form-section">
+                <h3 class="font-semibold text-gray-800 mb-3">
+                    <i class="fas fa-tag text-indigo-500 mr-2"></i> Badges & Tags
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm mb-1">Badge Text</label>
-                        <input type="text" name="badge_text" id="preview-badge-text" class="w-full border rounded-lg px-3 py-2" oninput="updatePreview()">
+                        <label class="block text-sm font-medium mb-1">Badge Text</label>
+                        <input type="text" name="badge_text" value="" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., Limited Offer">
                     </div>
                     <div>
-                        <label class="block text-sm mb-1">Badge Icon</label>
-                        <input type="text" name="badge_icon" id="preview-badge-icon" value="fire" class="w-full border rounded-lg px-3 py-2" oninput="updatePreview()">
+                        <label class="block text-sm font-medium mb-1">Badge Icon</label>
+                        <input type="text" name="badge_icon" value="fire" class="w-full border rounded-lg px-3 py-2" placeholder="fa-icon name">
+                        <p class="text-xs text-gray-400 mt-1">Font Awesome icon name</p>
                     </div>
                     <div>
-                        <label class="block text-sm mb-1">Corner Badge</label>
-                        <input type="text" name="badge" id="preview-corner-badge" class="w-full border rounded-lg px-3 py-2" oninput="updatePreview()">
+                        <label class="block text-sm font-medium mb-1">Corner Badge</label>
+                        <input type="text" name="badge" value="" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., HOT, SALE">
                     </div>
                 </div>
             </div>
             
             <!-- ==================== BUTTONS ==================== -->
             <div class="form-section">
-                <h3 class="font-semibold text-gray-800">
+                <h3 class="font-semibold text-gray-800 mb-3">
                     <i class="fas fa-hand-pointer text-indigo-500 mr-2"></i> Buttons
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm mb-1">Button 1 Text</label>
-                        <input type="text" name="button1_text" id="preview-btn1-text" value="Shop Now" class="w-full border rounded-lg px-3 py-2" oninput="updatePreview()">
+                        <label class="block text-sm font-medium mb-1">Button 1 Text</label>
+                        <input type="text" name="button1_text" value="Shop Now" class="w-full border rounded-lg px-3 py-2">
                     </div>
                     <div>
-                        <label class="block text-sm mb-1">Button 1 Icon</label>
-                        <input type="text" name="button1_icon" id="preview-btn1-icon" value="shopping-cart" class="w-full border rounded-lg px-3 py-2" oninput="updatePreview()">
+                        <label class="block text-sm font-medium mb-1">Button 1 URL</label>
+                        <input type="text" name="button1_url" value="/shop/" class="w-full border rounded-lg px-3 py-2">
                     </div>
                     <div>
-                        <label class="block text-sm mb-1">Button 2 Text</label>
-                        <input type="text" name="button2_text" id="preview-btn2-text" class="w-full border rounded-lg px-3 py-2" oninput="updatePreview()">
+                        <label class="block text-sm font-medium mb-1">Button 1 Icon</label>
+                        <input type="text" name="button1_icon" value="shopping-cart" class="w-full border rounded-lg px-3 py-2">
                     </div>
                     <div>
-                        <label class="block text-sm mb-1">Button 2 Icon</label>
-                        <input type="text" name="button2_icon" id="preview-btn2-icon" value="star" class="w-full border rounded-lg px-3 py-2" oninput="updatePreview()">
+                        <label class="block text-sm font-medium mb-1">Button 1 Color</label>
+                        <select name="button1_color" class="w-full border rounded-lg px-3 py-2">
+                            <option value="brand">Brand Color</option>
+                            <option value="accent" selected>Accent Color</option>
+                            <option value="white">White</option>
+                            <option value="black">Black</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Button 2 Text (Optional)</label>
+                        <input type="text" name="button2_text" value="" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Button 2 URL</label>
+                        <input type="text" name="button2_url" value="" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Button 2 Icon</label>
+                        <input type="text" name="button2_icon" value="star" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Button 2 Color</label>
+                        <select name="button2_color" class="w-full border rounded-lg px-3 py-2">
+                            <option value="accent" selected>Accent Color</option>
+                            <option value="brand">Brand Color</option>
+                            <option value="white">White</option>
+                            <option value="black">Black</option>
+                        </select>
                     </div>
                 </div>
             </div>
             
             <!-- ==================== PRICE TAG ==================== -->
             <div class="form-section">
-                <h3 class="font-semibold text-gray-800">
-                    <i class="fas fa-dollar-sign text-indigo-500 mr-2"></i> Price Tag
+                <h3 class="font-semibold text-gray-800 mb-3">
+                    <i class="fas fa-dollar-sign text-indigo-500 mr-2"></i> Price Tag (Optional)
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm mb-1">Price Label</label>
-                        <input type="text" name="price_label" id="preview-price-label" value="From" class="w-full border rounded-lg px-3 py-2" oninput="updatePreview()">
+                        <label class="block text-sm font-medium mb-1">Price Label</label>
+                        <input type="text" name="price_label" value="From" class="w-full border rounded-lg px-3 py-2">
                     </div>
                     <div>
-                        <label class="block text-sm mb-1">Price Value</label>
-                        <input type="text" name="price_tag" id="preview-price-tag" class="w-full border rounded-lg px-3 py-2" placeholder="$999" oninput="updatePreview()">
+                        <label class="block text-sm font-medium mb-1">Price Tag</label>
+                        <input type="text" name="price_tag" value="" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., $999">
                     </div>
                     <div>
-                        <label class="block text-sm mb-1">Rating</label>
-                        <input type="number" name="rating" id="preview-rating" step="0.1" min="0" max="5" class="w-full border rounded-lg px-3 py-2" oninput="updatePreview()">
+                        <label class="block text-sm font-medium mb-1">Rating</label>
+                        <input type="number" name="rating" step="0.1" min="0" max="5" value="" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., 4.5">
                     </div>
                 </div>
             </div>
             
             <!-- ==================== FEATURES ==================== -->
             <div class="form-section">
-                <h3 class="font-semibold text-gray-800">
+                <h3 class="font-semibold text-gray-800 mb-3">
                     <i class="fas fa-list-check text-indigo-500 mr-2"></i> Features
                 </h3>
                 <div id="features-container">
-                    <div class="feature-item flex gap-2 mb-2">
-                        <input type="text" name="feature_text[]" class="flex-1 border rounded-lg px-3 py-2 feature-text" placeholder="Feature text" oninput="updatePreview()">
-                        <input type="text" name="feature_icon[]" class="w-32 border rounded-lg px-3 py-2 feature-icon" placeholder="Icon" value="check" oninput="updatePreview()">
-                        <button type="button" class="px-3 py-2 bg-red-100 text-red-600 rounded-lg" onclick="removeFeature(this)">Delete</button>
+                    <div class="feature-item">
+                        <input type="text" name="feature_text[]" class="flex-1 border rounded-lg px-3 py-2" placeholder="Feature text">
+                        <input type="text" name="feature_icon[]" class="w-32 border rounded-lg px-3 py-2" placeholder="Icon name" value="check">
+                        <button type="button" onclick="removeFeature(this)" class="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </div>
-                <button type="button" class="mt-2 px-4 py-2 border border-indigo-300 text-indigo-600 rounded-lg" onclick="addFeature()">+ Add Feature</button>
+                <button type="button" onclick="addFeature()" class="mt-2 px-4 py-2 border border-indigo-300 text-indigo-600 rounded-lg hover:bg-indigo-50 transition">
+                    <i class="fas fa-plus"></i> Add Feature
+                </button>
             </div>
             
             <!-- ==================== ORDER & STATUS ==================== -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                     <label class="block text-sm font-medium mb-1">Display Order</label>
-                    <input type="number" name="order" value="{{ hero_slides_count|add:1 }}" class="w-full border rounded-lg px-3 py-2">
+                    <input type="number" name="order" value="0" class="w-full border rounded-lg px-3 py-2">
+                    <p class="text-xs text-gray-400 mt-1">Lower numbers appear first</p>
                 </div>
                 <div class="flex items-center gap-3 mt-6">
-                    <input type="checkbox" name="is_active" checked id="is_active">
-                    <label for="is_active" class="text-sm">Active</label>
+                    <input type="checkbox" name="is_active" id="is_active" checked class="w-4 h-4 text-indigo-600 rounded">
+                    <label for="is_active" class="text-sm font-medium">Active (visible on website)</label>
                 </div>
             </div>
             
             <!-- Submit Buttons -->
             <div class="flex justify-end gap-3 pt-4 border-t">
-                <a href="{% url 'site_settings' %}" class="px-4 py-2 border rounded-lg">Cancel</a>
-                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg">Create Slide</button>
+                <a href="{% url 'site_settings' %}" class="px-4 py-2 border rounded-lg hover:bg-gray-50 transition">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2">
+                    <i class="fas fa-save"></i> Create Slide
+                </button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Live Preview Button -->
-<div class="preview-toggle-btn" onclick="togglePreview()">
-    <i class="fas fa-eye"></i>
-</div>
-
-<!-- Live Preview Panel -->
-<div class="live-preview-container" id="livePreviewPanel">
-    <div class="preview-header">
-        <h4>Live Preview</h4>
-        <button onclick="togglePreview()" class="text-white">✕</button>
-    </div>
-    <div class="preview-content">
-        <div id="slide-preview" class="rounded-xl overflow-hidden min-h-[300px]"></div>
-    </div>
-</div>
-
 <script>
-    // Variables
-    var mainImageData = null;
-    var sideImageData = null;
-    
-    // Font size helpers
-    function updateTitleSizeValue(val) {
-        document.getElementById('title-font-size-value').value = val;
-        updatePreview();
-    }
-    function updateTitleSize(val) {
-        document.getElementById('title-font-size').value = val;
-        updatePreview();
-    }
-    function updateHighlightSizeValue(val) {
-        document.getElementById('highlight-font-size-value').value = val;
-        updatePreview();
-    }
-    function updateHighlightSize(val) {
-        document.getElementById('highlight-font-size').value = val;
-        updatePreview();
-    }
-    function updateSubtitleSizeValue(val) {
-        document.getElementById('subtitle-font-size-value').value = val;
-        updatePreview();
-    }
-    function updateSubtitleSize(val) {
-        document.getElementById('subtitle-font-size').value = val;
-        updatePreview();
-    }
-    
-    // Toggle background mode
-    function toggleBackgroundMode() {
-        var isImageBg = document.getElementById('use-image-bg').checked;
-        var indicator = document.getElementById('bg-mode-indicator');
-        if (isImageBg) {
-            indicator.innerHTML = '<span class="bg-option-badge bg-option-image"><i class="fas fa-image"></i> Background Image Mode</span>';
-        } else {
-            indicator.innerHTML = '<span class="bg-option-badge bg-option-solid"><i class="fas fa-palette"></i> Product Image Mode</span>';
-        }
-        updatePreview();
-    }
-    
-    // Preview main image
-    function previewMainImage(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                mainImageData = e.target.result;
-                var preview = document.getElementById('mainImagePreview');
-                preview.querySelector('img').src = e.target.result;
-                preview.classList.remove('hidden');
-                updatePreview();
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-    
-    // Preview side image
-    function previewSideImage(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                sideImageData = e.target.result;
-                var preview = document.getElementById('sideImagePreview');
-                preview.querySelector('img').src = e.target.result;
-                preview.classList.remove('hidden');
-                updatePreview();
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-    
-    // Remove images
-    function removeMainImage() {
-        mainImageData = null;
-        document.getElementById('mainImagePreview').classList.add('hidden');
-        document.getElementById('main-image-input').value = '';
-        updatePreview();
-    }
-    function removeSideImage() {
-        sideImageData = null;
-        document.getElementById('sideImagePreview').classList.add('hidden');
-        document.getElementById('side-image-input').value = '';
-        updatePreview();
-    }
-    
-    // Select design
+    // Design selection
     function selectDesign(element, layout) {
-        document.querySelectorAll('.design-preview').forEach(function(el) {
+        document.querySelectorAll('.design-preview').forEach(el => {
             el.classList.remove('selected');
         });
         element.classList.add('selected');
         document.getElementById('layout_style').value = layout;
-        updatePreview();
+    }
+    
+    // Animation preview
+    function previewAnimation(animation) {
+        if (animation === 'none') {
+            document.getElementById('animationPreview').style.animation = 'none';
+            return;
+        }
+        const preview = document.getElementById('animationPreview');
+        preview.style.animation = 'none';
+        setTimeout(() => {
+            preview.style.animation = `${animation} 0.6s ease`;
+        }, 10);
+        setTimeout(() => {
+            preview.style.animation = '';
+        }, 600);
+    }
+    
+    // Image preview
+    function previewImage(input, previewId) {
+        const preview = document.getElementById(previewId);
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = preview.querySelector('img');
+                if (img) {
+                    img.src = e.target.result;
+                }
+                preview.classList.remove('hidden');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
     }
     
     // Features management
     function addFeature() {
-        var container = document.getElementById('features-container');
-        var div = document.createElement('div');
-        div.className = 'feature-item flex gap-2 mb-2';
-        div.innerHTML = `
-            <input type="text" name="feature_text[]" class="flex-1 border rounded-lg px-3 py-2 feature-text" placeholder="Feature text" oninput="updatePreview()">
-            <input type="text" name="feature_icon[]" class="w-32 border rounded-lg px-3 py-2 feature-icon" placeholder="Icon" value="check" oninput="updatePreview()">
-            <button type="button" class="px-3 py-2 bg-red-100 text-red-600 rounded-lg" onclick="removeFeature(this)">Delete</button>
+        const container = document.getElementById('features-container');
+        const newFeature = document.createElement('div');
+        newFeature.className = 'feature-item';
+        newFeature.innerHTML = `
+            <input type="text" name="feature_text[]" class="flex-1 border rounded-lg px-3 py-2" placeholder="Feature text">
+            <input type="text" name="feature_icon[]" class="w-32 border rounded-lg px-3 py-2" placeholder="Icon name" value="check">
+            <button type="button" onclick="removeFeature(this)" class="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200">
+                <i class="fas fa-trash"></i>
+            </button>
         `;
-        container.appendChild(div);
-        updatePreview();
+        container.appendChild(newFeature);
     }
-    function removeFeature(btn) {
-        btn.parentElement.remove();
-        updatePreview();
+    
+    function removeFeature(button) {
+        button.closest('.feature-item').remove();
     }
-    function getFeatures() {
-        var features = [];
-        document.querySelectorAll('.feature-item').forEach(function(item) {
-            var text = item.querySelector('.feature-text').value;
-            var icon = item.querySelector('.feature-icon').value;
-            if (text) features.push({text: text, icon: icon || 'check'});
+    
+    // Font size adjustment
+    function adjustFontSize(inputName, delta) {
+        const input = document.querySelector(`input[name="${inputName}"]`);
+        if (input) {
+            let currentValue = parseInt(input.value) || 0;
+            let newValue = currentValue + delta;
+            if (newValue >= 12 && newValue <= 96) {
+                input.value = newValue;
+            }
+        }
+    }
+    
+    // Color input sync with text input
+    document.querySelectorAll('input[type="color"]').forEach(colorInput => {
+        colorInput.addEventListener('change', function() {
+            const textInput = this.nextElementSibling;
+            if (textInput && textInput.tagName === 'INPUT') {
+                textInput.value = this.value;
+            }
         });
-        return features;
-    }
-    
-    // Update preview
-    function updatePreview() {
-        var layout = document.getElementById('layout_style').value;
-        var title = document.getElementById('preview-title').value || 'Pro Max Smartphone';
-        var highlight = document.getElementById('preview-highlight').value;
-        var subtitle = document.getElementById('preview-subtitle').value || 'Latest model with advanced features';
-        var badgeText = document.getElementById('preview-badge-text').value;
-        var badgeIcon = document.getElementById('preview-badge-icon').value || 'fire';
-        var btn1Text = document.getElementById('preview-btn1-text').value || 'Shop Now';
-        var btn1Icon = document.getElementById('preview-btn1-icon').value || 'shopping-cart';
-        var btn2Text = document.getElementById('preview-btn2-text').value;
-        var btn2Icon = document.getElementById('preview-btn2-icon').value || 'star';
-        var priceLabel = document.getElementById('preview-price-label').value || 'From';
-        var priceTag = document.getElementById('preview-price-tag').value;
-        var theme = document.querySelector('input[name="theme_style"]:checked').value;
-        var alignment = document.querySelector('input[name="content_alignment"]:checked').value;
-        var bgColor = document.getElementById('preview-bg-color-text').value;
-        var textColor = document.getElementById('preview-text-color-text').value;
-        var accentColor = document.getElementById('preview-accent-color-text').value || '#f59e0b';
-        var features = getFeatures();
-        var useImageBg = document.getElementById('use-image-bg').checked;
-        
-        // Font settings
-        var titleFontFamily = document.getElementById('title-font-family').value;
-        var titleFontSize = document.getElementById('title-font-size').value;
-        var titleFontWeight = document.getElementById('title-font-weight').value;
-        var highlightFontFamily = document.getElementById('highlight-font-family').value;
-        var highlightFontSize = document.getElementById('highlight-font-size').value;
-        var highlightFontWeight = document.getElementById('highlight-font-weight').value;
-        var subtitleFontFamily = document.getElementById('subtitle-font-family').value;
-        var subtitleFontSize = document.getElementById('subtitle-font-size').value;
-        var subtitleFontWeight = document.getElementById('subtitle-font-weight').value;
-        
-        var textColorStyle = textColor ? 'color: ' + textColor + ';' : (theme === 'dark' ? 'color: white;' : 'color: #1f2937;');
-        var subColor = textColor ? 'color: ' + textColor + ';' : (theme === 'dark' ? 'color: #e5e7eb;' : 'color: #6b7280;');
-        
-        // Background style
-        var bgStyle = '';
-        if (useImageBg && mainImageData) {
-            bgStyle = 'background-image: url(' + mainImageData + '); background-size: cover; background-position: center;';
-        } else if (bgColor) {
-            bgStyle = 'background-color: ' + bgColor + ';';
-        } else if (theme === 'dark') {
-            bgStyle = 'background-color: #1f2937;';
-        } else if (theme === 'gradient') {
-            bgStyle = 'background: linear-gradient(135deg, ' + accentColor + ', #4f46e5);';
-        } else {
-            bgStyle = 'background-color: #f9fafb;';
-        }
-        
-        var overlay = (useImageBg && mainImageData) ? '<div class="absolute inset-0 bg-black/40"></div>' : '';
-        var alignClass = alignment === 'center' ? 'text-center' : (alignment === 'right' ? 'text-right' : 'text-left');
-        
-        // Default layout
-        if (layout === 'default') {
-            var html = '<div class="relative p-6 min-h-[350px]" style="' + bgStyle + '">' + overlay +
-                '<div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">' +
-                '<div class="' + alignClass + '">';
-            
-            if (badgeText) {
-                html += '<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-3 text-xs" style="background: ' + accentColor + '; color: white;"><i class="fas fa-' + badgeIcon + '"></i> ' + badgeText + '</div>';
-            }
-            
-            html += '<h2 class="font-bold mb-2" style="font-family: ' + titleFontFamily + '; font-size: ' + titleFontSize + 'px; font-weight: ' + titleFontWeight + '; ' + textColorStyle + '">' + title + '</h2>';
-            
-            if (highlight) {
-                html += '<div class="font-semibold mb-2" style="font-family: ' + highlightFontFamily + '; font-size: ' + highlightFontSize + 'px; font-weight: ' + highlightFontWeight + '; color: ' + accentColor + '">' + highlight + '</div>';
-            }
-            
-            html += '<p class="mb-5" style="font-family: ' + subtitleFontFamily + '; font-size: ' + subtitleFontSize + 'px; font-weight: ' + subtitleFontWeight + '; ' + subColor + '">' + subtitle + '</p>';
-            html += '<div class="flex flex-wrap gap-3">';
-            html += '<a href="#" class="px-6 py-2 rounded-xl font-semibold text-white transition-all hover:scale-105" style="background: ' + accentColor + '"><i class="fas fa-' + btn1Icon + ' mr-2"></i>' + btn1Text + '</a>';
-            if (btn2Text) {
-                html += '<a href="#" class="px-6 py-2 rounded-xl font-semibold border-2 transition-all hover:scale-105" style="border-color: ' + accentColor + '; color: ' + accentColor + '">' + btn2Text + '</a>';
-            }
-            html += '</div>';
-            
-            if (features.length > 0) {
-                html += '<div class="mt-5 grid grid-cols-2 gap-2">';
-                features.forEach(function(f) {
-                    html += '<div class="flex items-center gap-2 text-sm"><i class="fas fa-' + f.icon + '" style="color: ' + accentColor + '"></i><span>' + f.text + '</span></div>';
-                });
-                html += '</div>';
-            }
-            
-            html += '</div><div class="relative flex justify-center">';
-            html += '<div class="w-full max-w-sm rounded-2xl p-4">';
-            
-            if (mainImageData && !useImageBg) {
-                html += '<img src="' + mainImageData + '" class="w-full h-auto object-contain">';
-            } else {
-                html += '<div class="text-center py-8"><i class="fas fa-mobile-alt text-6xl text-gray-300"></i><p class="text-sm text-gray-400 mt-2">Product Image</p></div>';
-            }
-            
-            html += '</div>';
-            if (priceTag) {
-                html += '<div class="absolute -bottom-2 -right-2 px-4 py-2 rounded-xl shadow-lg" style="background: linear-gradient(135deg, ' + accentColor + ', #f59e0b)"><div class="text-white text-center"><div class="text-xs">' + priceLabel + '</div><div class="text-lg font-bold">' + priceTag + '</div></div></div>';
-            }
-            html += '</div></div></div>';
-            document.getElementById('slide-preview').innerHTML = html;
-        } 
-        else if (layout === 'centered') {
-            var html = '<div class="relative p-12 text-center min-h-[350px] flex items-center justify-center" style="' + bgStyle + '">' + overlay +
-                '<div class="relative z-10 max-w-2xl mx-auto">';
-            if (badgeText) {
-                html += '<div class="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4" style="background: ' + accentColor + '; color: white;"><i class="fas fa-' + badgeIcon + '"></i> ' + badgeText + '</div>';
-            }
-            html += '<h2 class="font-bold mb-3" style="font-family: ' + titleFontFamily + '; font-size: ' + titleFontSize + 'px; font-weight: ' + titleFontWeight + '; ' + textColorStyle + '">' + title + '</h2>';
-            if (highlight) {
-                html += '<div class="font-semibold mb-3" style="font-family: ' + highlightFontFamily + '; font-size: ' + highlightFontSize + 'px; font-weight: ' + highlightFontWeight + '; color: ' + accentColor + '">' + highlight + '</div>';
-            }
-            html += '<p class="mb-6" style="font-family: ' + subtitleFontFamily + '; font-size: ' + subtitleFontSize + 'px; font-weight: ' + subtitleFontWeight + '; ' + subColor + '">' + subtitle + '</p>';
-            html += '<div class="flex gap-3 justify-center">';
-            html += '<a href="#" class="px-8 py-3 rounded-xl font-semibold text-white" style="background: ' + accentColor + '"><i class="fas fa-' + btn1Icon + ' mr-2"></i>' + btn1Text + '</a>';
-            if (btn2Text) html += '<a href="#" class="px-8 py-3 rounded-xl font-semibold border-2" style="border-color: ' + accentColor + '; color: ' + accentColor + '">' + btn2Text + '</a>';
-            html += '</div></div></div>';
-            document.getElementById('slide-preview').innerHTML = html;
-        }
-        else if (layout === 'split') {
-            var html = '<div class="relative grid grid-cols-2 min-h-[350px]" style="' + bgStyle + '">' + overlay +
-                '<div class="relative z-10 p-8 flex items-center justify-center" style="background: rgba(0,0,0,0.5)">' +
-                '<div><h2 class="font-bold text-white mb-2" style="font-family: ' + titleFontFamily + '; font-size: ' + titleFontSize + 'px;">' + title + '</h2>' +
-                '<p class="text-white/80 mb-4" style="font-family: ' + subtitleFontFamily + '; font-size: ' + subtitleFontSize + 'px;">' + subtitle + '</p>' +
-                '<a href="#" class="inline-block px-6 py-2 rounded-lg text-white" style="background: ' + accentColor + '">' + btn1Text + '</a></div></div>' +
-                '<div class="relative z-10 bg-gray-300 flex items-center justify-center">' + 
-                (sideImageData ? '<img src="' + sideImageData + '" class="w-full h-full object-cover">' : '<i class="fas fa-image text-5xl text-gray-500"></i>') +
-                '</div></div>';
-            document.getElementById('slide-preview').innerHTML = html;
-        }
-        else if (layout === 'fullscreen') {
-            var html = '<div class="relative p-16 text-center min-h-[350px] flex items-center justify-center text-white" style="background: linear-gradient(135deg, ' + accentColor + ', #4f46e5)">' +
-                '<div><h2 class="font-bold mb-4" style="font-family: ' + titleFontFamily + '; font-size: ' + titleFontSize + 'px;">' + title + '</h2>' +
-                '<p class="mb-6" style="font-family: ' + subtitleFontFamily + '; font-size: ' + subtitleFontSize + 'px;">' + subtitle + '</p>' +
-                '<a href="#" class="inline-block px-10 py-4 bg-white rounded-full font-bold" style="color: ' + accentColor + '">' + btn1Text + '</a></div></div>';
-            document.getElementById('slide-preview').innerHTML = html;
-        }
-    }
-    
-    // Toggle preview panel
-    function togglePreview() {
-        var panel = document.getElementById('livePreviewPanel');
-        panel.classList.toggle('open');
-    }
-    
-    // Event listeners
-    var inputs = ['preview-title', 'preview-highlight', 'preview-subtitle', 'preview-badge-text', 'preview-badge-icon', 'preview-corner-badge', 'preview-btn1-text', 'preview-btn1-icon', 'preview-btn2-text', 'preview-btn2-icon', 'preview-price-label', 'preview-price-tag', 'preview-rating'];
-    inputs.forEach(function(id) {
-        var el = document.getElementById(id);
-        if (el) el.addEventListener('input', updatePreview);
     });
     
-    document.querySelectorAll('input[type="radio"]').forEach(function(radio) {
-        radio.addEventListener('change', updatePreview);
-    });
-    
-    document.getElementById('preview-bg-color').addEventListener('change', function() {
-        document.getElementById('preview-bg-color-text').value = this.value;
-        updatePreview();
-    });
-    document.getElementById('preview-text-color').addEventListener('change', function() {
-        document.getElementById('preview-text-color-text').value = this.value;
-        updatePreview();
-    });
-    document.getElementById('preview-accent-color').addEventListener('change', function() {
-        document.getElementById('preview-accent-color-text').value = this.value;
-        updatePreview();
-    });
-    
-    // Default select first design
+    // Make sure default design is selected
     document.querySelector('.design-preview').classList.add('selected');
     
-    // Initialize preview
-    setTimeout(updatePreview, 100);
+    // Font size live preview (optional - can be expanded)
+    const titleFontInput = document.querySelector('input[name="title_font_size"]');
+    const highlightFontInput = document.querySelector('input[name="highlight_font_size"]');
+    const subtitleFontInput = document.querySelector('input[name="subtitle_font_size"]');
+    
+    function showLivePreview() {
+        // This can be enhanced to show live preview of font sizes
+        console.log('Font sizes updated');
+    }
+    
+    if (titleFontInput) titleFontInput.addEventListener('change', showLivePreview);
+    if (highlightFontInput) highlightFontInput.addEventListener('change', showLivePreview);
+    if (subtitleFontInput) subtitleFontInput.addEventListener('change', showLivePreview);
 </script>
 {% endblock %}

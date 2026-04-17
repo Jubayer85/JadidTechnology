@@ -188,38 +188,47 @@
             </div>
             
             <!-- ==================== THEME SELECTION ==================== -->
-            <div class="form-section">
-                <h3 class="font-semibold text-gray-800 mb-3">
-                    <i class="fas fa-fill-drip text-indigo-500 mr-2"></i> Color Theme
-                </h3>
-                <div class="flex flex-wrap gap-4">
-                    <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition {% if slide.theme_style == 'light' %}bg-indigo-50 border-indigo-300{% endif %}">
-                        <input type="radio" name="theme_style" value="light" {% if slide.theme_style == 'light' %}checked{% endif %}> 
-                        <span class="w-8 h-8 bg-white border-2 border-gray-300 rounded-full shadow-sm"></span>
-                        <span class="font-medium">Light</span>
-                    </label>
-                    <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition {% if slide.theme_style == 'dark' %}bg-indigo-50 border-indigo-300{% endif %}">
-                        <input type="radio" name="theme_style" value="dark" {% if slide.theme_style == 'dark' %}checked{% endif %}> 
-                        <span class="w-8 h-8 bg-gray-800 border-2 border-gray-700 rounded-full shadow-sm"></span>
-                        <span class="font-medium">Dark</span>
-                    </label>
-                    <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition {% if slide.theme_style == 'glass' %}bg-indigo-50 border-indigo-300{% endif %}">
-                        <input type="radio" name="theme_style" value="glass" {% if slide.theme_style == 'glass' %}checked{% endif %}> 
-                        <span class="w-8 h-8 bg-white/30 backdrop-blur border-2 border-white rounded-full shadow-sm" style="background: rgba(255,255,255,0.3);"></span>
-                        <span class="font-medium">Glassmorphism</span>
-                    </label>
-                    <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition {% if slide.theme_style == 'neon' %}bg-indigo-50 border-indigo-300{% endif %}">
-                        <input type="radio" name="theme_style" value="neon" {% if slide.theme_style == 'neon' %}checked{% endif %}> 
-                        <span class="w-8 h-8 bg-pink-500 rounded-full shadow-sm" style="box-shadow: 0 0 10px #ec4899;"></span>
-                        <span class="font-medium">Neon Glow</span>
-                    </label>
-                    <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition {% if slide.theme_style == 'gradient' %}bg-indigo-50 border-indigo-300{% endif %}">
-                        <input type="radio" name="theme_style" value="gradient" {% if slide.theme_style == 'gradient' %}checked{% endif %}> 
-                        <span class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-sm"></span>
-                        <span class="font-medium">Gradient</span>
-                    </label>
-                </div>
-            </div>
+<div class="form-section">
+    <h3 class="font-semibold text-gray-800 mb-3">
+        <i class="fas fa-fill-drip text-indigo-500 mr-2"></i> Color Theme
+    </h3>
+    <div class="flex flex-wrap gap-4">
+        <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition {% if slide.theme_style == 'light' %}bg-indigo-50 border-indigo-300{% endif %}">
+            <input type="radio" name="theme_style" value="light" {% if slide.theme_style == 'light' %}checked{% endif %}> 
+            <span class="w-8 h-8 bg-white border-2 border-gray-300 rounded-full shadow-sm"></span>
+            <span class="font-medium">Light</span>
+        </label>
+        <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition {% if slide.theme_style == 'dark' %}bg-indigo-50 border-indigo-300{% endif %}">
+            <input type="radio" name="theme_style" value="dark" {% if slide.theme_style == 'dark' %}checked{% endif %}> 
+            <span class="w-8 h-8 bg-gray-800 border-2 border-gray-700 rounded-full shadow-sm"></span>
+            <span class="font-medium">Dark</span>
+        </label>
+        <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition {% if slide.theme_style == 'glass' %}bg-indigo-50 border-indigo-300{% endif %}">
+            <input type="radio" name="theme_style" value="glass" {% if slide.theme_style == 'glass' %}checked{% endif %}> 
+            <span class="w-8 h-8 bg-white/30 backdrop-blur border-2 border-white rounded-full shadow-sm" style="background: rgba(255,255,255,0.3);"></span>
+            <span class="font-medium">Glassmorphism</span>
+        </label>
+        <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition {% if slide.theme_style == 'neon' %}bg-indigo-50 border-indigo-300{% endif %}">
+            <input type="radio" name="theme_style" value="neon" {% if slide.theme_style == 'neon' %}checked{% endif %}> 
+            <span class="w-8 h-8 bg-pink-500 rounded-full shadow-sm" style="box-shadow: 0 0 10px #ec4899;"></span>
+            <span class="font-medium">Neon Glow</span>
+        </label>
+        <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition {% if slide.theme_style == 'gradient' %}bg-indigo-50 border-indigo-300{% endif %}">
+            <input type="radio" name="theme_style" value="gradient" {% if slide.theme_style == 'gradient' %}checked{% endif %}> 
+            <span class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-sm"></span>
+            <span class="font-medium">Gradient</span>
+        </label>
+        <!-- None Option -->
+        <label class="flex items-center gap-3 px-4 py-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition {% if slide.theme_style == 'none' or not slide.theme_style %}bg-indigo-50 border-indigo-300{% endif %}">
+            <input type="radio" name="theme_style" value="none" {% if slide.theme_style == 'none' or not slide.theme_style %}checked{% endif %}> 
+            <span class="w-8 h-8 bg-gray-200 rounded-full shadow-sm flex items-center justify-center">
+                <i class="fas fa-ban text-gray-500 text-sm"></i>
+            </span>
+            <span class="font-medium">None</span>
+        </label>
+    </div>
+    <p class="text-xs text-gray-400 mt-2"><i class="fas fa-info-circle"></i> "None" will use default website styling</p>
+</div>
             
             <!-- ==================== CUSTOM COLORS ==================== -->
             <div class="form-section">
@@ -579,4 +588,4 @@
         document.querySelector('.design-preview').classList.add('selected');
     }
 </script>
-{% endblock %}
+{% endblock %} according this file build a add_hero_slide html file

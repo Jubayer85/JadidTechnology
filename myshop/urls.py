@@ -12,6 +12,7 @@ urlpatterns = [
     
     path('admin-dashboard/', include('myshop.urls_admin')),
     path('', views.home, name='home'),
+    #path('', include('mcp_server.urls')),
     path('register/', views.register, name='register'),
     path('login-redirect/', views.login_redirect, name='login_redirect'),
     path('profile/', views.profile, name='profile'),

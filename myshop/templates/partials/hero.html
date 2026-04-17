@@ -2,50 +2,61 @@
 {% load static %}
 
 {% if site_settings.hero_enabled %}
-<section class="relative overflow-hidden py-8 md:py-12 lg:py-16 hero-main-section">
+<section class="hero-main-section relative overflow-hidden w-full">
     
-    <!-- Slider Container -->
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="slider-container relative overflow-hidden rounded-2xl shadow-2xl" style="min-height: var(--hero-height, 500px);">
+    <!-- Slider Container - Half Screen -->
+    <div class="relative w-full">
+        <div class="slider-container relative overflow-hidden w-full" style="min-height: var(--hero-height, 50vh); height: 50vh;">
             
             <!-- Slides Wrapper -->
-            <div class="slider-wrapper flex transition-transform duration-700 ease-out">
+            <div class="slider-wrapper flex transition-transform duration-700 ease-out h-full">
                 
                 {% with hero_slides=site_settings.get_hero_slides %}
                 {% if hero_slides %}
                     <!-- Dynamic Slides from Database with Individual Designs -->
                     {% for slide in hero_slides %}
-                    <div class="slide min-w-full relative hero-slide-{{ slide.id }}"
-                         style="{% if slide.slide_bg_color %}background-color: {{ slide.slide_bg_color }};{% endif %}
-                                {% if slide.image %}background-image: url('{{ slide.image.url }}'); background-size: cover; background-position: center;{% endif %}">
+                    <div class="slide min-w-full relative flex items-center hero-slide-{{ slide.id }}"
+                         style="background: {% if slide.image %}url('{{ slide.image.url }}'){% endif %} no-repeat center center / cover; {% if slide.slide_bg_color %}background-color: {{ slide.slide_bg_color }};{% endif %}">
                         
                         <!-- Background Overlay -->
-                        <div class="absolute inset-0" 
-                             style="background: {% if slide.theme_style == 'dark' %}linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)){% elif slide.theme_style == 'light' %}linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7)){% else %}linear-gradient(135deg, rgba(0,0,0,0.5), rgba(0,0,0,0.3)){% endif %};">
-                        </div>
-                        
+                        {% if slide.theme_style == 'none' %}
+                            <!-- No overlay effect - clean background -->
+                            <div class="absolute inset-0"></div>
+                        {% else %}
+                            <div class="absolute inset-0" 
+                                 style="background: {% if slide.theme_style == 'dark' %}linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)){% elif slide.theme_style == 'light' %}linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8)){% else %}linear-gradient(135deg, rgba(0,0,0,0.5), rgba(0,0,0,0.3)){% endif %};">
+                            </div>
+                        {% endif %}
+
                         <!-- Glassmorphism Effect -->
                         {% if slide.theme_style == 'glass' %}
                         <div class="absolute inset-0 backdrop-blur-md bg-white/10"></div>
                         {% endif %}
-                        
+
                         <!-- Neon Glow Effect -->
                         {% if slide.theme_style == 'neon' %}
-                        <div class="absolute inset-0">
-                            <div class="absolute top-20 left-20 w-72 h-72 rounded-full opacity-30 blur-3xl animate-pulse" 
+                        <div class="absolute inset-0 overflow-hidden">
+                            <div class="absolute top-20 left-20 w-96 h-96 rounded-full opacity-40 blur-3xl animate-pulse" 
                                  style="background-color: {{ slide.slide_accent_color|default:'#ec4899' }};"></div>
-                            <div class="absolute bottom-20 right-20 w-96 h-96 rounded-full opacity-30 blur-3xl animate-pulse" 
+                            <div class="absolute bottom-20 right-20 w-96 h-96 rounded-full opacity-40 blur-3xl animate-pulse" 
                                  style="background-color: {{ slide.slide_accent_color|default:'#a855f7' }}; animation-delay: 1s;"></div>
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full opacity-20 blur-3xl animate-pulse"
+                                 style="background-color: {{ slide.slide_accent_color|default:'#06b6d4' }}; animation-delay: 2s;"></div>
                         </div>
+                        {% endif %}
+
+                        <!-- Gradient Theme Effect -->
+                        {% if slide.theme_style == 'gradient' %}
+                        <div class="absolute inset-0 bg-gradient-to-br from-purple-600/30 via-pink-500/30 to-orange-400/30"></div>
                         {% endif %}
                         
                         <!-- Different Layouts Based on slide.layout_style -->
                         {% if slide.layout_style == 'centered' %}
-                            <!-- ========== CENTERED LAYOUT ========== -->
-                            <div class="relative z-10 flex items-center justify-center h-full min-h-[400px] text-center p-8">
-                                <div class="max-w-3xl mx-auto">
+                            <!-- ========== CENTERED LAYOUT - HALF SCREEN ========== -->
+                            <div class="relative z-10 flex items-center justify-center h-full w-full text-center p-4 sm:p-8">
+                                <div class="max-w-4xl mx-auto px-4">
                                     {% if slide.badge_text %}
-                                    <div class="hero-badge inline-flex items-center px-4 py-2 rounded-full mb-6"
+                                    <div class="hero-badge inline-flex items-center px-4 py-2 rounded-full mb-4"
                                          style="background: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}; color: white;"
                                          data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="100">
                                         <i class="fas fa-{{ slide.badge_icon|default:'fire' }} mr-2"></i>
@@ -53,22 +64,22 @@
                                     </div>
                                     {% endif %}
                                     
-                                    <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold mb-4"
-                                        style="color: {% if slide.slide_text_color %}{{ slide.slide_text_color }}{% elif slide.theme_style == 'dark' %}white{% else %}#1f2937{% endif %}"
+                                    <h1 class="font-bold mb-3 leading-tight"
+                                        style="font-size: {{ slide.title_font_size|default:'42' }}px; color: {% if slide.slide_text_color %}{{ slide.slide_text_color }}{% elif slide.theme_style == 'dark' %}white{% else %}#1f2937{% endif %}"
                                         data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="200">
                                         {{ slide.title }}
                                     </h1>
                                     
                                     {% if slide.highlight_text %}
-                                    <div class="text-xl md:text-2xl font-semibold mb-4"
-                                         style="color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}"
+                                    <div class="font-semibold mb-3"
+                                         style="font-size: {{ slide.highlight_font_size|default:'32' }}px; color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}"
                                          data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="250">
                                         {{ slide.highlight_text }}
                                     </div>
                                     {% endif %}
                                     
-                                    <p class="text-base md:text-lg mb-8 max-w-2xl mx-auto"
-                                       style="color: {% if slide.slide_text_color %}{{ slide.slide_text_color }}{% elif slide.theme_style == 'dark' %}#e5e7eb{% else %}#4b5563{% endif %}"
+                                    <p class="mb-6 max-w-2xl mx-auto"
+                                       style="font-size: {{ slide.subtitle_font_size|default:'18' }}px; color: {% if slide.slide_text_color %}{{ slide.slide_text_color }}{% elif slide.theme_style == 'dark' %}#e5e7eb{% else %}#4b5563{% endif %}"
                                        data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="300">
                                         {{ slide.subtitle }}
                                     </p>
@@ -76,17 +87,18 @@
                                     <div class="flex flex-wrap gap-4 justify-center" data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="400">
                                         {% if slide.button1_text %}
                                         <a href="{{ slide.button1_url|default:'#' }}" 
-                                           class="btn-hero-primary px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
+                                           class="btn-hero-primary px-6 py-2 rounded-xl font-semibold transition-all duration-300 hover:scale-105 inline-flex items-center gap-2 text-sm"
                                            style="background: linear-gradient(135deg, {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#3b82f6' }}); color: white;">
-                                            <i class="fas fa-{{ slide.button1_icon|default:'shopping-cart' }} mr-2"></i>
+                                            <i class="fas fa-{{ slide.button1_icon|default:'shopping-cart' }}"></i>
                                             {{ slide.button1_text }}
                                         </a>
                                         {% endif %}
                                         
                                         {% if slide.button2_text %}
                                         <a href="{{ slide.button2_url|default:'#' }}" 
-                                           class="btn-hero-secondary px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
+                                           class="btn-hero-secondary px-6 py-2 rounded-xl font-semibold transition-all duration-300 hover:scale-105 inline-flex items-center gap-2 text-sm"
                                            style="border: 2px solid {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }}; color: {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }};">
+                                            <i class="fas fa-{{ slide.button2_icon|default:'star' }}"></i>
                                             {{ slide.button2_text }}
                                         </a>
                                         {% endif %}
@@ -95,39 +107,73 @@
                             </div>
                             
                         {% elif slide.layout_style == 'split' %}
-                            <!-- ========== SPLIT SCREEN LAYOUT ========== -->
-                            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 h-full min-h-[400px]">
+                            <!-- ========== SPLIT SCREEN LAYOUT - HALF SCREEN ========== -->
+                            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 h-full w-full">
                                 <!-- Left: Content -->
-                                <div class="flex items-center justify-center p-8 lg:p-12 order-2 lg:order-1"
-                                     style="background: {% if slide.theme_style == 'dark' %}rgba(0,0,0,0.6){% else %}rgba(255,255,255,0.9){% endif %};">
-                                    <div class="max-w-md">
+                                <div class="flex items-center justify-center p-6 lg:p-8 order-2 lg:order-1"
+                                     style="background: {% if slide.theme_style == 'dark' %}rgba(0,0,0,0.7){% else %}rgba(255,255,255,0.95){% endif %};">
+                                    <div class="max-w-lg w-full">
                                         {% if slide.badge_text %}
-                                        <div class="inline-flex items-center px-3 py-1 rounded-full mb-4"
+                                        <div class="inline-flex items-center px-3 py-1 rounded-full mb-3"
                                              style="background: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}; color: white;">
                                             <i class="fas fa-{{ slide.badge_icon|default:'fire' }} mr-1 text-xs"></i>
                                             <span class="text-xs">{{ slide.badge_text }}</span>
                                         </div>
                                         {% endif %}
                                         
-                                        <h2 class="text-2xl md:text-4xl font-bold mb-3"
-                                            style="color: {% if slide.slide_text_color %}{{ slide.slide_text_color }}{% else %}#1f2937{% endif %}">
+                                        <h2 class="font-bold mb-2"
+                                            style="font-size: {{ slide.title_font_size|default:'36' }}px; color: {% if slide.slide_text_color %}{{ slide.slide_text_color }}{% else %}#1f2937{% endif %}">
                                             {{ slide.title }}
                                         </h2>
                                         
-                                        <p class="text-gray-600 mb-6">{{ slide.subtitle }}</p>
+                                        {% if slide.highlight_text %}
+                                        <div class="font-semibold mb-3"
+                                             style="font-size: {{ slide.highlight_font_size|default:'28' }}px; color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}">
+                                            {{ slide.highlight_text }}
+                                        </div>
+                                        {% endif %}
                                         
-                                        <div class="flex gap-3">
+                                        <p class="mb-4"
+                                           style="font-size: {{ slide.subtitle_font_size|default:'16' }}px; color: {% if slide.theme_style == 'dark' %}#e5e7eb{% else %}#4b5563{% endif %}">
+                                            {{ slide.subtitle }}
+                                        </p>
+                                        
+                                        {% if slide.get_feature_list %}
+                                        <div class="grid grid-cols-2 gap-2 mb-4">
+                                            {% for feature in slide.get_feature_list|slice:":4" %}
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-{{ feature.icon|default:'check' }} text-xs" 
+                                                   style="color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}"></i>
+                                                <span class="text-xs">{{ feature.text|truncatechars:20 }}</span>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <div class="flex flex-wrap gap-3">
+                                            {% if slide.button1_text %}
                                             <a href="{{ slide.button1_url|default:'#' }}" 
-                                               class="px-6 py-2 rounded-lg font-semibold text-white transition-all hover:scale-105"
+                                               class="px-5 py-2 rounded-lg font-semibold text-white transition-all hover:scale-105 inline-flex items-center gap-2 text-sm"
                                                style="background: {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }};">
-                                                {{ slide.button1_text|default:'Shop Now' }}
+                                                <i class="fas fa-{{ slide.button1_icon|default:'shopping-cart' }}"></i>
+                                                {{ slide.button1_text }}
                                             </a>
+                                            {% endif %}
+                                            
+                                            {% if slide.button2_text %}
+                                            <a href="{{ slide.button2_url|default:'#' }}" 
+                                               class="px-5 py-2 rounded-lg font-semibold transition-all hover:scale-105 inline-flex items-center gap-2 text-sm"
+                                               style="border: 2px solid {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }}; color: {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }};">
+                                                <i class="fas fa-{{ slide.button2_icon|default:'star' }}"></i>
+                                                {{ slide.button2_text }}
+                                            </a>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <!-- Right: Image -->
-                                <div class="relative order-1 lg:order-2 min-h-[300px]">
+                                <div class="relative order-1 lg:order-2 min-h-[250px] lg:min-h-full">
                                     {% if slide.side_image %}
                                     <img src="{{ slide.side_image.url }}" alt="{{ slide.title }}" 
                                          class="w-full h-full object-cover absolute inset-0">
@@ -136,122 +182,208 @@
                                          class="w-full h-full object-cover absolute inset-0">
                                     {% else %}
                                     <div class="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                                        <i class="fas fa-image text-6xl text-gray-400"></i>
+                                        <i class="fas fa-image text-4xl text-gray-400"></i>
                                     </div>
                                     {% endif %}
                                 </div>
                             </div>
                             
                         {% elif slide.layout_style == 'fullscreen' %}
-                            <!-- ========== FULLSCREEN LAYOUT ========== -->
-                            <div class="relative z-10 flex items-center justify-center h-full min-h-[500px] text-center text-white p-8">
-                                <div class="max-w-4xl mx-auto">
-                                    <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-4"
+                            <!-- ========== FULLSCREEN LAYOUT - HALF SCREEN ========== -->
+                            <div class="relative z-10 flex items-center justify-center h-full w-full text-center text-white p-4 sm:p-8">
+                                <div class="max-w-5xl mx-auto px-4">
+                                    <h1 class="font-bold mb-3"
+                                        style="font-size: {{ slide.title_font_size|default:'48' }}px;"
                                         data-animation="{{ slide.animation_effect|default:'zoomIn' }}" data-delay="100">
                                         {{ slide.title }}
                                     </h1>
                                     
                                     {% if slide.highlight_text %}
-                                    <div class="text-2xl md:text-3xl font-semibold mb-6"
-                                         style="color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}"
+                                    <div class="font-semibold mb-4"
+                                         style="font-size: {{ slide.highlight_font_size|default:'36' }}px; color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}"
                                          data-animation="{{ slide.animation_effect|default:'zoomIn' }}" data-delay="200">
                                         {{ slide.highlight_text }}
                                     </div>
                                     {% endif %}
                                     
-                                    <p class="text-lg md:text-xl mb-8 max-w-2xl mx-auto"
+                                    <p class="mb-6 max-w-2xl mx-auto"
+                                       style="font-size: {{ slide.subtitle_font_size|default:'18' }}px;"
                                        data-animation="{{ slide.animation_effect|default:'zoomIn' }}" data-delay="300">
                                         {{ slide.subtitle }}
                                     </p>
                                     
-                                    <a href="{{ slide.button1_url|default:'#' }}" 
-                                       class="inline-block px-10 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 hover:shadow-2xl"
-                                       style="background: {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }}; color: white;"
-                                       data-animation="{{ slide.animation_effect|default:'zoomIn' }}" data-delay="400">
-                                        {{ slide.button1_text|default:'Get Started' }}
-                                    </a>
+                                    <div data-animation="{{ slide.animation_effect|default:'zoomIn' }}" data-delay="400">
+                                        <a href="{{ slide.button1_url|default:'#' }}" 
+                                           class="inline-block px-8 py-3 rounded-full font-bold transition-all hover:scale-105 hover:shadow-2xl"
+                                           style="background: {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }}; color: white;">
+                                            <i class="fas fa-{{ slide.button1_icon|default:'shopping-cart' }} mr-2"></i>
+                                            {{ slide.button1_text|default:'Get Started' }}
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                             
                         {% elif slide.layout_style == 'minimal' %}
-                            <!-- ========== MINIMAL LAYOUT ========== -->
-                            <div class="relative z-10 flex items-center justify-start h-full min-h-[400px] p-8 lg:p-12">
-                                <div class="max-w-2xl" style="padding-left: 5%;">
-                                    <h1 class="text-3xl md:text-5xl font-light mb-3"
-                                        style="color: {% if slide.slide_text_color %}{{ slide.slide_text_color }}{% else %}#1f2937{% endif %}">
+                            <!-- ========== MINIMAL LAYOUT - HALF SCREEN ========== -->
+                            <div class="relative z-10 flex items-center justify-start h-full w-full p-6 lg:p-8">
+                                <div class="max-w-3xl px-4 lg:px-8" style="padding-left: 8%;">
+                                    <h1 class="font-light mb-2"
+                                        style="font-size: {{ slide.title_font_size|default:'44' }}px; color: {% if slide.slide_text_color %}{{ slide.slide_text_color }}{% else %}#1f2937{% endif %}">
                                         {{ slide.title }}
                                     </h1>
                                     
-                                    <p class="text-gray-500 mb-6">{{ slide.subtitle }}</p>
+                                    {% if slide.highlight_text %}
+                                    <div class="font-medium mb-3"
+                                         style="font-size: {{ slide.highlight_font_size|default:'28' }}px; color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}">
+                                        {{ slide.highlight_text }}
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <p class="mb-4"
+                                       style="font-size: {{ slide.subtitle_font_size|default:'16' }}px; color: {% if slide.theme_style == 'dark' %}#e5e7eb{% else %}#6b7280{% endif %}">
+                                        {{ slide.subtitle }}
+                                    </p>
                                     
                                     <a href="{{ slide.button1_url|default:'#' }}" 
-                                       class="inline-block border-b-2 pb-1 font-medium transition-all hover:pb-2"
+                                       class="inline-block border-b-2 pb-1 font-medium transition-all hover:pb-2 inline-flex items-center gap-2 text-sm"
                                        style="border-color: {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }}; color: {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }};">
-                                        {{ slide.button1_text|default:'Learn More' }} →
+                                        <i class="fas fa-{{ slide.button1_icon|default:'arrow-right' }}"></i>
+                                        {{ slide.button1_text|default:'Learn More' }}
                                     </a>
                                 </div>
                             </div>
                             
                         {% elif slide.layout_style == 'card' %}
-                            <!-- ========== CARD STYLE LAYOUT ========== -->
-                            <div class="relative z-10 flex items-center justify-center h-full min-h-[400px] p-8">
-                                <div class="max-w-md w-full rounded-2xl shadow-2xl overflow-hidden transition-all hover:scale-105 duration-300"
-                                     style="background: {% if slide.theme_style == 'dark' %}rgba(0,0,0,0.85){% else %}white{% endif %};">
+                            <!-- ========== CARD STYLE LAYOUT - HALF SCREEN ========== -->
+                            <div class="relative z-10 flex items-center justify-center h-full w-full p-4 sm:p-6">
+                                <div class="max-w-sm w-full rounded-2xl shadow-2xl overflow-hidden transition-all hover:scale-105 duration-300"
+                                     style="background: {% if slide.theme_style == 'dark' %}rgba(0,0,0,0.9){% else %}white{% endif %};">
                                     {% if slide.image %}
                                     <img src="{{ slide.image.url }}" alt="{{ slide.title }}" class="w-full h-48 object-cover">
                                     {% endif %}
                                     
-                                    <div class="p-6">
-                                        <h3 class="text-xl font-bold mb-2"
-                                            style="color: {% if slide.theme_style == 'dark' %}white{% else %}#1f2937{% endif %}">
+                                    <div class="p-5">
+                                        <h3 class="font-bold mb-2"
+                                            style="font-size: {{ slide.title_font_size|default:'24' }}px; color: {% if slide.theme_style == 'dark' %}white{% else %}#1f2937{% endif %}">
                                             {{ slide.title }}
                                         </h3>
-                                        <p class="text-gray-500 mb-4">{{ slide.subtitle|truncatechars:80 }}</p>
+                                        
+                                        {% if slide.highlight_text %}
+                                        <div class="font-semibold mb-2"
+                                             style="font-size: {{ slide.highlight_font_size|default:'18' }}px; color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}">
+                                            {{ slide.highlight_text }}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <p class="mb-3"
+                                           style="font-size: {{ slide.subtitle_font_size|default:'13' }}px; color: {% if slide.theme_style == 'dark' %}#9ca3af{% else %}#6b7280{% endif %}">
+                                            {{ slide.subtitle|truncatechars:80 }}
+                                        </p>
+                                        
+                                        {% if slide.price_tag %}
+                                        <div class="mb-3">
+                                            <span class="text-xl font-bold" style="color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}">
+                                                {{ slide.price_tag }}
+                                            </span>
+                                        </div>
+                                        {% endif %}
+                                        
                                         <a href="{{ slide.button1_url|default:'#' }}" 
-                                           class="inline-block px-4 py-2 rounded-lg text-white transition-all hover:scale-105"
+                                           class="inline-block px-4 py-2 rounded-lg text-white transition-all hover:scale-105 inline-flex items-center gap-2 text-sm"
                                            style="background: {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }};">
+                                            <i class="fas fa-{{ slide.button1_icon|default:'arrow-right' }}"></i>
                                             {{ slide.button1_text|default:'Learn More' }}
                                         </a>
                                     </div>
                                 </div>
                             </div>
                             
+                        {% elif slide.layout_style == 'hero' %}
+                            <!-- ========== HERO BOLD LAYOUT - HALF SCREEN ========== -->
+                            <div class="relative z-10 flex items-center justify-center h-full w-full text-center p-4 sm:p-6">
+                                <div class="max-w-5xl mx-auto px-4">
+                                    <div class="inline-block mb-4 px-5 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20"
+                                         data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="100">
+                                        <span class="text-white/90 text-xs">✨ Premium Quality ✨</span>
+                                    </div>
+                                    
+                                    <h1 class="font-black mb-3 leading-tight"
+                                        style="font-size: {{ slide.title_font_size|default:'52' }}px; color: white; text-shadow: 4px 4px 8px rgba(0,0,0,0.3);"
+                                        data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="200">
+                                        {{ slide.title }}
+                                    </h1>
+                                    
+                                    {% if slide.highlight_text %}
+                                    <div class="font-bold mb-3"
+                                         style="font-size: {{ slide.highlight_font_size|default:'38' }}px; background: linear-gradient(135deg, {{ slide.slide_accent_color|default:'#f59e0b' }}, #ff6b9d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"
+                                         data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="250">
+                                        {{ slide.highlight_text }}
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <p class="mb-5 max-w-2xl mx-auto"
+                                       style="font-size: {{ slide.subtitle_font_size|default:'18' }}px; color: rgba(255,255,255,0.9);"
+                                       data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="300">
+                                        {{ slide.subtitle }}
+                                    </p>
+                                    
+                                    <div class="flex flex-wrap gap-4 justify-center" data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="400">
+                                        <a href="{{ slide.button1_url|default:'#' }}" 
+                                           class="px-6 py-2 rounded-full font-bold transition-all hover:scale-105 hover:shadow-2xl inline-flex items-center gap-2 text-sm"
+                                           style="background: white; color: {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }};">
+                                            <i class="fas fa-{{ slide.button1_icon|default:'shopping-cart' }}"></i>
+                                            {{ slide.button1_text|default:'Shop Now' }}
+                                        </a>
+                                        
+                                        {% if slide.button2_text %}
+                                        <a href="{{ slide.button2_url|default:'#' }}" 
+                                           class="px-6 py-2 rounded-full font-bold transition-all hover:scale-105 inline-flex items-center gap-2 text-sm"
+                                           style="border: 2px solid white; color: white;">
+                                            <i class="fas fa-{{ slide.button2_icon|default:'play' }}"></i>
+                                            {{ slide.button2_text }}
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
                         {% else %}
-                            <!-- ========== DEFAULT LAYOUT ========== -->
-                            <div class="relative z-10 p-6 md:p-8 lg:p-10">
-                                <div class="grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-12">
+                            <!-- ========== DEFAULT LAYOUT - HALF SCREEN ========== -->
+                            <div class="relative z-10 p-6 md:p-8 lg:p-10 w-full h-full flex items-center">
+                                <div class="grid grid-cols-1 lg:grid-cols-2 items-center gap-6 lg:gap-10 w-full max-w-7xl mx-auto px-4">
                                     <!-- Text Content -->
                                     <div class="order-2 lg:order-1"
                                          style="color: {% if slide.slide_text_color %}{{ slide.slide_text_color }}{% elif slide.theme_style == 'dark' %}white{% else %}#1f2937{% endif %}">
                                         
                                         {% if slide.badge_text %}
-                                        <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-4">
-                                            <i class="fas fa-{{ slide.badge_icon|default:'fire' }} mr-2 text-sm" 
+                                        <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-3">
+                                            <i class="fas fa-{{ slide.badge_icon|default:'fire' }} mr-2 text-xs" 
                                                style="color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}"></i>
                                             <span class="font-semibold text-xs uppercase tracking-wider">{{ slide.badge_text }}</span>
                                         </div>
                                         {% endif %}
                                         
-                                        <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 leading-tight">
+                                        <h1 class="font-bold mb-3 leading-tight"
+                                            style="font-size: {{ slide.title_font_size|default:'42' }}px;">
                                             {{ slide.title }}
                                             {% if slide.highlight_text %}
-                                            <span class="block mt-2" style="color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}">
+                                            <span class="block mt-1" style="color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}; font-size: {{ slide.highlight_font_size|default:'32' }}px;">
                                                 {{ slide.highlight_text }}
                                             </span>
                                             {% endif %}
                                         </h1>
                                         
-                                        <p class="text-base mb-6 max-w-md leading-relaxed"
-                                           style="color: {% if slide.theme_style == 'dark' %}#e5e7eb{% else %}#4b5563{% endif %}">
+                                        <p class="mb-4 max-w-md leading-relaxed"
+                                           style="font-size: {{ slide.subtitle_font_size|default:'16' }}px; color: {% if slide.theme_style == 'dark' %}#e5e7eb{% else %}#4b5563{% endif %}">
                                             {{ slide.subtitle }}
                                         </p>
                                         
                                         <div class="flex flex-wrap gap-3">
                                             {% if slide.button1_text %}
                                             <a href="{{ slide.button1_url|default:'#' }}" 
-                                               class="group relative px-6 py-3 rounded-xl font-semibold text-white overflow-hidden transition-all duration-300 hover:scale-105">
+                                               class="group relative px-5 py-2 rounded-xl font-semibold text-white overflow-hidden transition-all duration-300 hover:scale-105 inline-flex items-center gap-2 text-sm">
                                                 <span class="relative z-10 flex items-center gap-2">
-                                                    <i class="fas fa-{{ slide.button1_icon|default:'shopping-cart' }} text-sm"></i>
+                                                    <i class="fas fa-{{ slide.button1_icon|default:'shopping-cart' }} text-xs"></i>
                                                     {{ slide.button1_text }}
                                                 </span>
                                                 <div class="absolute inset-0 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"
@@ -262,50 +394,69 @@
                                             
                                             {% if slide.button2_text %}
                                             <a href="{{ slide.button2_url|default:'#' }}" 
-                                               class="px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 hover:scale-105"
+                                               class="px-5 py-2 rounded-xl font-semibold transition-all duration-300 hover:scale-105 inline-flex items-center gap-2 text-sm"
                                                style="border: 2px solid {% if slide.theme_style == 'dark' %}white{% else %}{{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }}{% endif %}; color: {% if slide.theme_style == 'dark' %}white{% else %}{{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }}{% endif %};">
+                                                <i class="fas fa-{{ slide.button2_icon|default:'star' }}"></i>
                                                 {{ slide.button2_text }}
                                             </a>
                                             {% endif %}
                                         </div>
                                         
-                                        <!-- Features -->
                                         {% if slide.get_feature_list %}
-                                        <div class="mt-6 grid grid-cols-2 gap-3">
-                                            {% for feature in slide.get_feature_list %}
+                                        <div class="mt-4 grid grid-cols-2 gap-2">
+                                            {% for feature in slide.get_feature_list|slice:":4" %}
                                             <div class="flex items-center gap-2 group">
-                                                <div class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                                <div class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                                                     <i class="fas fa-{{ feature.icon|default:'check' }} text-xs" 
                                                        style="color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}"></i>
                                                 </div>
-                                                <span class="text-sm">{{ feature.text }}</span>
+                                                <span class="text-xs">{{ feature.text|truncatechars:25 }}</span>
                                             </div>
                                             {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if slide.rating %}
+                                        <div class="mt-3 flex items-center gap-2">
+                                            <div class="flex">
+                                                {% for i in "12345"|make_list %}
+                                                {% if forloop.counter <= slide.rating %}
+                                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                                {% elif forloop.counter <= slide.rating|add:0.5 %}
+                                                <i class="fas fa-star-half-alt text-yellow-400 text-xs"></i>
+                                                {% else %}
+                                                <i class="far fa-star text-yellow-400 text-xs"></i>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                            <span class="text-xs" style="color: {% if slide.theme_style == 'dark' %}#e5e7eb{% else %}#6b7280{% endif %}">
+                                                {{ slide.rating }} / 5
+                                            </span>
                                         </div>
                                         {% endif %}
                                     </div>
 
                                     <!-- Image Content -->
-                                    <div class="relative order-1 lg:order-2 group min-h-[300px]">
+                                    <div class="relative order-1 lg:order-2 group min-h-[250px] flex items-center justify-center">
                                         {% if slide.image %}
-                                        <div class="relative rounded-2xl overflow-hidden shadow-2xl">
+                                        <div class="relative rounded-2xl overflow-hidden shadow-2xl w-full max-w-md mx-auto">
                                             <img src="{{ slide.image.url }}" 
                                                  alt="{{ slide.title }}" 
-                                                 class="relative w-full max-w-md mx-auto transform group-hover:scale-105 transition-transform duration-500">
+                                                 class="w-full h-auto max-h-[250px] object-contain transform group-hover:scale-105 transition-transform duration-500">
                                         </div>
                                         {% else %}
-                                        <div class="w-full max-w-md mx-auto h-64 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center border border-white/20">
-                                            <i class="fas fa-mobile-alt text-6xl text-white/30"></i>
+                                        <div class="w-full max-w-md mx-auto h-64 rounded-2xl bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                                            <i class="fas fa-mobile-alt text-6xl text-gray-400"></i>
                                         </div>
                                         {% endif %}
                                         
                                         <!-- Price Tag -->
                                         {% if slide.price_tag %}
-                                        <div class="absolute -bottom-3 -right-3 px-4 py-2 rounded-xl shadow-xl transform rotate-3 hover:rotate-0 transition-transform"
+                                        <div class="absolute -bottom-2 -right-2 px-3 py-1 rounded-xl shadow-xl transform rotate-3 hover:rotate-0 transition-transform text-sm"
                                              style="background: linear-gradient(135deg, {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}, {{ site_settings.primary_color|default:'#6366f1' }})">
                                             <div class="text-white text-center">
-                                                <div class="text-xs opacity-90">{{ slide.price_label|default:'Starting from' }}</div>
-                                                <div class="text-xl font-bold">{{ slide.price_tag }}</div>
+                                                <div class="text-xs opacity-90">{{ slide.price_label|default:'From' }}</div>
+                                                <div class="text-lg font-bold">{{ slide.price_tag }}</div>
                                             </div>
                                         </div>
                                         {% endif %}
@@ -317,23 +468,25 @@
                     {% endfor %}
                     
                 {% else %}
-                    <!-- Default Static Slide (No slides available) -->
-                    <div class="slide min-w-full p-6 md:p-8 lg:p-10"
+                    <!-- Default Static Slide -->
+                    <div class="slide min-w-full relative flex items-center"
                          style="background: linear-gradient(135deg, {{ site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#3b82f6' }});">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-12">
-                            <div>
-                                <h1 class="text-3xl md:text-5xl font-bold text-white mb-4">
-                                    Welcome to {{ site_settings.site_name|default:'Jadid Technology' }}
-                                </h1>
-                                <p class="text-white/90 text-lg mb-6">
-                                    Your trusted destination for authentic smartphones and accessories.
-                                </p>
-                                <a href="/shop/" class="inline-block px-8 py-3 bg-white text-gray-900 rounded-xl font-semibold hover:scale-105 transition-transform">
-                                    Shop Now →
-                                </a>
-                            </div>
-                            <div class="flex justify-center">
-                                <i class="fas fa-mobile-alt text-white/20 text-9xl"></i>
+                        <div class="relative z-10 p-6 md:p-8 lg:p-10 w-full">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 items-center gap-6 lg:gap-10 max-w-7xl mx-auto">
+                                <div>
+                                    <h1 class="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-3">
+                                        Welcome to {{ site_settings.site_name|default:'Jadid Technology' }}
+                                    </h1>
+                                    <p class="text-white/90 text-base md:text-lg mb-5">
+                                        Your trusted destination for authentic smartphones and accessories.
+                                    </p>
+                                    <a href="/shop/" class="inline-flex items-center gap-2 px-6 py-2 bg-white text-gray-900 rounded-xl font-semibold hover:scale-105 transition-transform text-sm">
+                                        Shop Now <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                </div>
+                                <div class="flex justify-center">
+                                    <i class="fas fa-mobile-alt text-white/20 text-8xl"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -341,22 +494,21 @@
                 {% endwith %}
             </div>
 
-            <!-- Navigation Arrows (only show if more than 1 slide) -->
+            <!-- Navigation Arrows -->
             {% with hero_slides=site_settings.get_hero_slides %}
             {% if hero_slides|length > 1 %}
-            <button class="slider-prev absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-all z-20 hover:scale-110">
+            <button class="slider-prev absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-all z-20 hover:scale-110">
                 <i class="fas fa-chevron-left text-sm"></i>
             </button>
-            <button class="slider-next absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-all z-20 hover:scale-110">
+            <button class="slider-next absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-all z-20 hover:scale-110">
                 <i class="fas fa-chevron-right text-sm"></i>
             </button>
 
-            <!-- Dots Navigation -->
             <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
                 {% for slide in hero_slides %}
                 <button class="slider-dot w-2 h-2 rounded-full transition-all duration-300 hover:scale-125" 
                         data-slide="{{ forloop.counter0 }}"
-                        style="background-color: rgba(255,255,255,0.4)"></button>
+                        style="background-color: rgba(255,255,255,0.5)"></button>
                 {% endfor %}
             </div>
             {% endif %}
@@ -366,46 +518,61 @@
 </section>
 
 <style>
+    /* Half Screen Hero Styles */
+    .hero-main-section {
+        min-height: 50vh;
+        height: 50vh;
+        width: 100%;
+        position: relative;
+    }
+    
+    .slider-container {
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+    }
+    
+    .slider-wrapper {
+        display: flex;
+        transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        width: 100%;
+    }
+    
+    /* Fixed Image Setup */
+    .slide {
+        flex: 0 0 100%;
+        background-size: cover !important;
+        background-position: center center !important;
+        background-repeat: no-repeat !important;
+        min-height: 50vh;
+        height: 100%;
+        width: 100%;
+        position: relative;
+    }
+    
+    /* Ensure images display properly */
+    .slide img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    /* Split layout image fix */
+    .slide .absolute img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
     /* Individual Slide Animations */
     [data-animation] {
         opacity: 0;
     }
     
-    .slick-active [data-animation] {
+    .slider-wrapper .slide [data-animation] {
         animation-fill-mode: both;
     }
-    
-    .slick-active [data-animation="fadeInUp"] {
-        animation: fadeInUp 0.6s ease forwards;
-    }
-    
-    .slick-active [data-animation="fadeIn"] {
-        animation: fadeIn 0.5s ease forwards;
-    }
-    
-    .slick-active [data-animation="zoomIn"] {
-        animation: zoomIn 0.6s ease forwards;
-    }
-    
-    .slick-active [data-animation="slideInLeft"] {
-        animation: slideInLeft 0.5s ease forwards;
-    }
-    
-    .slick-active [data-animation="slideInRight"] {
-        animation: slideInRight 0.5s ease forwards;
-    }
-    
-    .slick-active [data-animation="bounce"] {
-        animation: bounce 0.8s ease forwards;
-    }
-    
-    /* Animation Delays */
-    [data-delay="100"] { animation-delay: 0.1s; }
-    [data-delay="200"] { animation-delay: 0.2s; }
-    [data-delay="250"] { animation-delay: 0.25s; }
-    [data-delay="300"] { animation-delay: 0.3s; }
-    [data-delay="400"] { animation-delay: 0.4s; }
-    [data-delay="500"] { animation-delay: 0.5s; }
     
     @keyframes fadeInUp {
         from {
@@ -437,7 +604,7 @@
     @keyframes slideInLeft {
         from {
             opacity: 0;
-            transform: translateX(-50px);
+            transform: translateX(-40px);
         }
         to {
             opacity: 1;
@@ -448,7 +615,7 @@
     @keyframes slideInRight {
         from {
             opacity: 0;
-            transform: translateX(50px);
+            transform: translateX(40px);
         }
         to {
             opacity: 1;
@@ -463,34 +630,70 @@
         }
         50% {
             opacity: 1;
-            transform: translateY(-20px);
+            transform: translateY(-15px);
         }
     }
     
-    .slider-container {
-        overflow: hidden;
-        border-radius: 1.5rem;
-        background: rgba(0, 0, 0, 0.3);
-        backdrop-filter: blur(10px);
-    }
-
-    .slider-wrapper {
-        display: flex;
-        transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .slide {
-        flex: 0 0 100%;
-        background-size: cover;
-        background-position: center;
-        min-height: 400px;
-    }
-
-    .slider-dot.active {
-        width: 24px;
-        background-color: white !important;
+    @keyframes flipInX {
+        from {
+            opacity: 0;
+            transform: perspective(400px) rotateX(90deg);
+        }
+        to {
+            opacity: 1;
+            transform: perspective(400px) rotateX(0deg);
+        }
     }
     
+    @keyframes rotateIn {
+        from {
+            opacity: 0;
+            transform: rotate(-200deg);
+        }
+        to {
+            opacity: 1;
+            transform: rotate(0deg);
+        }
+    }
+    
+    @keyframes lightSpeedIn {
+        from {
+            opacity: 0;
+            transform: translateX(100%) skewX(-30deg);
+        }
+        60% {
+            opacity: 1;
+            transform: translateX(0) skewX(20deg);
+        }
+        80% {
+            transform: translateX(0) skewX(-5deg);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0) skewX(0deg);
+        }
+    }
+    
+    /* Animation Delays */
+    [data-delay="100"] { animation-delay: 0.1s; }
+    [data-delay="200"] { animation-delay: 0.2s; }
+    [data-delay="250"] { animation-delay: 0.25s; }
+    [data-delay="300"] { animation-delay: 0.3s; }
+    [data-delay="400"] { animation-delay: 0.4s; }
+    [data-delay="500"] { animation-delay: 0.5s; }
+    
+    /* Active Slide Animations */
+    .slider-wrapper .slide [data-animation="fadeInUp"] { animation: fadeInUp 0.6s ease forwards; }
+    .slider-wrapper .slide [data-animation="fadeIn"] { animation: fadeIn 0.5s ease forwards; }
+    .slider-wrapper .slide [data-animation="zoomIn"] { animation: zoomIn 0.6s ease forwards; }
+    .slider-wrapper .slide [data-animation="slideInLeft"] { animation: slideInLeft 0.5s ease forwards; }
+    .slider-wrapper .slide [data-animation="slideInRight"] { animation: slideInRight 0.5s ease forwards; }
+    .slider-wrapper .slide [data-animation="bounce"] { animation: bounce 0.8s ease forwards; }
+    .slider-wrapper .slide [data-animation="flipInX"] { animation: flipInX 0.6s ease forwards; }
+    .slider-wrapper .slide [data-animation="rotateIn"] { animation: rotateIn 0.6s ease forwards; }
+    .slider-wrapper .slide [data-animation="lightSpeedIn"] { animation: lightSpeedIn 0.6s ease forwards; }
+    
+    /* Button Styles */
     .btn-hero-primary, .btn-hero-secondary {
         display: inline-flex;
         align-items: center;
@@ -500,6 +703,56 @@
     .btn-hero-primary:hover, .btn-hero-secondary:hover {
         transform: translateY(-2px);
         box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+    }
+    
+    /* Slider Navigation */
+    .slider-prev, .slider-next {
+        transition: all 0.3s ease;
+    }
+    
+    .slider-prev:hover, .slider-next:hover {
+        transform: scale(1.1);
+    }
+    
+    .slider-dot {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .slider-dot.active {
+        width: 24px;
+        background-color: white !important;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .hero-main-section {
+            min-height: 40vh;
+            height: 40vh;
+        }
+        
+        .slide {
+            min-height: 40vh;
+        }
+        
+        .slider-prev, .slider-next {
+            width: 32px;
+            height: 32px;
+        }
+        
+        .slider-prev i, .slider-next i {
+            font-size: 12px;
+        }
+    }
+    
+    /* Image Loading Fix */
+    .slide {
+        background-blend-mode: overlay;
+    }
+    
+    /* Ensure text is readable on all images */
+    .slide .relative.z-10 {
+        text-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
 </style>
 
@@ -511,11 +764,54 @@
         const nextBtn = document.querySelector('.slider-next');
         const dots = document.querySelectorAll('.slider-dot');
         
+        // Function to check and fix image loading
+        function fixImageBackground(slide) {
+            const bgImage = slide.style.backgroundImage;
+            if (bgImage && bgImage !== 'none' && bgImage !== '') {
+                // Test if image loads properly
+                const imgUrl = bgImage.replace(/url\(['"]?(.*?)['"]?\)/i, '$1');
+                const testImg = new Image();
+                testImg.onerror = function() {
+                    console.warn('Image failed to load:', imgUrl);
+                    // Fallback to background color if image fails
+                    if (slide.style.backgroundColor) {
+                        slide.style.backgroundImage = 'none';
+                    }
+                };
+                testImg.src = imgUrl;
+            }
+        }
+        
+        // Fix all slides
+        slides.forEach(function(slide) {
+            fixImageBackground(slide);
+        });
+        
         if (slides && slides.length > 1) {
             let currentSlide = 0;
             const totalSlides = slides.length;
             let slideInterval;
             let isTransitioning = false;
+            
+            function applyAnimations(slideIndex) {
+                const currentSlideElement = slides[slideIndex];
+                const animatedElements = currentSlideElement.querySelectorAll('[data-animation]');
+                
+                animatedElements.forEach(function(element) {
+                    const animation = element.getAttribute('data-animation');
+                    const delay = element.getAttribute('data-delay');
+                    
+                    element.style.animation = 'none';
+                    element.offsetHeight;
+                    
+                    if (animation && animation !== 'none') {
+                        element.style.animation = `${animation} 0.6s ease forwards`;
+                        if (delay) {
+                            element.style.animationDelay = `${delay}ms`;
+                        }
+                    }
+                });
+            }
             
             function goToSlide(slideIndex) {
                 if (isTransitioning) return;
@@ -531,12 +827,13 @@
                         dot.style.width = '24px';
                     } else {
                         dot.classList.remove('active');
-                        dot.style.backgroundColor = 'rgba(255,255,255,0.4)';
+                        dot.style.backgroundColor = 'rgba(255,255,255,0.5)';
                         dot.style.width = '8px';
                     }
                 });
                 
                 setTimeout(function() {
+                    applyAnimations(currentSlide);
                     isTransitioning = false;
                 }, 700);
             }
@@ -546,7 +843,8 @@
             
             function startAutoPlay() {
                 if (slideInterval) clearInterval(slideInterval);
-                slideInterval = setInterval(nextSlide, {{ site_settings.hero_slideshow_speed|default:5000 }});
+                const slideSpeed = {{ site_settings.hero_slideshow_speed|default:5000 }};
+                slideInterval = setInterval(nextSlide, slideSpeed);
             }
             
             function stopAutoPlay() {
@@ -584,7 +882,8 @@
                 sliderContainer.addEventListener('mouseleave', startAutoPlay);
             }
             
-            // Initialize first dot
+            applyAnimations(0);
+            
             if (dots.length > 0) {
                 dots[0].classList.add('active');
                 dots[0].style.backgroundColor = 'white';
@@ -592,6 +891,10 @@
             }
             
             startAutoPlay();
+        } else {
+            if (slides.length === 1) {
+                applyAnimations(0);
+            }
         }
     });
 </script>
