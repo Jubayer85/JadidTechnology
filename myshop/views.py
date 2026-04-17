@@ -2131,7 +2131,7 @@ def wishlist_count(request):
 
 
 
-# আপনার views.py ফাইলের শেষে বা admin functions এর অংশে যোগ করুন
+
 
 # ====================== PRODUCT STATUS TOGGLE ======================
 @login_required
@@ -2592,13 +2592,27 @@ def add_hero_slide(request):
             slide.highlight_text = request.POST.get('highlight_text', '')
             slide.subtitle = request.POST.get('subtitle', '')
             
-            # ========== DESIGN STYLE (NEW) ==========
+            # ========== FONT SIZES ==========
+            try:
+                slide.title_font_size = int(request.POST.get('title_font_size', 48))
+            except:
+                slide.title_font_size = 48
+            try:
+                slide.highlight_font_size = int(request.POST.get('highlight_font_size', 36))
+            except:
+                slide.highlight_font_size = 36
+            try:
+                slide.subtitle_font_size = int(request.POST.get('subtitle_font_size', 20))
+            except:
+                slide.subtitle_font_size = 20
+            
+            # ========== DESIGN STYLE ==========
             slide.layout_style = request.POST.get('layout_style', 'default')
             slide.theme_style = request.POST.get('theme_style', 'light')
             slide.content_alignment = request.POST.get('content_alignment', 'left')
             slide.animation_effect = request.POST.get('animation_effect', 'fadeInUp')
             
-            # ========== CUSTOM COLORS (NEW) ==========
+            # ========== CUSTOM COLORS ==========
             slide.slide_bg_color = request.POST.get('slide_bg_color') or None
             slide.slide_text_color = request.POST.get('slide_text_color') or None
             slide.slide_accent_color = request.POST.get('slide_accent_color') or None
@@ -2611,7 +2625,13 @@ def add_hero_slide(request):
             if not slide.slide_accent_color and request.POST.get('slide_accent_color_text'):
                 slide.slide_accent_color = request.POST.get('slide_accent_color_text')
             
-            # ========== ANIMATION DELAYS (NEW) ==========
+            # ========== OVERLAY OPACITY ==========
+            try:
+                slide.slide_overlay_opacity = float(request.POST.get('slide_overlay_opacity', 0.5))
+            except:
+                slide.slide_overlay_opacity = 0.5
+            
+            # ========== ANIMATION DELAYS ==========
             try:
                 slide.title_delay = int(request.POST.get('title_delay', 100))
             except:
@@ -2646,6 +2666,41 @@ def add_hero_slide(request):
             slide.price_label = request.POST.get('price_label', 'From')
             slide.rating = request.POST.get('rating') or None
             
+            # ========== IMAGE SIZE CONTROLS (গুরুত্বপূর্ণ) ==========
+            slide.image_width = request.POST.get('image_width', 'auto')
+            slide.image_height = request.POST.get('image_height', 'auto')
+            slide.image_object_fit = request.POST.get('image_object_fit', 'cover')
+            slide.image_border_radius = request.POST.get('image_border_radius', '1rem')
+            slide.image_position = request.POST.get('image_position', 'center center')
+            
+            # Shadow Effect
+            slide.image_shadow = request.POST.get('image_shadow') == 'on'
+            slide.image_shadow_size = request.POST.get('image_shadow_size', 'lg')
+            
+            # Hover Effect
+            slide.image_hover_effect = request.POST.get('image_hover_effect') == 'on'
+            try:
+                slide.image_hover_scale = float(request.POST.get('image_hover_scale', 1.05))
+            except:
+                slide.image_hover_scale = 1.05
+            
+            # Opacity
+            try:
+                slide.image_opacity = int(request.POST.get('image_opacity', 100))
+            except:
+                slide.image_opacity = 100
+            
+            # Custom CSS Class
+            slide.image_custom_class = request.POST.get('image_custom_class', '')
+            
+            # Mobile Image Settings
+            slide.image_mobile_width = request.POST.get('image_mobile_width', '80%')
+            slide.image_mobile_height = request.POST.get('image_mobile_height', 'auto')
+            
+            # Side Image Settings
+            slide.side_image_width = request.POST.get('side_image_width', '100%')
+            slide.side_image_object_fit = request.POST.get('side_image_object_fit', 'cover')
+            
             # ========== IMAGES ==========
             if request.FILES.get('image'):
                 slide.image = request.FILES['image']
@@ -2664,6 +2719,9 @@ def add_hero_slide(request):
                         'icon': feature_icons[i] if i < len(feature_icons) and feature_icons[i] else 'check'
                     })
             slide.features = features
+            
+            # ========== CUSTOM CSS CLASS ==========
+            slide.custom_css_class = request.POST.get('custom_css_class', '')
             
             # ========== ORDER & STATUS ==========
             try:
@@ -2698,13 +2756,27 @@ def edit_hero_slide(request, slide_id):
             slide.highlight_text = request.POST.get('highlight_text', '')
             slide.subtitle = request.POST.get('subtitle', '')
             
-            # ========== DESIGN STYLE (NEW) ==========
+            # ========== FONT SIZES ==========
+            try:
+                slide.title_font_size = int(request.POST.get('title_font_size', 48))
+            except:
+                slide.title_font_size = 48
+            try:
+                slide.highlight_font_size = int(request.POST.get('highlight_font_size', 36))
+            except:
+                slide.highlight_font_size = 36
+            try:
+                slide.subtitle_font_size = int(request.POST.get('subtitle_font_size', 20))
+            except:
+                slide.subtitle_font_size = 20
+            
+            # ========== DESIGN STYLE ==========
             slide.layout_style = request.POST.get('layout_style', 'default')
             slide.theme_style = request.POST.get('theme_style', 'light')
             slide.content_alignment = request.POST.get('content_alignment', 'left')
             slide.animation_effect = request.POST.get('animation_effect', 'fadeInUp')
             
-            # ========== CUSTOM COLORS (NEW) ==========
+            # ========== CUSTOM COLORS ==========
             slide.slide_bg_color = request.POST.get('slide_bg_color') or None
             slide.slide_text_color = request.POST.get('slide_text_color') or None
             slide.slide_accent_color = request.POST.get('slide_accent_color') or None
@@ -2717,7 +2789,13 @@ def edit_hero_slide(request, slide_id):
             if not slide.slide_accent_color and request.POST.get('slide_accent_color_text'):
                 slide.slide_accent_color = request.POST.get('slide_accent_color_text')
             
-            # ========== ANIMATION DELAYS (NEW) ==========
+            # ========== OVERLAY OPACITY ==========
+            try:
+                slide.slide_overlay_opacity = float(request.POST.get('slide_overlay_opacity', 0.5))
+            except:
+                slide.slide_overlay_opacity = 0.5
+            
+            # ========== ANIMATION DELAYS ==========
             try:
                 slide.title_delay = int(request.POST.get('title_delay', 100))
             except:
@@ -2752,6 +2830,41 @@ def edit_hero_slide(request, slide_id):
             slide.price_label = request.POST.get('price_label', 'From')
             slide.rating = request.POST.get('rating') or None
             
+            # ========== IMAGE SIZE CONTROLS (গুরুত্বপূর্ণ) ==========
+            slide.image_width = request.POST.get('image_width', 'auto')
+            slide.image_height = request.POST.get('image_height', 'auto')
+            slide.image_object_fit = request.POST.get('image_object_fit', 'cover')
+            slide.image_border_radius = request.POST.get('image_border_radius', '1rem')
+            slide.image_position = request.POST.get('image_position', 'center center')
+            
+            # Shadow Effect
+            slide.image_shadow = request.POST.get('image_shadow') == 'on'
+            slide.image_shadow_size = request.POST.get('image_shadow_size', 'lg')
+            
+            # Hover Effect
+            slide.image_hover_effect = request.POST.get('image_hover_effect') == 'on'
+            try:
+                slide.image_hover_scale = float(request.POST.get('image_hover_scale', 1.05))
+            except:
+                slide.image_hover_scale = 1.05
+            
+            # Opacity
+            try:
+                slide.image_opacity = int(request.POST.get('image_opacity', 100))
+            except:
+                slide.image_opacity = 100
+            
+            # Custom CSS Class
+            slide.image_custom_class = request.POST.get('image_custom_class', '')
+            
+            # Mobile Image Settings
+            slide.image_mobile_width = request.POST.get('image_mobile_width', '80%')
+            slide.image_mobile_height = request.POST.get('image_mobile_height', 'auto')
+            
+            # Side Image Settings
+            slide.side_image_width = request.POST.get('side_image_width', '100%')
+            slide.side_image_object_fit = request.POST.get('side_image_object_fit', 'cover')
+            
             # ========== IMAGES ==========
             if request.FILES.get('image'):
                 if slide.image:
@@ -2775,6 +2888,9 @@ def edit_hero_slide(request, slide_id):
                     })
             slide.features = features
             
+            # ========== CUSTOM CSS CLASS ==========
+            slide.custom_css_class = request.POST.get('custom_css_class', '')
+            
             # ========== ORDER & STATUS ==========
             try:
                 slide.order = int(request.POST.get('order', slide.order))
@@ -2783,17 +2899,24 @@ def edit_hero_slide(request, slide_id):
             slide.is_active = request.POST.get('is_active') == 'on'
             
             slide.save()
+            
+            # ডিবাগ তথ্য (কনসোলে দেখাবে)
+            print(f"✅ Slide updated: {slide.title}")
+            print(f"   Image Width: {slide.image_width}")
+            print(f"   Image Height: {slide.image_height}")
+            print(f"   Object Fit: {slide.image_object_fit}")
+            
             messages.success(request, f'✅ Hero slide "{slide.title}" updated successfully!')
             return redirect('site_settings')
             
         except Exception as e:
             messages.error(request, f'❌ Error updating slide: {str(e)}')
+            print(f"❌ Error: {e}")
     
     context = {
         'slide': slide,
     }
     return render(request, 'admin/edit_hero_slide.html', context)
-
 
 @staff_member_required
 def toggle_hero_slide(request, slide_id):
