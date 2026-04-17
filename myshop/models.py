@@ -25,6 +25,11 @@ class HeroSlide(models.Model):
     highlight_text = models.CharField(max_length=100, blank=True, verbose_name="Highlight Text")
     subtitle = models.TextField(default='Cutting-edge technology with exceptional performance.', verbose_name="Subtitle")
     
+    # Font Size Controls
+    title_font_size = models.IntegerField(default=48, help_text="Title font size in pixels", verbose_name="Title Font Size")
+    highlight_font_size = models.IntegerField(default=36, help_text="Highlight text font size in pixels", verbose_name="Highlight Font Size")
+    subtitle_font_size = models.IntegerField(default=20, help_text="Subtitle font size in pixels", verbose_name="Subtitle Font Size")
+    
     # Badge
     badge_text = models.CharField(max_length=100, blank=True, verbose_name="Badge Text")
     badge_icon = models.CharField(max_length=50, default='fire', verbose_name="Badge Icon")
@@ -33,6 +38,93 @@ class HeroSlide(models.Model):
     
     # Images
     image = models.ImageField(upload_to='hero/slides/', blank=True, null=True, verbose_name="Slide Image")
+    
+    # ========== IMAGE SIZE & STYLE CONTROLS ==========
+    
+    # Image Size Options
+    IMAGE_WIDTH_CHOICES = [
+        ('auto', 'Auto (Original)'),
+        ('100%', 'Full Width (100%)'),
+        ('90%', '90%'),
+        ('80%', '80%'),
+        ('70%', '70%'),
+        ('60%', '60%'),
+        ('50%', '50%'),
+        ('40%', '40%'),
+        ('300px', '300px'),
+        ('350px', '350px'),
+        ('400px', '400px'),
+        ('450px', '450px'),
+        ('500px', '500px'),
+        ('550px', '550px'),
+        ('600px', '600px'),
+    ]
+    
+    IMAGE_HEIGHT_CHOICES = [
+        ('auto', 'Auto (Original)'),
+        ('200px', '200px'),
+        ('250px', '250px'),
+        ('300px', '300px'),
+        ('350px', '350px'),
+        ('400px', '400px'),
+        ('450px', '450px'),
+        ('500px', '500px'),
+        ('100%', '100%'),
+    ]
+    
+    IMAGE_FIT_CHOICES = [
+        ('cover', 'Cover (Fill & Crop)'),
+        ('contain', 'Contain (Keep Ratio)'),
+        ('fill', 'Fill (Stretch)'),
+        ('scale-down', 'Scale Down'),
+        ('none', 'None (Original)'),
+    ]
+    
+    IMAGE_BORDER_CHOICES = [
+        ('0', 'None (Sharp)'),
+        ('0.25rem', 'Very Small (4px)'),
+        ('0.5rem', 'Small (8px)'),
+        ('0.75rem', 'Medium Small (12px)'),
+        ('1rem', 'Medium (16px)'),
+        ('1.25rem', 'Medium Large (20px)'),
+        ('1.5rem', 'Large (24px)'),
+        ('2rem', 'Extra Large (32px)'),
+        ('50%', 'Circle (50%)'),
+    ]
+    
+    IMAGE_POSITION_CHOICES = [
+        ('center center', 'Center'),
+        ('center top', 'Top Center'),
+        ('center bottom', 'Bottom Center'),
+        ('left center', 'Left Center'),
+        ('right center', 'Right Center'),
+        ('left top', 'Top Left'),
+        ('right top', 'Top Right'),
+        ('left bottom', 'Bottom Left'),
+        ('right bottom', 'Bottom Right'),
+    ]
+    
+    image_width = models.CharField(max_length=20, choices=IMAGE_WIDTH_CHOICES, default='auto', verbose_name="Image Width")
+    image_height = models.CharField(max_length=20, choices=IMAGE_HEIGHT_CHOICES, default='auto', verbose_name="Image Height")
+    image_object_fit = models.CharField(max_length=20, choices=IMAGE_FIT_CHOICES, default='cover', verbose_name="Object Fit")
+    image_border_radius = models.CharField(max_length=20, choices=IMAGE_BORDER_CHOICES, default='1rem', verbose_name="Border Radius")
+    image_position = models.CharField(max_length=30, choices=IMAGE_POSITION_CHOICES, default='center center', verbose_name="Image Position")
+    image_shadow = models.BooleanField(default=True, verbose_name="Add Shadow Effect")
+    image_shadow_size = models.CharField(max_length=20, default='lg', choices=[
+        ('sm', 'Small Shadow'),
+        ('md', 'Medium Shadow'),
+        ('lg', 'Large Shadow'),
+        ('xl', 'Extra Large Shadow'),
+        ('none', 'No Shadow'),
+    ], verbose_name="Shadow Size")
+    image_hover_effect = models.BooleanField(default=True, verbose_name="Hover Scale Effect")
+    image_hover_scale = models.DecimalField(max_digits=3, decimal_places=2, default=1.05, help_text="1.05 = 5% zoom", verbose_name="Hover Scale")
+    image_opacity = models.IntegerField(default=100, help_text="0 to 100", verbose_name="Image Opacity (%)")
+    image_custom_class = models.CharField(max_length=100, blank=True, verbose_name="Custom CSS Class")
+    
+    # Mobile specific image settings
+    image_mobile_width = models.CharField(max_length=20, choices=IMAGE_WIDTH_CHOICES, default='80%', verbose_name="Mobile Image Width")
+    image_mobile_height = models.CharField(max_length=20, choices=IMAGE_HEIGHT_CHOICES, default='auto', verbose_name="Mobile Image Height")
     
     # Buttons
     button1_text = models.CharField(max_length=50, default='Shop Now', verbose_name="Button 1 Text")
@@ -81,6 +173,7 @@ class HeroSlide(models.Model):
         ('glass', 'Glassmorphism'),
         ('neon', 'Neon Glow'),
         ('gradient', 'Gradient Theme'),
+        ('none', 'None (No Theme)'),
     ]
     
     ALIGNMENT_CHOICES = [
@@ -99,6 +192,7 @@ class HeroSlide(models.Model):
         ('flipInX', 'Flip In X'),
         ('rotateIn', 'Rotate In'),
         ('lightSpeedIn', 'Light Speed In'),
+        ('none', 'No Animation'),
     ]
     
     # Design Configuration
@@ -140,6 +234,53 @@ class HeroSlide(models.Model):
     def __str__(self):
         return self.title
     
+    def get_feature_list(self):
+        """Get features as list of dicts"""
+        if isinstance(self.features, list):
+            return self.features
+        return []
+    
+    def get_image_style(self):
+        """Get image container style as string"""
+        styles = []
+        
+        if self.image_width != 'auto':
+            styles.append(f"width: {self.image_width}")
+        
+        if self.image_height != 'auto':
+            styles.append(f"height: {self.image_height}")
+        
+        if self.image_border_radius != '0':
+            styles.append(f"border-radius: {self.image_border_radius}")
+        
+        if self.image_opacity < 100:
+            styles.append(f"opacity: {self.image_opacity / 100}")
+        
+        return '; '.join(styles)
+    
+    def get_image_class(self):
+        """Get image CSS classes"""
+        classes = []
+        
+        if self.image_shadow:
+            shadow_map = {
+                'sm': 'shadow-sm',
+                'md': 'shadow-md',
+                'lg': 'shadow-lg',
+                'xl': 'shadow-xl',
+                'none': ''
+            }
+            if self.image_shadow_size in shadow_map and shadow_map[self.image_shadow_size]:
+                classes.append(shadow_map[self.image_shadow_size])
+        
+        if self.image_hover_effect:
+            classes.append('hover-scale')
+        
+        if self.image_custom_class:
+            classes.append(self.image_custom_class)
+        
+        return ' '.join(classes)
+    
     def get_button1_color(self):
         """Get button 1 color"""
         if self.button1_color == 'brand':
@@ -175,6 +316,14 @@ class HeroSlide(models.Model):
         elif self.theme_style == 'light':
             return '#1f2937'
         return None
+    
+    def get_mobile_image_width(self):
+        """Get mobile image width"""
+        return self.image_mobile_width if self.image_mobile_width else self.image_width
+    
+    def get_mobile_image_height(self):
+        """Get mobile image height"""
+        return self.image_mobile_height if self.image_mobile_height else self.image_height
 
 
 class SiteSettings(models.Model):

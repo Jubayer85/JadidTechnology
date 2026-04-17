@@ -15,16 +15,15 @@
                 {% if hero_slides %}
                     <!-- Dynamic Slides from Database with Individual Designs -->
                     {% for slide in hero_slides %}
-                    <div class="slide min-w-full relative flex items-center hero-slide-{{ slide.id }}"
+                    <div class="slide min-w-full relative flex items-center hero-slide-{{ slide.id }} {{ slide.custom_css_class|default:'' }}"
                          style="background: {% if slide.image %}url('{{ slide.image.url }}'){% endif %} no-repeat center center / cover; {% if slide.slide_bg_color %}background-color: {{ slide.slide_bg_color }};{% endif %}">
                         
                         <!-- Background Overlay -->
                         {% if slide.theme_style == 'none' %}
-                            <!-- No overlay effect - clean background -->
                             <div class="absolute inset-0"></div>
                         {% else %}
                             <div class="absolute inset-0" 
-                                 style="background: {% if slide.theme_style == 'dark' %}linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)){% elif slide.theme_style == 'light' %}linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8)){% else %}linear-gradient(135deg, rgba(0,0,0,0.5), rgba(0,0,0,0.3)){% endif %};">
+                                 style="background: {% if slide.theme_style == 'dark' %}linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)){% elif slide.theme_style == 'light' %}linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8)){% else %}linear-gradient(135deg, rgba(0,0,0,0.5), rgba(0,0,0,0.3)){% endif %}; opacity: {{ slide.slide_overlay_opacity|default:0.5 }};">
                             </div>
                         {% endif %}
 
@@ -66,25 +65,25 @@
                                     
                                     <h1 class="font-bold mb-3 leading-tight"
                                         style="font-size: {{ slide.title_font_size|default:'42' }}px; color: {% if slide.slide_text_color %}{{ slide.slide_text_color }}{% elif slide.theme_style == 'dark' %}white{% else %}#1f2937{% endif %}"
-                                        data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="200">
+                                        data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="{{ slide.title_delay|default:200 }}">
                                         {{ slide.title }}
                                     </h1>
                                     
                                     {% if slide.highlight_text %}
                                     <div class="font-semibold mb-3"
                                          style="font-size: {{ slide.highlight_font_size|default:'32' }}px; color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}"
-                                         data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="250">
+                                         data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="{{ slide.subtitle_delay|default:250 }}">
                                         {{ slide.highlight_text }}
                                     </div>
                                     {% endif %}
                                     
                                     <p class="mb-6 max-w-2xl mx-auto"
                                        style="font-size: {{ slide.subtitle_font_size|default:'18' }}px; color: {% if slide.slide_text_color %}{{ slide.slide_text_color }}{% elif slide.theme_style == 'dark' %}#e5e7eb{% else %}#4b5563{% endif %}"
-                                       data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="300">
+                                       data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="{{ slide.subtitle_delay|default:300 }}">
                                         {{ slide.subtitle }}
                                     </p>
                                     
-                                    <div class="flex flex-wrap gap-4 justify-center" data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="400">
+                                    <div class="flex flex-wrap gap-4 justify-center" data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="{{ slide.button_delay|default:400 }}">
                                         {% if slide.button1_text %}
                                         <a href="{{ slide.button1_url|default:'#' }}" 
                                            class="btn-hero-primary px-6 py-2 rounded-xl font-semibold transition-all duration-300 hover:scale-105 inline-flex items-center gap-2 text-sm"
@@ -172,14 +171,28 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Right: Image -->
-                                <div class="relative order-1 lg:order-2 min-h-[250px] lg:min-h-full">
+                                <!-- Right: Image with Size Controls -->
+                                <div class="relative order-1 lg:order-2 min-h-[250px] lg:min-h-full flex items-center justify-center">
                                     {% if slide.side_image %}
                                     <img src="{{ slide.side_image.url }}" alt="{{ slide.title }}" 
-                                         class="w-full h-full object-cover absolute inset-0">
+                                         class="absolute inset-0 {{ slide.get_image_class }}"
+                                         style="object-fit: {{ slide.image_object_fit|default:'cover' }};
+                                                width: {{ slide.image_width|default:'100%' }};
+                                                height: {{ slide.image_height|default:'100%' }};
+                                                object-position: {{ slide.image_position|default:'center center' }};
+                                                border-radius: {{ slide.image_border_radius|default:'0' }};
+                                                opacity: {{ slide.image_opacity|default:100 }}%;
+                                                {% if slide.image_shadow and slide.image_shadow_size != 'none' %}box-shadow: var(--shadow-{{ slide.image_shadow_size|default:'lg' }});{% endif %}">
                                     {% elif slide.image %}
                                     <img src="{{ slide.image.url }}" alt="{{ slide.title }}" 
-                                         class="w-full h-full object-cover absolute inset-0">
+                                         class="absolute inset-0 {{ slide.get_image_class }}"
+                                         style="object-fit: {{ slide.image_object_fit|default:'cover' }};
+                                                width: {{ slide.image_width|default:'100%' }};
+                                                height: {{ slide.image_height|default:'100%' }};
+                                                object-position: {{ slide.image_position|default:'center center' }};
+                                                border-radius: {{ slide.image_border_radius|default:'0' }};
+                                                opacity: {{ slide.image_opacity|default:100 }}%;
+                                                {% if slide.image_shadow and slide.image_shadow_size != 'none' %}box-shadow: var(--shadow-{{ slide.image_shadow_size|default:'lg' }});{% endif %}">
                                     {% else %}
                                     <div class="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
                                         <i class="fas fa-image text-4xl text-gray-400"></i>
@@ -194,25 +207,25 @@
                                 <div class="max-w-5xl mx-auto px-4">
                                     <h1 class="font-bold mb-3"
                                         style="font-size: {{ slide.title_font_size|default:'48' }}px;"
-                                        data-animation="{{ slide.animation_effect|default:'zoomIn' }}" data-delay="100">
+                                        data-animation="{{ slide.animation_effect|default:'zoomIn' }}" data-delay="{{ slide.title_delay|default:100 }}">
                                         {{ slide.title }}
                                     </h1>
                                     
                                     {% if slide.highlight_text %}
                                     <div class="font-semibold mb-4"
                                          style="font-size: {{ slide.highlight_font_size|default:'36' }}px; color: {{ slide.slide_accent_color|default:site_settings.accent_color|default:'#f59e0b' }}"
-                                         data-animation="{{ slide.animation_effect|default:'zoomIn' }}" data-delay="200">
+                                         data-animation="{{ slide.animation_effect|default:'zoomIn' }}" data-delay="{{ slide.subtitle_delay|default:200 }}">
                                         {{ slide.highlight_text }}
                                     </div>
                                     {% endif %}
                                     
                                     <p class="mb-6 max-w-2xl mx-auto"
                                        style="font-size: {{ slide.subtitle_font_size|default:'18' }}px;"
-                                       data-animation="{{ slide.animation_effect|default:'zoomIn' }}" data-delay="300">
+                                       data-animation="{{ slide.animation_effect|default:'zoomIn' }}" data-delay="{{ slide.subtitle_delay|default:300 }}">
                                         {{ slide.subtitle }}
                                     </p>
                                     
-                                    <div data-animation="{{ slide.animation_effect|default:'zoomIn' }}" data-delay="400">
+                                    <div data-animation="{{ slide.animation_effect|default:'zoomIn' }}" data-delay="{{ slide.button_delay|default:400 }}">
                                         <a href="{{ slide.button1_url|default:'#' }}" 
                                            class="inline-block px-8 py-3 rounded-full font-bold transition-all hover:scale-105 hover:shadow-2xl"
                                            style="background: {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }}; color: white;">
@@ -259,7 +272,12 @@
                                 <div class="max-w-sm w-full rounded-2xl shadow-2xl overflow-hidden transition-all hover:scale-105 duration-300"
                                      style="background: {% if slide.theme_style == 'dark' %}rgba(0,0,0,0.9){% else %}white{% endif %};">
                                     {% if slide.image %}
-                                    <img src="{{ slide.image.url }}" alt="{{ slide.title }}" class="w-full h-48 object-cover">
+                                    <img src="{{ slide.image.url }}" alt="{{ slide.title }}" 
+                                         class="w-full {{ slide.get_image_class }}"
+                                         style="height: {{ slide.image_height|default:'200px' }};
+                                                object-fit: {{ slide.image_object_fit|default:'cover' }};
+                                                object-position: {{ slide.image_position|default:'center center' }};
+                                                opacity: {{ slide.image_opacity|default:100 }}%;">
                                     {% endif %}
                                     
                                     <div class="p-5">
@@ -309,25 +327,25 @@
                                     
                                     <h1 class="font-black mb-3 leading-tight"
                                         style="font-size: {{ slide.title_font_size|default:'52' }}px; color: white; text-shadow: 4px 4px 8px rgba(0,0,0,0.3);"
-                                        data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="200">
+                                        data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="{{ slide.title_delay|default:200 }}">
                                         {{ slide.title }}
                                     </h1>
                                     
                                     {% if slide.highlight_text %}
                                     <div class="font-bold mb-3"
                                          style="font-size: {{ slide.highlight_font_size|default:'38' }}px; background: linear-gradient(135deg, {{ slide.slide_accent_color|default:'#f59e0b' }}, #ff6b9d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"
-                                         data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="250">
+                                         data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="{{ slide.subtitle_delay|default:250 }}">
                                         {{ slide.highlight_text }}
                                     </div>
                                     {% endif %}
                                     
                                     <p class="mb-5 max-w-2xl mx-auto"
                                        style="font-size: {{ slide.subtitle_font_size|default:'18' }}px; color: rgba(255,255,255,0.9);"
-                                       data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="300">
+                                       data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="{{ slide.subtitle_delay|default:300 }}">
                                         {{ slide.subtitle }}
                                     </p>
                                     
-                                    <div class="flex flex-wrap gap-4 justify-center" data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="400">
+                                    <div class="flex flex-wrap gap-4 justify-center" data-animation="{{ slide.animation_effect|default:'fadeInUp' }}" data-delay="{{ slide.button_delay|default:400 }}">
                                         <a href="{{ slide.button1_url|default:'#' }}" 
                                            class="px-6 py-2 rounded-full font-bold transition-all hover:scale-105 hover:shadow-2xl inline-flex items-center gap-2 text-sm"
                                            style="background: white; color: {{ slide.slide_accent_color|default:site_settings.primary_color|default:'#6366f1' }};">
@@ -436,13 +454,22 @@
                                         {% endif %}
                                     </div>
 
-                                    <!-- Image Content -->
+                                    <!-- Image Content with Full Size Controls -->
                                     <div class="relative order-1 lg:order-2 group min-h-[250px] flex items-center justify-center">
                                         {% if slide.image %}
-                                        <div class="relative rounded-2xl overflow-hidden shadow-2xl w-full max-w-md mx-auto">
+                                        <div class="relative overflow-hidden {{ slide.get_image_class }}"
+                                             style="width: {% if slide.image_width == 'auto' %}auto{% else %}{{ slide.image_width }}{% endif %};
+                                                    border-radius: {{ slide.image_border_radius|default:'1rem' }};
+                                                    {% if slide.image_shadow and slide.image_shadow_size != 'none' %}box-shadow: var(--shadow-{{ slide.image_shadow_size|default:'lg' }});{% endif %}">
                                             <img src="{{ slide.image.url }}" 
                                                  alt="{{ slide.title }}" 
-                                                 class="w-full h-auto max-h-[250px] object-contain transform group-hover:scale-105 transition-transform duration-500">
+                                                 style="width: {% if slide.image_width == 'auto' %}auto{% else %}{{ slide.image_width }}{% endif %};
+                                                        height: {% if slide.image_height == 'auto' %}auto{% else %}{{ slide.image_height }}{% endif %};
+                                                        object-fit: {{ slide.image_object_fit|default:'contain' }};
+                                                        object-position: {{ slide.image_position|default:'center center' }};
+                                                        opacity: {{ slide.image_opacity|default:100 }}%;
+                                                        {% if slide.image_hover_effect %}transition: transform {{ slide.image_hover_scale|default:1.05 }}s ease;{% endif %}"
+                                                 class="{% if slide.image_hover_effect %}hover-scale{% endif %}">
                                         </div>
                                         {% else %}
                                         <div class="w-full max-w-md mx-auto h-64 rounded-2xl bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
@@ -551,10 +578,26 @@
         position: relative;
     }
     
+    /* Image hover effects */
+    .hover-scale {
+        transition: transform 0.3s ease;
+    }
+    
+    .hover-scale:hover {
+        transform: scale({{ slide.image_hover_scale|default:1.05 }});
+    }
+    
+    /* Custom shadow variables */
+    :root {
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+    }
+    
     /* Ensure images display properly */
     .slide img {
         max-width: 100%;
-        height: auto;
         display: block;
     }
     
@@ -743,6 +786,12 @@
         .slider-prev i, .slider-next i {
             font-size: 12px;
         }
+        
+        /* Mobile image size overrides */
+        .slide img {
+            width: {{ slide.image_mobile_width|default:'90%' }} !important;
+            height: {{ slide.image_mobile_height|default:'auto' }} !important;
+        }
     }
     
     /* Image Loading Fix */
@@ -768,12 +817,10 @@
         function fixImageBackground(slide) {
             const bgImage = slide.style.backgroundImage;
             if (bgImage && bgImage !== 'none' && bgImage !== '') {
-                // Test if image loads properly
                 const imgUrl = bgImage.replace(/url\(['"]?(.*?)['"]?\)/i, '$1');
                 const testImg = new Image();
                 testImg.onerror = function() {
                     console.warn('Image failed to load:', imgUrl);
-                    // Fallback to background color if image fails
                     if (slide.style.backgroundColor) {
                         slide.style.backgroundImage = 'none';
                     }
