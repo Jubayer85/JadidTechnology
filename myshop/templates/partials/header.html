@@ -1,178 +1,198 @@
-<!-- ================= COMPLETE DYNAMIC HEADER ================= -->
+<!-- ================= COMPLETE DYNAMIC HEADER (Three Separate Sections) ================= -->
 {% load static %}
 
-<header class="sticky top-0 z-50 transition-all duration-300"
-        style="background-color: {{ site_settings.header_bg_color|default:'#ffffff' }}; 
-               backdrop-filter: blur(10px);
-               border-bottom: 1px solid rgba(0,0,0,0.05);">
+<header class="sticky top-0 z-50 w-full">
     
-    
-    <!-- ===== MAIN HEADER ===== -->
-    <div class="max-w-8xl mx-auto px-3 sm:px-4 lg:px-8">
-        <div class="flex items-center justify-between h-14 lg:h-16">
+    <!-- ===== 1. TOP BAR (Announcement / Offers) ===== -->
+    {% if site_settings.show_top_bar %}
+    <div class="top-bar text-xs py-1.5 transition-all duration-300 hidden sm:block"
+         style="background-color: {{ site_settings.top_bar_bg_color|default:'#1f2937' }}; color: {{ site_settings.top_bar_text_color|default:'#ffffff' }};">
+        <div class="max-w-8xl mx-auto px-3 sm:px-4 lg:px-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-truck-fast"></i>
+                    <span class="hidden md:inline">{{ site_settings.top_bar_text|default:'🚚 Free Shipping on orders over $50 | 24/7 Customer Support' }}</span>
+                    <span class="md:hidden">{{ site_settings.top_bar_text|default:'Free Shipping $50+'|truncatechars:30 }}</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="#" class="hover:opacity-80 transition" style="color: {{ site_settings.top_bar_text_color|default:'#ffffff' }};">Track Order</a>
+                    <a href="#" class="hover:opacity-80 transition" style="color: {{ site_settings.top_bar_text_color|default:'#ffffff' }};">Help Center</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
-            <!-- Mobile Menu Button -->
-            <button id="mobile-menu-button" class="lg:hidden relative w-10 h-10 rounded-xl hover:bg-gray-100 transition-all duration-300 group active:scale-95">
-                <i class="fas fa-bars text-gray-700 text-lg group-hover:text-indigo-600 transition-colors"></i>
-            </button>
+    <!-- ===== 2. MIDDLE BAR (Logo + Search + Action Buttons) ===== -->
+    <div class="middle-header transition-all duration-300"
+         style="background-color: {{ site_settings.middle_header_bg_color|default:'#ffffff' }}; border-bottom: 1px solid rgba(0,0,0,0.05);">
+        
+        <div class="max-w-8xl mx-auto px-3 sm:px-4 lg:px-8">
+            <div class="flex items-center justify-between py-2 md:py-3" style="padding-top: {{ site_settings.header_padding_y|default:'12' }}px; padding-bottom: {{ site_settings.header_padding_y|default:'12' }}px;">
+                
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-button" class="lg:hidden relative w-10 h-10 rounded-xl hover:bg-gray-100 transition-all duration-300 group active:scale-95">
+                    <i class="fas fa-bars text-gray-700 text-lg group-hover:text-indigo-600 transition-colors"></i>
+                </button>
 
-            <!-- Logo -->
-            <a href="{% url 'home' %}" class="flex items-center gap-2 lg:gap-3 group">
-                <div class="relative">
-                    {% if site_settings.site_logo %}
-                    <img src="{{ site_settings.site_logo.url }}" 
-                         alt="{{ site_settings.site_name }}"
-                         class="h-18 lg:h-16 w-auto object-contain">
+                <!-- Logo (Dynamic Height) -->
+                <a href="{% url 'home' %}" class="flex items-center gap-2 lg:gap-3 group shrink-0">
+                    <div class="relative">
+                        {% if site_settings.site_logo %}
+                        <img src="{{ site_settings.site_logo.url }}" 
+                             alt="{{ site_settings.site_name }}"
+                             class="w-auto object-contain transition-all"
+                             style="height: {{ site_settings.logo_height|default:'50' }}px; max-height: 100px;">
+                        {% else %}
+                        <div class="rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all group-hover:scale-105"
+                             style="width: {{ site_settings.logo_height|default:'50' }}px; height: {{ site_settings.logo_height|default:'50' }}px; background: linear-gradient(135deg, {{ site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#3b82f6' }})">
+                            <i class="fas fa-mobile-alt text-white text-sm lg:text-base"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex flex-col" style="text-align: {{ site_settings.logo_alignment|default:'left' }};">
+                        <p class="text-base lg:text-lg font-bold tracking-tight">
+                            <span class="text-gray-900">{{ site_settings.site_name|default:'Jadid' }}</span>
+                        </p>
+                        <p class="text-[10px] lg:text-xs text-gray-600 font-medium tracking-wide hidden sm:block">
+                            {{ site_settings.site_tagline|default:'Premium Tech Store' }}
+                        </p>
+                    </div>
+                </a>
+
+                <!-- Desktop Search Bar -->
+                <form method="GET" action="{% url 'shop_all' %}" class="hidden lg:flex flex-1 max-w-2xl mx-4 lg:mx-8 relative">
+                    <div class="relative w-full group">
+                        <input type="text" name="q" value="{{ request.GET.q|default:'' }}"
+                               placeholder="Search products, brands, or categories..."
+                               class="w-full h-9 lg:h-10 pl-11 lg:pl-12 pr-4 border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:outline-none transition-all text-sm placeholder-gray-400"
+                               style="border-radius: {% if site_settings.search_style == 'pill' %}9999px{% elif site_settings.search_style == 'square' %}0.5rem{% else %}0.75rem{% endif %};">
+                        <i class="fas fa-search absolute left-3.5 lg:left-4 top-2.5 lg:top-3 text-gray-400 text-sm group-focus-within:text-indigo-600 transition-colors"></i>
+                        <button type="submit" class="absolute right-2.5 lg:right-3 top-2 lg:top-2 text-gray-400 transition-colors"
+                                style="color: {{ site_settings.primary_color|default:'#6366f1' }};">
+                            <i class="fas fa-arrow-right text-sm"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-1 lg:gap-2 shrink-0">
+                    <!-- Mobile Search Button -->
+                    <button id="mobile-search-button" class="lg:hidden relative w-10 h-10 rounded-xl hover:bg-gray-100 transition-all">
+                        <i class="fas fa-search text-gray-600 text-base"></i>
+                    </button>
+
+                    <!-- Wishlist Button -->
+                    <a href="{% url 'wishlist' %}" class="relative group">
+                        <div class="w-10 h-10 rounded-xl hover:bg-gray-100 transition-all flex items-center justify-center">
+                            <i class="far fa-heart text-gray-600 text-base lg:text-lg group-hover:text-rose-500 transition-colors"></i>
+                            {% if wishlist_count > 0 %}
+                            <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] text-[10px] text-white rounded-full flex items-center justify-center px-1 shadow-sm animate-pulse"
+                                  style="background: linear-gradient(135deg, #ef4444, #ec4899)">
+                                {{ wishlist_count }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </a>
+
+                    <!-- Cart Button -->
+                    <a href="{% url 'cart_detail' %}" class="relative group">
+                        <div class="w-10 h-10 rounded-xl hover:bg-gray-100 transition-all flex items-center justify-center">
+                            <i class="fas fa-shopping-bag text-gray-600 text-base lg:text-lg transition-colors"></i>
+                            {% if cart_count > 0 %}
+                            <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] text-[10px] text-white rounded-full flex items-center justify-center px-1 shadow-sm"
+                                  style="background: linear-gradient(135deg, {{ site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#3b82f6' }})">
+                                {{ cart_count }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </a>
+
+                    <!-- User Menu -->
+                    {% if user.is_authenticated %}
+                    <div class="relative group ml-1">
+                        <button class="flex items-center gap-1 lg:gap-2 p-1 rounded-xl hover:bg-gray-100 transition-all">
+                            <div class="relative">
+                                <div class="w-7 h-7 lg:w-9 lg:h-9 rounded-full flex items-center justify-center text-xs lg:text-sm font-semibold shadow-sm text-white"
+                                     style="background: linear-gradient(135deg, {{ site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#3b82f6' }})">
+                                    {{ user.username|first|upper }}
+                                </div>
+                                <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></div>
+                            </div>
+                            <i class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-gray-600 transition-colors hidden sm:block"></i>
+                        </button>
+                        
+                        <div class="absolute right-0 mt-2 lg:mt-3 w-56 lg:w-64 bg-white border border-gray-100 rounded-xl lg:rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 hidden lg:block">
+                            <div class="px-4 lg:px-5 py-3 lg:py-4 border-b border-gray-50 rounded-t-xl"
+                                 style="background: linear-gradient(135deg, rgba(99,102,241,0.05), rgba(59,130,246,0.05))">
+                                <p class="font-semibold text-gray-900 truncate text-sm">{{ user.get_full_name|default:user.username }}</p>
+                                <p class="text-xs text-gray-400 truncate mt-0.5">{{ user.email }}</p>
+                            </div>
+                            <div class="py-2">
+                                {% if user.is_staff %}
+                                <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-4 lg:px-5 py-2 lg:py-2.5 text-sm text-gray-700 hover:bg-indigo-50 transition-colors">
+                                    <i class="fas fa-tachometer-alt w-4 text-gray-400"></i><span>Admin Dashboard</span>
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'profile' %}" class="flex items-center gap-3 px-4 lg:px-5 py-2 lg:py-2.5 text-sm text-gray-700 hover:bg-indigo-50 transition-colors">
+                                    <i class="fas fa-user w-4 text-gray-400"></i><span>Profile Settings</span>
+                                </a>
+                                <a href="{% url 'order_history' %}" class="flex items-center gap-3 px-4 lg:px-5 py-2 lg:py-2.5 text-sm text-gray-700 hover:bg-indigo-50 transition-colors">
+                                    <i class="fas fa-shopping-bag w-4 text-gray-400"></i><span>Order History</span>
+                                </a>
+                                <div class="border-t border-gray-50 mt-2 pt-2">
+                                    <form method="post" action="{% url 'logout' %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="flex items-center gap-3 w-full px-4 lg:px-5 py-2 lg:py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                                            <i class="fas fa-sign-out-alt w-4"></i><span>Sign Out</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     {% else %}
-                    <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all group-hover:scale-105"
-                         style="background: linear-gradient(135deg, {{ site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#3b82f6' }})">
-                        <i class="fas fa-mobile-alt text-white text-sm lg:text-base"></i>
+                    <div class="hidden sm:flex items-center gap-2 ml-1 lg:ml-2">
+                        <a href="{% url 'login' %}" class="px-3 lg:px-4 py-1.5 lg:py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200">Sign In</a>
+                        <a href="{% url 'register' %}" class="px-3 lg:px-4 py-1.5 lg:py-2 text-sm font-medium text-white rounded-xl shadow-sm hover:shadow-md transition-all hover:scale-105"
+                           style="background: linear-gradient(135deg, {{ site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#3b82f6' }})">Get Started</a>
                     </div>
                     {% endif %}
                 </div>
-                <div class="flex flex-col">
-                    <p class="text-base lg:text-lg font-bold tracking-tight">
-                        <span class="text-gray-900">{{ site_settings.site_name|default:'Jadid' }}</span>
-                        <span class="text-transparent bg-clip-text"
-                             style="background-image: linear-gradient(135deg, {{ site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#3b82f6' }})">
-                            
-                        </span>
-                    </p>
-                    <p class="text-[10px] lg:text-xs text-gray-600 font-medium tracking-wide hidden sm:block">
-                        {{ site_settings.site_tagline|default:'Premium Tech Store' }}
-                    </p>
-                </div>
-            </a>
-
-            <!-- Desktop Search Bar -->
-            <form method="GET" action="{% url 'shop_all' %}" class="hidden lg:flex flex-1 max-w-2xl mx-4 lg:mx-8 relative">
-                <div class="relative w-full group">
-                    <input type="text" name="q" value="{{ request.GET.q|default:'' }}"
-                           placeholder="Search products, brands, or categories..."
-                           class="w-full h-9 lg:h-10 pl-11 lg:pl-12 pr-4 rounded-full border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:outline-none transition-all text-sm placeholder-gray-400"
-                           style="focus:ring-color: {{ site_settings.primary_color|default:'#6366f1' }}20">
-                    <i class="fas fa-search absolute left-3.5 lg:left-4 top-2.5 lg:top-3 text-gray-400 text-sm group-focus-within:text-indigo-600 transition-colors"></i>
-                    <button type="submit" class="absolute right-2.5 lg:right-3 top-2 lg:top-2 text-gray-400 transition-colors"
-                            style="hover:color: {{ site_settings.primary_color|default:'#6366f1' }}">
-                        <i class="fas fa-arrow-right text-sm"></i>
-                    </button>
-                </div>
-            </form>
-
-            <!-- Action Buttons -->
-            <div class="flex items-center gap-1 lg:gap-2">
-                
-                <!-- Mobile Search Button -->
-                <button id="mobile-search-button" class="lg:hidden relative w-10 h-10 rounded-xl hover:bg-gray-100 transition-all">
-                    <i class="fas fa-search text-gray-600 text-base"></i>
-                </button>
-
-                <!-- Wishlist Button -->
-                <a href="{% url 'wishlist' %}" class="relative group">
-                    <div class="w-10 h-10 rounded-xl hover:bg-gray-100 transition-all flex items-center justify-center">
-                        <i class="far fa-heart text-gray-600 text-base lg:text-lg group-hover:text-rose-500 transition-colors"></i>
-                        {% if wishlist_count > 0 %}
-                        <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] text-[10px] text-white rounded-full flex items-center justify-center px-1 shadow-sm animate-pulse"
-                              style="background: linear-gradient(135deg, #ef4444, #ec4899)">
-                            {{ wishlist_count }}
-                        </span>
-                        {% endif %}
-                    </div>
-                </a>
-
-                <!-- Cart Button -->
-                <a href="{% url 'cart_detail' %}" class="relative group">
-                    <div class="w-10 h-10 rounded-xl hover:bg-gray-100 transition-all flex items-center justify-center">
-                        <i class="fas fa-shopping-bag text-gray-600 text-base lg:text-lg transition-colors"
-                           style="group-hover:color: {{ site_settings.primary_color|default:'#6366f1' }}"></i>
-                        {% if cart_count > 0 %}
-                        <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] text-[10px] text-white rounded-full flex items-center justify-center px-1 shadow-sm"
-                              style="background: linear-gradient(135deg, {{ site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#3b82f6' }})">
-                            {{ cart_count }}
-                        </span>
-                        {% endif %}
-                    </div>
-                </a>
-
-                <!-- User Menu -->
-                {% if user.is_authenticated %}
-                <div class="relative group ml-1">
-                    <button class="flex items-center gap-1 lg:gap-2 p-1 rounded-xl hover:bg-gray-100 transition-all">
-                        <div class="relative">
-                            <div class="w-7 h-7 lg:w-9 lg:h-9 rounded-full flex items-center justify-center text-xs lg:text-sm font-semibold shadow-sm text-white"
-                                 style="background: linear-gradient(135deg, {{ site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#3b82f6' }})">
-                                {{ user.username|first|upper }}
-                            </div>
-                            <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></div>
-                        </div>
-                        <i class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-gray-600 transition-colors hidden sm:block"></i>
-                    </button>
-
-                    <div class="absolute right-0 mt-2 lg:mt-3 w-56 lg:w-64 bg-white border border-gray-100 rounded-xl lg:rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 hidden lg:block">
-                        <div class="px-4 lg:px-5 py-3 lg:py-4 border-b border-gray-50 rounded-t-xl"
-                             style="background: linear-gradient(135deg, rgba(99,102,241,0.05), rgba(59,130,246,0.05))">
-                            <p class="font-semibold text-gray-900 truncate text-sm">{{ user.get_full_name|default:user.username }}</p>
-                            <p class="text-xs text-gray-400 truncate mt-0.5">{{ user.email }}</p>
-                        </div>
-                        <div class="py-2">
-                            {% if user.is_staff %}
-                            <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-4 lg:px-5 py-2 lg:py-2.5 text-sm text-gray-700 hover:bg-indigo-50 transition-colors">
-                                <i class="fas fa-tachometer-alt w-4 text-gray-400"></i><span>Admin Dashboard</span>
-                            </a>
-                            {% endif %}
-                            <a href="{% url 'profile' %}" class="flex items-center gap-3 px-4 lg:px-5 py-2 lg:py-2.5 text-sm text-gray-700 hover:bg-indigo-50 transition-colors">
-                                <i class="fas fa-user w-4 text-gray-400"></i><span>Profile Settings</span>
-                            </a>
-                            <a href="{% url 'order_history' %}" class="flex items-center gap-3 px-4 lg:px-5 py-2 lg:py-2.5 text-sm text-gray-700 hover:bg-indigo-50 transition-colors">
-                                <i class="fas fa-shopping-bag w-4 text-gray-400"></i><span>Order History</span>
-                            </a>
-                            <div class="border-t border-gray-50 mt-2 pt-2">
-                                <form method="post" action="{% url 'logout' %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="flex items-center gap-3 w-full px-4 lg:px-5 py-2 lg:py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
-                                        <i class="fas fa-sign-out-alt w-4"></i><span>Sign Out</span>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% else %}
-                <div class="hidden sm:flex items-center gap-2 ml-1 lg:ml-2">
-                    <a href="{% url 'login' %}" class="px-3 lg:px-4 py-1.5 lg:py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200">Sign In</a>
-                    <a href="{% url 'register' %}" class="px-3 lg:px-4 py-1.5 lg:py-2 text-sm font-medium text-white rounded-xl shadow-sm hover:shadow-md transition-all hover:scale-105"
-                       style="background: linear-gradient(135deg, {{ site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#3b82f6' }})">Get Started</a>
-                </div>
-                {% endif %}
             </div>
-        </div>
 
-        <!-- Mobile Search Bar -->
-        <div id="mobile-search-container" class="lg:hidden hidden pb-3">
-            <form method="GET" action="{% url 'shop_all' %}" class="relative">
-                <input type="text" name="q" value="{{ request.GET.q|default:'' }}"
-                       placeholder="Search products..."
-                       class="w-full h-10 pl-11 pr-4 rounded-full border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:outline-none transition-all text-sm">
-                <i class="fas fa-search absolute left-4 top-3 text-gray-400"></i>
-                <button type="submit" class="absolute right-3 top-2.5 transition-colors" style="color: {{ site_settings.primary_color|default:'#6366f1' }}">
-                    <i class="fas fa-arrow-right"></i>
-                </button>
-            </form>
+            <!-- Mobile Search Bar -->
+            <div id="mobile-search-container" class="lg:hidden hidden pb-3">
+                <form method="GET" action="{% url 'shop_all' %}" class="relative">
+                    <input type="text" name="q" value="{{ request.GET.q|default:'' }}"
+                           placeholder="Search products..."
+                           class="w-full h-10 pl-11 pr-4 rounded-full border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:outline-none transition-all text-sm">
+                    <i class="fas fa-search absolute left-4 top-3 text-gray-400"></i>
+                    <button type="submit" class="absolute right-3 top-2.5 transition-colors" style="color: {{ site_settings.primary_color|default:'#6366f1' }}">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
-    <!-- ===== DESKTOP NAVIGATION BAR ===== -->
-    <nav class="border-t border-gray-100 hidden lg:block" style="background-color: {{ site_settings.header_bg_color|default:'#ffffff' }}">
-        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center h-12">
+    <!-- ===== 3. NAVIGATION BAR (Categories & Links) ===== -->
+    {% if site_settings.show_nav_bar %}
+    <nav class="nav-header border-y border-gray-100 hidden lg:block transition-all duration-300"
+         style="background-color: {{ site_settings.nav_bar_bg_color|default:'#ffffff' }}; height: {{ site_settings.nav_bar_height|default:'48' }}px;">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="flex items-center justify-between h-full">
                 <div class="flex items-center gap-1">
                     {% for category in nav_categories|slice:":8" %}
                     <div class="relative group">
                         <a href="{% url 'category_products' category.slug %}"
-                           class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 transition-colors group-hover:bg-indigo-50/50">
+                           class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                           style="color: {{ site_settings.nav_link_color|default:'#374151' }};"
+                           onmouseover="this.style.color='{{ site_settings.nav_hover_color|default:'#4f46e5' }}'"
+                           onmouseout="this.style.color='{{ site_settings.nav_link_color|default:'#374151' }}'">
                             <span>{{ category.name }}</span>
                             {% if category.subcategories.all %}
-                            <i class="fas fa-chevron-down text-xs text-gray-400 transition-colors"></i>
+                            <i class="fas fa-chevron-down text-xs transition-colors" style="color: {{ site_settings.nav_link_color|default:'#374151' }};"></i>
                             {% endif %}
                         </a>
                         {% if category.subcategories.all %}
@@ -180,13 +200,20 @@
                             <div class="p-2 max-h-80 overflow-y-auto">
                                 {% for sub in category.subcategories.all|slice:":8" %}
                                 <a href="{% url 'subcategory_products' category.slug sub.slug %}"
-                                   class="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-indigo-50 transition-colors">
-                                    <i class="fas fa-chevron-right text-xs text-gray-400 w-3"></i>
+                                   class="flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg transition-colors"
+                                   style="color: {{ site_settings.nav_link_color|default:'#374151' }};"
+                                   onmouseover="this.style.color='{{ site_settings.nav_hover_color|default:'#4f46e5' }}'; this.style.backgroundColor='#f3f4f6'"
+                                   onmouseout="this.style.color='{{ site_settings.nav_link_color|default:'#374151' }}'; this.style.backgroundColor='transparent'">
+                                    <i class="fas fa-chevron-right text-xs w-3" style="color: {{ site_settings.nav_link_color|default:'#374151' }};"></i>
                                     <span>{{ sub.name }}</span>
                                     <span class="ml-auto text-xs text-gray-400">({{ sub.product_count }})</span>
                                 </a>
                                 {% endfor %}
-                                <a href="{% url 'category_products' category.slug %}" class="block px-3 py-2 mt-2 text-xs text-center rounded-lg text-indigo-600 hover:bg-indigo-50">
+                                <a href="{% url 'category_products' category.slug %}" 
+                                   class="block px-3 py-2 mt-2 text-xs text-center rounded-lg transition-colors"
+                                   style="color: {{ site_settings.nav_hover_color|default:'#4f46e5' }};"
+                                   onmouseover="this.style.backgroundColor='#e0e7ff'"
+                                   onmouseout="this.style.backgroundColor='transparent'">
                                     View All {{ category.subcategories.count }} Subcategories →
                                 </a>
                             </div>
@@ -200,27 +227,50 @@
                         <span class="absolute right-2 top-1/2 transform -translate-y-1/2 animate-ping opacity-75">🔥</span>
                     </a>
                 </div>
-                <div class="ml-auto flex items-center gap-3">
-                    <a href="{% url 'new_arrivals' %}" class="text-sm text-gray-600 transition-colors hover:text-indigo-600">New Arrivals</a>
-                    <a href="{% url 'best_sellers' %}" class="text-sm text-gray-600 transition-colors hover:text-indigo-600">Best Sellers</a>
-                    <a href="{% url 'brand_list' %}" class="text-sm text-gray-600 transition-colors hover:text-indigo-600">Brands</a>
+                <div class="flex items-center gap-3">
+                    <a href="{% url 'new_arrivals' %}" 
+                       class="text-sm transition-colors duration-200"
+                       style="color: {{ site_settings.nav_link_color|default:'#374151' }};"
+                       onmouseover="this.style.color='{{ site_settings.nav_hover_color|default:'#4f46e5' }}'"
+                       onmouseout="this.style.color='{{ site_settings.nav_link_color|default:'#374151' }}'">New Arrivals</a>
+                    <a href="{% url 'best_sellers' %}" 
+                       class="text-sm transition-colors duration-200"
+                       style="color: {{ site_settings.nav_link_color|default:'#374151' }};"
+                       onmouseover="this.style.color='{{ site_settings.nav_hover_color|default:'#4f46e5' }}'"
+                       onmouseout="this.style.color='{{ site_settings.nav_link_color|default:'#374151' }}'">Best Sellers</a>
+                    <a href="{% url 'brand_list' %}" 
+                       class="text-sm transition-colors duration-200"
+                       style="color: {{ site_settings.nav_link_color|default:'#374151' }};"
+                       onmouseover="this.style.color='{{ site_settings.nav_hover_color|default:'#4f46e5' }}'"
+                       onmouseout="this.style.color='{{ site_settings.nav_link_color|default:'#374151' }}'">Brands</a>
                 </div>
             </div>
         </div>
     </nav>
+    {% endif %}
+    
+    <!-- Debug Info (Remove in production) -->
+    {% if debug %}
+    <div style="display: none;" class="debug-info">
+        <!-- Nav Bar BG: {{ site_settings.nav_bar_bg_color }} -->
+        <!-- Nav Link Color: {{ site_settings.nav_link_color }} -->
+        <!-- Nav Hover Color: {{ site_settings.nav_hover_color }} -->
+        <!-- Show Nav Bar: {{ site_settings.show_nav_bar }} -->
+        <!-- Logo Height: {{ site_settings.logo_height }} -->
+        <!-- Top Bar Text: {{ site_settings.top_bar_text }} -->
+    </div>
+    {% endif %}
 </header>
 
 <!-- ===== MOBILE SIDEBAR MENU ===== -->
 <div id="mobile-menu-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden lg:hidden"></div>
-
 <div id="mobile-menu-sidebar" class="fixed left-0 top-0 h-full w-80 bg-white shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 ease-out lg:hidden overflow-y-auto">
-    
     <!-- Sidebar Header -->
     <div class="relative bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
                 {% if site_settings.site_logo %}
-                <img src="{{ site_settings.site_logo.url }}" class="w-10 h-10 rounded-xl">
+                <img src="{{ site_settings.site_logo.url }}" class="w-10 h-10 rounded-xl" style="height: 40px; width: auto;">
                 {% else %}
                 <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
                     <i class="fas fa-mobile-alt text-white text-xl"></i>
@@ -254,7 +304,6 @@
         {% endif %}
     </div>
     
-    <!-- Search in Sidebar -->
     <div class="p-4 border-b border-gray-100">
         <form method="GET" action="{% url 'shop_all' %}" class="relative">
             <input type="text" name="q" placeholder="Search products..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm">
@@ -262,7 +311,6 @@
         </form>
     </div>
     
-    <!-- Navigation Links -->
     <div class="p-4 space-y-1">
         <a href="{% url 'home' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
             <i class="fas fa-home w-5 text-gray-500"></i><span>Home</span>
@@ -271,7 +319,6 @@
             <i class="fas fa-store w-5 text-gray-500"></i><span>Shop All</span>
         </a>
         
-        <!-- Categories Dropdown -->
         <div class="category-accordion">
             <button class="category-header flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-gray-100 transition">
                 <div class="flex items-center gap-3">
@@ -334,6 +381,11 @@
     .category-arrow { transition: transform 0.2s ease; }
     .category-header.open .category-arrow { transform: rotate(180deg); }
     .category-content { overflow: hidden; transition: max-height 0.3s ease; }
+    
+    /* Smooth transitions for nav links */
+    .nav-header a {
+        transition: all 0.2s ease-in-out;
+    }
 </style>
 
 <script>

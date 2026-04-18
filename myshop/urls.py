@@ -19,7 +19,9 @@ urlpatterns = [
     path('admin/upload-logo/', views.upload_logo, name='upload_logo'),
     
     # Site Settings
-    path('site-settings/', views.site_settings_view, name='site_settings'),
+   path('site-settings/', views.site_settings_view, name='site_settings'),
+    path('clear-logo/', views.clear_logo, name='clear_logo'),
+    path('clear-favicon/', views.clear_favicon, name='clear_favicon'),
     
     # Hero Slide Management
     path('site-settings/add-slide/', views.add_hero_slide, name='add_hero_slide'),

@@ -328,22 +328,68 @@ class HeroSlide(models.Model):
 
 class SiteSettings(models.Model):
     """Dynamic site settings for admin control"""
-    
-    # Site Basic Info
+     # ================= SITE BASIC INFO =================
     site_name = models.CharField(max_length=100, default='Jadid Technology', verbose_name="Site Name")
     site_tagline = models.CharField(max_length=200, blank=True, default='Premium Tech Store', verbose_name="Site Tagline")
     site_logo = models.ImageField(upload_to='site/logo/', blank=True, null=True, verbose_name="Site Logo")
     site_favicon = models.ImageField(upload_to='site/favicon/', blank=True, null=True, verbose_name="Favicon Icon")
     
-    # Header Settings
-    header_bg_color = models.CharField(max_length=20, default='#ffffff', verbose_name="Header Background Color")
-    header_text_color = models.CharField(max_length=20, default='#1f2937', verbose_name="Header Text Color")
-    header_sticky = models.BooleanField(default=True, verbose_name="Sticky Header")
-    show_top_bar = models.BooleanField(default=True, verbose_name="Show Top Bar")
-    top_bar_text = models.CharField(max_length=500, blank=True, default='Free Shipping on orders over $50', verbose_name="Top Bar Text")
+    # Logo Settings
+    logo_height = models.PositiveIntegerField(default=50, help_text="Logo height in pixels (30-100)", verbose_name="Logo Height (px)")
+    logo_alignment = models.CharField(
+        max_length=20,
+        choices=[('left', 'Left'), ('center', 'Center'), ('right', 'Right')],
+        default='left',
+        verbose_name="Logo Alignment"
+    )
     
-    # NEW: Header Height & Layout
-    header_height = models.PositiveIntegerField(default=70, help_text="Header height in pixels (50-150)", verbose_name="Header Height (px)")
+    # ================= TOP BAR SETTINGS (Section 1) =================
+    show_top_bar = models.BooleanField(default=True, verbose_name="Show Top Bar")
+    top_bar_text = models.CharField(max_length=500, blank=True, default='🚚 Free Shipping on orders over $50 | 24/7 Customer Support', verbose_name="Top Bar Text")
+    top_bar_bg_color = models.CharField(max_length=20, default='#1f2937', verbose_name="Top Bar Background Color")
+    top_bar_text_color = models.CharField(max_length=20, default='#ffffff', verbose_name="Top Bar Text Color")
+    top_bar_font_size = models.CharField(
+        max_length=10,
+        choices=[('xs', 'Extra Small'), ('sm', 'Small'), ('base', 'Normal')],
+        default='xs',
+        verbose_name="Top Bar Font Size"
+    )
+    
+    # ================= MIDDLE BAR SETTINGS (Section 2 - Main Header) =================
+    middle_header_bg_color = models.CharField(max_length=20, default='#ffffff', verbose_name="Middle Bar Background Color")
+    header_padding_y = models.PositiveIntegerField(default=12, help_text="Vertical padding in pixels (4-32)", verbose_name="Header Vertical Padding (px)")
+    header_sticky = models.BooleanField(default=True, verbose_name="Sticky Header")
+    search_style = models.CharField(
+        max_length=20,
+        choices=[('rounded', 'Rounded'), ('pill', 'Pill Shape'), ('square', 'Square')],
+        default='rounded',
+        verbose_name="Search Bar Style"
+    )
+    header_border = models.CharField(
+        max_length=20,
+        choices=[('none', 'None'), ('light', 'Light Border'), ('dark', 'Dark Border'), ('colored', 'Colored Border')],
+        default='light',
+        verbose_name="Header Border Style"
+    )
+    
+    # ================= NAVIGATION BAR SETTINGS (Section 3) =================
+    show_nav_bar = models.BooleanField(default=True, verbose_name="Show Navigation Bar")
+    nav_bar_bg_color = models.CharField(max_length=20, default='#f8fafc', verbose_name="Navigation Bar Background Color")
+    nav_link_color = models.CharField(max_length=20, default='#374151', verbose_name="Navigation Link Color")
+    nav_hover_color = models.CharField(max_length=20, default='#4f46e5', verbose_name="Navigation Hover Color")
+    nav_bar_height = models.PositiveIntegerField(default=48, help_text="Navigation bar height in pixels (36-80)", verbose_name="Nav Bar Height (px)")
+    nav_layout = models.CharField(
+        max_length=20,
+        choices=[('left', 'Left Aligned'), ('center', 'Center Aligned'), ('between', 'Space Between')],
+        default='left',
+        verbose_name="Navigation Layout"
+    )
+    nav_sticky = models.BooleanField(default=False, verbose_name="Sticky Navigation Bar")
+    
+    # ================= LEGACY HEADER SETTINGS (Keep for backward compatibility) =================
+    header_bg_color = models.CharField(max_length=20, default='#ffffff', verbose_name="Header Background Color (Legacy)")
+    header_text_color = models.CharField(max_length=20, default='#1f2937', verbose_name="Header Text Color (Legacy)")
+    header_height = models.PositiveIntegerField(default=70, help_text="Header height in pixels (50-150)", verbose_name="Header Height (px) - Legacy")
     header_layout = models.CharField(
         max_length=20,
         choices=[
@@ -352,7 +398,7 @@ class SiteSettings(models.Model):
             ('compact', 'Compact (Reduced padding)')
         ],
         default='standard',
-        verbose_name="Header Layout Style"
+        verbose_name="Header Layout Style (Legacy)"
     )
     
     # Hero Section Settings

@@ -2437,7 +2437,6 @@ def update_cart_item(request, item_id):
     
     return redirect('cart_detail')
 
-
 # ==================== SITE SETTINGS VIEW ====================
 @staff_member_required
 def site_settings_view(request):
@@ -2450,7 +2449,7 @@ def site_settings_view(request):
             if not settings:
                 settings = SiteSettings()
             
-            # Basic Information
+            # ================= BASIC INFORMATION =================
             settings.site_name = request.POST.get('site_name', 'Jadid Technology') or 'Jadid Technology'
             settings.site_tagline = request.POST.get('site_tagline', 'Premium Tech Store') or 'Premium Tech Store'
             
@@ -2465,22 +2464,63 @@ def site_settings_view(request):
                     settings.site_favicon.delete()
                 settings.site_favicon = request.FILES['site_favicon']
             
-            # Header Settings
+            # ================= LOGO SETTINGS =================
+            try:
+                logo_height = request.POST.get('logo_height', '50')
+                settings.logo_height = int(logo_height) if logo_height and logo_height.isdigit() else 50
+            except:
+                settings.logo_height = 50
+            
+            settings.logo_alignment = request.POST.get('logo_alignment', 'left') or 'left'
+            
+            # ================= TOP BAR SETTINGS =================
+            settings.show_top_bar = request.POST.get('show_top_bar') == 'on'
+            settings.top_bar_text = request.POST.get('top_bar_text', '🚚 Free Shipping on orders over $50 | 24/7 Customer Support') or '🚚 Free Shipping on orders over $50 | 24/7 Customer Support'
+            settings.top_bar_bg_color = request.POST.get('top_bar_bg_color', '#1f2937') or '#1f2937'
+            settings.top_bar_text_color = request.POST.get('top_bar_text_color', '#ffffff') or '#ffffff'
+            settings.top_bar_font_size = request.POST.get('top_bar_font_size', 'xs') or 'xs'
+            
+            # ================= MIDDLE BAR SETTINGS =================
+            settings.middle_header_bg_color = request.POST.get('middle_header_bg_color', '#ffffff') or '#ffffff'
+            
+            try:
+                header_padding_y = request.POST.get('header_padding_y', '12')
+                settings.header_padding_y = int(header_padding_y) if header_padding_y and header_padding_y.isdigit() else 12
+            except:
+                settings.header_padding_y = 12
+            
+            settings.header_sticky = request.POST.get('header_sticky') == 'on'
+            settings.search_style = request.POST.get('search_style', 'rounded') or 'rounded'
+            settings.header_border = request.POST.get('header_border', 'light') or 'light'
+            
+            # ================= NAVIGATION BAR SETTINGS =================
+            settings.show_nav_bar = request.POST.get('show_nav_bar') == 'on'
+            settings.nav_bar_bg_color = request.POST.get('nav_bar_bg_color', '#f8fafc') or '#f8fafc'
+            settings.nav_link_color = request.POST.get('nav_link_color', '#374151') or '#374151'
+            settings.nav_hover_color = request.POST.get('nav_hover_color', '#4f46e5') or '#4f46e5'
+            
+            try:
+                nav_bar_height = request.POST.get('nav_bar_height', '48')
+                settings.nav_bar_height = int(nav_bar_height) if nav_bar_height and nav_bar_height.isdigit() else 48
+            except:
+                settings.nav_bar_height = 48
+            
+            settings.nav_layout = request.POST.get('nav_layout', 'left') or 'left'
+            settings.nav_sticky = request.POST.get('nav_sticky') == 'on'
+            
+            # ================= LEGACY HEADER SETTINGS =================
             settings.header_bg_color = request.POST.get('header_bg_color', '#ffffff') or '#ffffff'
             settings.header_text_color = request.POST.get('header_text_color', '#1f2937') or '#1f2937'
-            settings.header_sticky = request.POST.get('header_sticky') == 'on'
-            settings.show_top_bar = request.POST.get('show_top_bar') == 'on'
-            settings.top_bar_text = request.POST.get('top_bar_text', 'Free Shipping on orders over $50') or 'Free Shipping on orders over $50'
             
-            # Header Height & Layout
             try:
                 header_height = request.POST.get('header_height', '70')
                 settings.header_height = int(header_height) if header_height and header_height.isdigit() else 70
             except:
                 settings.header_height = 70
+            
             settings.header_layout = request.POST.get('header_layout', 'standard') or 'standard'
             
-            # Hero Settings
+            # ================= HERO SECTION SETTINGS =================
             settings.hero_enabled = request.POST.get('hero_enabled') == 'on'
             settings.hero_title = request.POST.get('hero_title', 'Welcome to Jadid Technology') or 'Welcome to Jadid Technology'
             settings.hero_highlight = request.POST.get('hero_highlight', 'Best Deals') or 'Best Deals'
@@ -2524,42 +2564,42 @@ def site_settings_view(request):
                     settings.hero_image_3.delete()
                 settings.hero_image_3 = request.FILES['hero_image_3']
             
-            # Color Scheme
+            # ================= COLOR SCHEME =================
             settings.primary_color = request.POST.get('primary_color', '#6366f1') or '#6366f1'
             settings.secondary_color = request.POST.get('secondary_color', '#3b82f6') or '#3b82f6'
             settings.accent_color = request.POST.get('accent_color', '#f59e0b') or '#f59e0b'
             settings.footer_bg_color = request.POST.get('footer_bg_color', '#111827') or '#111827'
             settings.footer_text_color = request.POST.get('footer_text_color', '#9ca3af') or '#9ca3af'
             
-            # Social Media
+            # ================= SOCIAL MEDIA =================
             settings.facebook_url = request.POST.get('facebook_url') or ''
             settings.instagram_url = request.POST.get('instagram_url') or ''
             settings.twitter_url = request.POST.get('twitter_url') or ''
             settings.youtube_url = request.POST.get('youtube_url') or ''
             settings.linkedin_url = request.POST.get('linkedin_url') or ''
             
-            # Contact Info
+            # ================= CONTACT INFO =================
             settings.contact_email = request.POST.get('contact_email', 'support@jadidtechnology.com') or 'support@jadidtechnology.com'
             settings.contact_phone = request.POST.get('contact_phone', '+880123456789') or '+880123456789'
             settings.contact_address = request.POST.get('contact_address') or ''
             
-            # Footer Settings
+            # ================= FOOTER SETTINGS =================
             settings.footer_copyright = request.POST.get('footer_copyright', '© 2024 Jadid Technology. All rights reserved.') or '© 2024 Jadid Technology. All rights reserved.'
             settings.show_newsletter = request.POST.get('show_newsletter') == 'on'
             settings.footer_height = request.POST.get('footer_height', 'auto') or 'auto'
             settings.footer_layout = request.POST.get('footer_layout', '4cols') or '4cols'
             settings.footer_link_color = request.POST.get('footer_link_color', '#e5e7eb') or '#e5e7eb'
             
-            # SEO Settings
+            # ================= SEO SETTINGS =================
             settings.meta_title = request.POST.get('meta_title') or ''
             settings.meta_description = request.POST.get('meta_description') or ''
             settings.meta_keywords = request.POST.get('meta_keywords') or ''
             
-            # Maintenance Mode
+            # ================= MAINTENANCE MODE =================
             settings.maintenance_mode = request.POST.get('maintenance_mode') == 'on'
             settings.maintenance_message = request.POST.get('maintenance_message', 'Site is under maintenance. Please check back soon!') or 'Site is under maintenance. Please check back soon!'
             
-            # Analytics
+            # ================= ANALYTICS =================
             settings.google_analytics_id = request.POST.get('google_analytics_id') or ''
             settings.facebook_pixel_id = request.POST.get('facebook_pixel_id') or ''
             settings.custom_css = request.POST.get('custom_css') or ''
@@ -2578,6 +2618,36 @@ def site_settings_view(request):
         'hero_slides': hero_slides,
     }
     return render(request, 'admin/site_settings.html', context)
+
+
+@staff_member_required
+def clear_logo(request):
+    """Clear the site logo"""
+    if request.method == 'POST':
+        settings = SiteSettings.objects.first()
+        if settings and settings.site_logo:
+            # Delete the logo file
+            settings.site_logo.delete()
+            settings.site_logo = None
+            settings.save()
+            return JsonResponse({'success': True, 'message': 'Logo cleared successfully'})
+        return JsonResponse({'success': False, 'message': 'No logo found'})
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+
+@staff_member_required
+def clear_favicon(request):
+    """Clear the site favicon"""
+    if request.method == 'POST':
+        settings = SiteSettings.objects.first()
+        if settings and settings.site_favicon:
+            settings.site_favicon.delete(save=False)
+            settings.site_favicon = None
+            settings.save()
+            return JsonResponse({'success': True, 'message': 'Favicon cleared successfully'})
+        return JsonResponse({'success': False, 'message': 'No favicon found'})
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
 
 # ==================== HERO SLIDE MANAGEMENT ====================
 @staff_member_required
