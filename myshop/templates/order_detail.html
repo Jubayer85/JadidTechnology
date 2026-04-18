@@ -1,0 +1,354 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order #{{ order.order_number }} Details | Jadid Technology{% endblock %}
+
+{% block extra_css %}
+<style>
+    .order-status {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        display: inline-block;
+    }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-processing { background: #dbeafe; color: #1e40af; }
+    .status-shipped { background: #d1fae5; color: #065f46; }
+    .status-delivered { background: #dcfce7; color: #166534; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+    .status-refunded { background: #f3e8ff; color: #6b21a5; }
+    
+    .timeline-item {
+        position: relative;
+        padding-bottom: 30px;
+    }
+    .timeline-item:before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 30px;
+        bottom: 0;
+        width: 2px;
+        background: #e2e8f0;
+    }
+    .timeline-item:last-child:before {
+        display: none;
+    }
+    .timeline-dot {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        border: 2px solid #cbd5e1;
+        position: relative;
+        z-index: 1;
+    }
+    .timeline-dot.active {
+        background: #10b981;
+        border-color: #10b981;
+        color: white;
+    }
+    .timeline-dot.completed {
+        background: #10b981;
+        border-color: #10b981;
+        color: white;
+    }
+    .timeline-content {
+        flex: 1;
+        margin-left: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-6 text-sm">
+        <a href="{% url 'home' %}" class="text-gray-500 hover:text-indigo-600">Home</a>
+        <span class="mx-2 text-gray-400">/</span>
+        <a href="{% url 'order_history' %}" class="text-gray-500 hover:text-indigo-600">My Orders</a>
+        <span class="mx-2 text-gray-400">/</span>
+        <span class="text-indigo-600 font-semibold">Order #{{ order.order_number }}</span>
+    </nav>
+
+    <!-- Header -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Order Details</h1>
+                <p class="text-gray-500 mt-1">Order #{{ order.order_number }}</p>
+            </div>
+            <div class="mt-3 md:mt-0">
+                <span class="order-status status-{{ order.status }}">
+                    {% if order.status == 'pending' %}
+                        <i class="fas fa-clock mr-1"></i> Pending
+                    {% elif order.status == 'processing' %}
+                        <i class="fas fa-cog mr-1"></i> Processing
+                    {% elif order.status == 'shipped' %}
+                        <i class="fas fa-truck mr-1"></i> Shipped
+                    {% elif order.status == 'delivered' %}
+                        <i class="fas fa-check-circle mr-1"></i> Delivered
+                    {% elif order.status == 'cancelled' %}
+                        <i class="fas fa-times-circle mr-1"></i> Cancelled
+                    {% else %}
+                        <i class="fas fa-refund mr-1"></i> Refunded
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column - Order Items -->
+        <div class="lg:col-span-2">
+            <!-- Order Items -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 pb-3 border-b">
+                    <i class="fas fa-box text-indigo-500 mr-2"></i>Order Items
+                </h2>
+                
+                <div class="space-y-4">
+                    {% for item in order.items.all %}
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 border-b last:border-0">
+                        <div class="flex items-center gap-4">
+                            {% if item.product and item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product_name }}" class="w-16 h-16 object-cover rounded-lg">
+                            {% else %}
+                            <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-image text-gray-400 text-2xl"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <h3 class="font-semibold text-gray-800">{{ item.product_name }}</h3>
+                                {% if item.product and item.product.slug %}
+                                <a href="{% url 'product_detail' item.product.slug %}" class="text-sm text-indigo-600 hover:underline">View Product</a>
+                                {% endif %}
+                                <p class="text-sm text-gray-500 mt-1">SKU: {{ item.sku|default:'N/A' }}</p>
+                            </div>
+                        </div>
+                        <div class="mt-3 sm:mt-0 text-right">
+                            <p class="text-sm text-gray-500">Quantity: {{ item.quantity }}</p>
+                            <p class="text-sm text-gray-500">Price: ৳{{ item.unit_price|floatformat:2 }}</p>
+                            <p class="font-semibold text-gray-800">Total: ৳{{ item.total_price|floatformat:2 }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-center text-gray-500 py-8">No items found in this order.</p>
+                    {% endfor %}
+                </div>
+                
+                <!-- Order Summary -->
+                <div class="mt-6 pt-4 border-t">
+                    <div class="flex justify-between py-2">
+                        <span class="text-gray-600">Subtotal:</span>
+                        <span class="font-medium">৳{{ order.subtotal|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between py-2">
+                        <span class="text-gray-600">Shipping Charge:</span>
+                        <span class="font-medium">৳{{ order.shipping_charge|floatformat:2 }}</span>
+                    </div>
+                    {% if order.discount > 0 %}
+                    <div class="flex justify-between py-2">
+                        <span class="text-gray-600">Discount:</span>
+                        <span class="font-medium text-red-600">-৳{{ order.discount|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="flex justify-between py-3 text-lg font-bold border-t mt-2">
+                        <span>Total Amount:</span>
+                        <span class="text-indigo-600">৳{{ order.total_amount|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Information -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 pb-3 border-b">
+                    <i class="fas fa-credit-card text-indigo-500 mr-2"></i>Payment Information
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-500">Payment Method</p>
+                        <p class="font-medium capitalize">{{ order.get_payment_method_display }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Payment Status</p>
+                        <p class="font-medium">
+                            {% if order.is_paid %}
+                            <span class="text-green-600"><i class="fas fa-check-circle mr-1"></i> Paid</span>
+                            {% else %}
+                            <span class="text-yellow-600"><i class="fas fa-clock mr-1"></i> Pending</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if order.transaction_id %}
+                    <div>
+                        <p class="text-sm text-gray-500">Transaction ID</p>
+                        <p class="font-medium">{{ order.transaction_id }}</p>
+                    </div>
+                    {% endif %}
+                    {% if order.payment_date %}
+                    <div>
+                        <p class="text-sm text-gray-500">Payment Date</p>
+                        <p class="font-medium">{{ order.payment_date|date:"F j, Y, g:i a" }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column - Order Info & Tracking -->
+        <div class="lg:col-span-1">
+            <!-- Order Information -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 pb-3 border-b">
+                    <i class="fas fa-info-circle text-indigo-500 mr-2"></i>Order Information
+                </h2>
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-sm text-gray-500">Order Date</p>
+                        <p class="font-medium">{{ order.created_at|date:"F j, Y, g:i a" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Last Updated</p>
+                        <p class="font-medium">{{ order.updated_at|date:"F j, Y, g:i a" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Order Status</p>
+                        <span class="order-status status-{{ order.status }} text-sm">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shipping Address -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 pb-3 border-b">
+                    <i class="fas fa-map-marker-alt text-indigo-500 mr-2"></i>Shipping Address
+                </h2>
+                <div class="space-y-2">
+                    <p class="font-medium">{{ order.customer.get_full_name|default:order.customer.username }}</p>
+                    <p class="text-gray-600">{{ order.shipping_address|linebreaks }}</p>
+                    <p class="text-gray-600">Phone: {{ order.phone_number }}</p>
+                    {% if order.email %}
+                    <p class="text-gray-600">Email: {{ order.email }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Order Tracking Timeline -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 pb-3 border-b">
+                    <i class="fas fa-chart-line text-indigo-500 mr-2"></i>Order Timeline
+                </h2>
+                <div class="space-y-4">
+                    <!-- Order Placed -->
+                    <div class="flex items-start">
+                        <div class="timeline-dot {% if order.created_at %}active completed{% endif %}">
+                            <i class="fas fa-check text-xs"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <p class="font-semibold text-gray-800">Order Placed</p>
+                            <p class="text-sm text-gray-500">{{ order.created_at|date:"F j, Y, g:i a" }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Processing -->
+                    <div class="flex items-start">
+                        <div class="timeline-dot {% if order.status == 'processing' or order.status == 'shipped' or order.status == 'delivered' %}active completed{% elif order.status == 'pending' %}active{% endif %}">
+                            {% if order.status == 'processing' or order.status == 'shipped' or order.status == 'delivered' %}
+                            <i class="fas fa-check text-xs"></i>
+                            {% else %}
+                            <i class="fas fa-cog text-xs"></i>
+                            {% endif %}
+                        </div>
+                        <div class="timeline-content">
+                            <p class="font-semibold text-gray-800">Processing</p>
+                            <p class="text-sm text-gray-500">Your order is being processed</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Shipped -->
+                    <div class="flex items-start">
+                        <div class="timeline-dot {% if order.status == 'shipped' or order.status == 'delivered' %}active completed{% endif %}">
+                            {% if order.status == 'shipped' or order.status == 'delivered' %}
+                            <i class="fas fa-check text-xs"></i>
+                            {% else %}
+                            <i class="fas fa-truck text-xs"></i>
+                            {% endif %}
+                        </div>
+                        <div class="timeline-content">
+                            <p class="font-semibold text-gray-800">Shipped</p>
+                            <p class="text-sm text-gray-500">Your order has been shipped</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Delivered -->
+                    <div class="flex items-start">
+                        <div class="timeline-dot {% if order.status == 'delivered' %}active completed{% endif %}">
+                            {% if order.status == 'delivered' %}
+                            <i class="fas fa-check text-xs"></i>
+                            {% else %}
+                            <i class="fas fa-home text-xs"></i>
+                            {% endif %}
+                        </div>
+                        <div class="timeline-content">
+                            <p class="font-semibold text-gray-800">Delivered</p>
+                            <p class="text-sm text-gray-500">Your order has been delivered</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="mt-6 space-y-3">
+                {% if order.status == 'pending' %}
+                <button onclick="cancelOrder({{ order.id }})" class="w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                    <i class="fas fa-times-circle mr-2"></i>Cancel Order
+                </button>
+                {% endif %}
+                
+                {% if order.status != 'delivered' and order.status != 'cancelled' %}
+                <a href="{#}" class="w-full block text-center px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors">
+                    <i class="fas fa-headset mr-2"></i>Contact Support
+                </a>
+                {% endif %}
+                
+                <button onclick="window.print()" class="w-full px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-print mr-2"></i>Print Order
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function cancelOrder(orderId) {
+    if (confirm('Are you sure you want to cancel this order?')) {
+        fetch(`/orders/${orderId}/cancel/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Failed to cancel order');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred');
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1374,4 +1374,30 @@ def restore_product_stock_on_delete(sender, instance, **kwargs):
         product.save()
 
   
-
+@receiver(post_save, sender=Order)
+def send_order_notifications(sender, instance, created, **kwargs):
+    """Send email notifications when order is created or updated"""
+    if created:
+        # New order created - send notifications
+        from .utils import send_order_notification_to_admin, send_order_confirmation_to_customer
+        try:
+            send_order_notification_to_admin(instance)
+            send_order_confirmation_to_customer(instance)
+            print(f"✅ Email notifications sent for order #{instance.order_number}")
+        except Exception as e:
+            print(f"❌ Failed to send email: {e}")
+    else:
+        # Order status updated - send status update
+        # Check if status has changed by comparing with original
+        try:
+            # Get the original instance from database
+            original = Order.objects.get(pk=instance.pk)
+            if original.status != instance.status:
+                from .utils import send_order_status_update
+                try:
+                    send_order_status_update(instance)
+                    print(f"✅ Status update email sent for order #{instance.order_number}")
+                except Exception as e:
+                    print(f"❌ Failed to send status update: {e}")
+        except Order.DoesNotExist:
+            pass

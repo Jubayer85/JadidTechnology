@@ -616,146 +616,292 @@ def product_detail(request, slug):
     return render(request, "product_detail.html", context)
 
 
+# ====================== WISHLIST ======================
+@login_required
+def wishlist_view(request):
+    """Display user's wishlist"""
+    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product')
+    
+    context = {
+        'wishlist_items': wishlist_items,
+        'wishlist_count': wishlist_items.count(),
+    }
+    return render(request, 'wishlist.html', context)
+
+@login_required
 def add_to_wishlist(request, product_id):
+    """Add product to wishlist"""
     if request.method == 'POST':
         try:
             product = Product.objects.get(id=product_id, is_active=True)
-            # Here you would add wishlist logic
-            return JsonResponse({
-                'success': True,
-                'message': f'{product.name} added to wishlist'
-            })
+            
+            # Check if already in wishlist
+            wishlist_item, created = Wishlist.objects.get_or_create(
+                user=request.user,
+                product=product
+            )
+            
+            if created:
+                message = f'{product.name} added to wishlist'
+                status = 'added'
+            else:
+                message = f'{product.name} is already in your wishlist'
+                status = 'exists'
+            
+            # Get updated wishlist count
+            wishlist_count = Wishlist.objects.filter(user=request.user).count()
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': message,
+                    'status': status,
+                    'wishlist_count': wishlist_count,
+                    'product_id': product_id,
+                })
+            else:
+                messages.success(request, message)
+                return redirect('product_detail', slug=product.slug)
+                
         except Product.DoesNotExist:
-            return JsonResponse({
-                'success': False,
-                'message': 'Product not found'
-            }, status=404)
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Product not found'
+                }, status=404)
+            messages.error(request, 'Product not found')
+            return redirect('shop_all')
+            
     return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
 
-def compare_product(request, product_id):
+@login_required
+def remove_from_wishlist(request, product_id):
+    """Remove product from wishlist"""
+    if request.method == 'POST':
+        try:
+            wishlist_item = Wishlist.objects.get(user=request.user, product_id=product_id)
+            product_name = wishlist_item.product.name
+            wishlist_item.delete()
+            
+            wishlist_count = Wishlist.objects.filter(user=request.user).count()
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': f'{product_name} removed from wishlist',
+                    'wishlist_count': wishlist_count,
+                    'product_id': product_id,
+                })
+            else:
+                messages.success(request, f'{product_name} removed from wishlist')
+                return redirect('wishlist')
+                
+        except Wishlist.DoesNotExist:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Item not found in wishlist'
+                }, status=404)
+            messages.error(request, 'Item not found in wishlist')
+            return redirect('wishlist')
+            
+    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
+
+@login_required
+def clear_wishlist(request):
+    """Clear all items from wishlist"""
+    if request.method == 'POST':
+        deleted_count, _ = Wishlist.objects.filter(user=request.user).delete()
+        messages.success(request, f'{deleted_count} item(s) removed from wishlist')
+        return redirect('wishlist')
+    return redirect('wishlist')
+
+
+# ====================== PRODUCT COMPARE ======================
+# Session-based compare functionality (no login required)
+
+def add_to_compare(request, product_id):
+    """Add product to comparison list (session based)"""
     if request.method == 'POST':
         try:
             product = Product.objects.get(id=product_id, is_active=True)
-            # Here you would add comparison logic
-            return JsonResponse({
-                'success': True,
-                'message': f'{product.name} added to comparison'
-            })
+            
+            # Get or create compare session
+            compare_list = request.session.get('compare_list', [])
+            
+            # Check if already in compare list
+            if product_id not in compare_list:
+                if len(compare_list) >= 4:  # Max 4 products to compare
+                    compare_list.pop(0)  # Remove oldest
+                compare_list.append(product_id)
+                request.session['compare_list'] = compare_list
+                request.session.modified = True
+                message = f'{product.name} added to comparison'
+                status = 'added'
+            else:
+                message = f'{product.name} is already in comparison'
+                status = 'exists'
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': message,
+                    'status': status,
+                    'compare_count': len(compare_list),
+                    'product_id': product_id,
+                })
+            else:
+                messages.success(request, message)
+                return redirect('product_detail', slug=product.slug)
+                
         except Product.DoesNotExist:
-            return JsonResponse({
-                'success': False,
-                'message': 'Product not found'
-            }, status=404)
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Product not found'
+                }, status=404)
+            messages.error(request, 'Product not found')
+            return redirect('shop_all')
+            
     return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
+
+def compare_view(request):
+    """View comparison page"""
+    compare_list = request.session.get('compare_list', [])
+    products = Product.objects.filter(id__in=compare_list, is_active=True)
+    
+    # Maintain order
+    products = sorted(products, key=lambda x: compare_list.index(x.id) if x.id in compare_list else 999)
+    
+    context = {
+        'products': products,
+        'compare_count': len(products),
+    }
+    return render(request, 'compare.html', context)
+
+def remove_from_compare(request, product_id):
+    """Remove product from comparison"""
+    if request.method == 'POST':
+        compare_list = request.session.get('compare_list', [])
+        if product_id in compare_list:
+            compare_list.remove(product_id)
+            request.session['compare_list'] = compare_list
+            request.session.modified = True
+            messages.success(request, 'Product removed from comparison')
+    
+    return redirect('compare_view')
+
+def clear_compare(request):
+    """Clear all products from comparison"""
+    if request.method == 'POST':
+        request.session['compare_list'] = []
+        request.session.modified = True
+        messages.success(request, 'Comparison list cleared')
+    return redirect('compare_view')
 
 
 # ====================== CART ======================
+def get_cart_count(request):
+    """Get total items in cart"""
+    if request.user.is_authenticated:
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        return cart.total_items()
+    else:
+        cart = request.session.get('cart', {})
+        return sum(item.get('quantity', 0) for item in cart.values())
+
+
+@login_required
 def cart_detail(request):
+    """Display cart details"""
+    cart, created = Cart.objects.get_or_create(user=request.user)
     cart_items = []
     total_items = 0
     total_price = 0
-
-    if request.user.is_authenticated:
-        cart, created = Cart.objects.get_or_create(user=request.user)
-
-        for item in cart.items.select_related('product'):
-            product = item.product
-            quantity = item.quantity
-
-            cart_items.append({
-                'id': item.id,
-                'name': product.name,
-                'slug': product.slug,
-                'price': product.price,
-                'image': product.image.url if product.image else '',
-                'quantity': quantity,
-                'subtotal': product.price * quantity,
-                'stock_quantity': product.stock_quantity,  # ✅ FIX
-                'max_allowed': min(product.stock_quantity, 10) if product.stock_quantity > 0 else 0
-            })
-
-            total_items += quantity
-            total_price += product.price * quantity
-
-    else:
-        cart_data = request.session.get('cart', {})
-
-        for product_id, item_data in cart_data.items():
-            try:
-                product = Product.objects.get(id=product_id)
-                quantity = item_data.get('quantity', 1)
-
-                cart_items.append({
-                    'id': product.id,
-                    'name': product.name,
-                    'slug': product.slug,
-                    'price': product.price,
-                    'image': product.image.url if product.image else '',
-                    'quantity': quantity,
-                    'subtotal': product.price * quantity,
-                    'stock_quantity': product.stock_quantity,
-                    'max_allowed': min(product.stock_quantity, 10) if product.stock_quantity > 0 else 0
-                })
-
-                total_items += quantity
-                total_price += product.price * quantity
-
-            except Product.DoesNotExist:
-                continue
-
+    
+    for item in cart.items.select_related('product'):
+        product = item.product
+        quantity = item.quantity
+        
+        cart_items.append({
+            'id': item.id,
+            'product_id': product.id,
+            'name': product.name,
+            'slug': product.slug,
+            'price': float(product.price),
+            'image': product.image.url if product.image else '',
+            'quantity': quantity,
+            'subtotal': float(item.subtotal()),
+            'stock_quantity': product.stock_quantity,
+            'max_allowed': min(product.stock_quantity, 10) if product.stock_quantity > 0 else 0,
+            'is_in_stock': product.stock_quantity > 0,
+        })
+        
+        total_items += quantity
+        total_price += item.subtotal()
+    
     context = {
         'cart_items': cart_items,
         'total_items': total_items,
-        'total_price': total_price,
+        'total_price': float(total_price),
         'is_cart_empty': len(cart_items) == 0,
+        'cart_count': total_items,  # ✅ Use variable directly
     }
-
     return render(request, 'cart/cart_detail.html', context)
 
 
 @login_required
 def add_to_cart(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
+    """Add product to cart"""
+    product = get_object_or_404(Product, id=product_id, is_active=True)
     
     if request.method == 'POST':
         quantity = int(request.POST.get('quantity', 1))
         
-        if request.user.is_authenticated:
-            cart, created = Cart.objects.get_or_create(user=request.user)
-            cart_item, item_created = CartItem.objects.get_or_create(
-                cart=cart,
-                product=product
-            )
-            
-            if not item_created:
-                cart_item.quantity += quantity
-            else:
-                cart_item.quantity = quantity
-            
-            cart_item.save()
-            messages.success(request, f'{product.name} added to cart!')
+        # Check stock
+        if quantity > product.stock_quantity:
+            messages.error(request, f'Sorry, only {product.stock_quantity} items available in stock.')
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Only {product.stock_quantity} items available'
+                })
+            return redirect('product_detail', slug=product.slug)
+        
+        # Get or create cart
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        
+        # Get or create cart item
+        cart_item, item_created = CartItem.objects.get_or_create(
+            cart=cart,
+            product=product
+        )
+        
+        if not item_created:
+            new_quantity = cart_item.quantity + quantity
+            if new_quantity > product.stock_quantity:
+                messages.error(request, f'Sorry, only {product.stock_quantity} items available.')
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'Only {product.stock_quantity} items available'
+                    })
+                return redirect('product_detail', slug=product.slug)
+            cart_item.quantity = new_quantity
         else:
-            # Session-based cart for guests
-            cart = request.session.get('cart', {})
-            product_id_str = str(product_id)
-            
-            if product_id_str in cart:
-                cart[product_id_str]['quantity'] += quantity
-            else:
-                cart[product_id_str] = {
-                    'quantity': quantity,
-                    'product_id': product_id
-                }
-            
-            request.session['cart'] = cart
-            request.session.modified = True
-            messages.success(request, f'{product.name} added to cart!')
+            cart_item.quantity = quantity
+        
+        cart_item.save()
+        
+        # ✅ FIX: Use property without parentheses (not as a method)
+        cart_count = cart.total_items  # Remove the () 
+        messages.success(request, f'{product.name} added to cart!')
         
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': True,
-                'message': 'Product added to cart',
-                'cart_count': get_cart_count(request),
+                'message': f'{product.name} added to cart',
+                'cart_count': cart_count,
             })
         
         return redirect('cart_detail')
@@ -763,96 +909,84 @@ def add_to_cart(request, product_id):
     return redirect('product_detail', slug=product.slug)
 
 def remove_from_cart(request, item_id):
-    if request.user.is_authenticated:
-        cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
-        cart_item.delete()
-        messages.success(request, 'Item removed from cart')
-    else:
-        # Remove from session cart
-        cart = request.session.get('cart', {})
-        item_id_str = str(item_id)
-        if item_id_str in cart:
-            del cart[item_id_str]
-            request.session['cart'] = cart
-            request.session.modified = True
-            messages.success(request, 'Item removed from cart')
+    """Remove item from cart"""
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+            product_name = cart_item.product.name
+            cart_item.delete()
+            messages.success(request, f'{product_name} removed from cart')
+        else:
+            # Remove from session cart
+            cart = request.session.get('cart', {})
+            item_id_str = str(item_id)
+            if item_id_str in cart:
+                del cart[item_id_str]
+                request.session['cart'] = cart
+                request.session.modified = True
+                messages.success(request, 'Item removed from cart')
     
     return redirect('cart_detail')
+
 
 def clear_cart(request):
-    if request.user.is_authenticated:
-        cart = get_object_or_404(Cart, user=request.user)
-        cart.items.all().delete()
-    else:
-        request.session['cart'] = {}
-        request.session.modified = True
+    """Clear all items from cart"""
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            cart = get_object_or_404(Cart, user=request.user)
+            cart.items.all().delete()
+        else:
+            request.session['cart'] = {}
+            request.session.modified = True
+        
+        messages.success(request, 'Cart cleared successfully')
     
-    messages.success(request, 'Cart cleared successfully')
     return redirect('cart_detail')
 
+
+@login_required
 def update_cart_item(request, item_id):
+    """Update cart item quantity"""
     if request.method == 'POST':
         try:
             quantity = int(request.POST.get('quantity', 1))
             
-            if request.user.is_authenticated:
-                cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
-                cart_item.quantity = quantity
-                cart_item.save()
-                
-                # Get updated cart data
-                cart = cart_item.cart
-                item_subtotal = cart_item.product.selling_price * quantity
-                cart_summary = {
-                    'total_items': cart.total_items(),
-                    'total_price': cart.total_price(),
-                }
-                
-                response_data = {
-                    'success': True,
-                    'message': 'Cart updated successfully',
-                    'item_id': item_id,
-                    'item_quantity': quantity,
-                    'item_price': cart_item.product.selling_price,
-                    'item_subtotal': item_subtotal,
-                    'cart_summary': cart_summary,
-                }
-            else:
-                # Update session cart
-                cart = request.session.get('cart', {})
-                item_id_str = str(item_id)
-                if item_id_str in cart:
-                    cart[item_id_str]['quantity'] = quantity
-                    request.session['cart'] = cart
-                    request.session.modified = True
-                    
-                    # Calculate cart summary for session
-                    total_items = sum(item['quantity'] for item in cart.values())
-                    total_price = 0
-                    for product_id, item_data in cart.items():
-                        try:
-                            product = Product.objects.get(id=product_id)
-                            total_price += product.selling_price * item_data['quantity']
-                        except Product.DoesNotExist:
-                            continue
-                    
-                    response_data = {
-                        'success': True,
-                        'message': 'Cart updated successfully',
-                        'item_id': item_id,
-                        'item_quantity': quantity,
-                        'item_price': cart[item_id_str].get('price', 0),
-                        'item_subtotal': cart[item_id_str].get('price', 0) * quantity,
-                        'cart_summary': {
-                            'total_items': total_items,
-                            'total_price': total_price,
-                        },
-                    }
-                else:
-                    response_data = {
-                        'success': False,
-                        'message': 'Item not found in cart',
-                    }
+            if quantity < 1:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Quantity must be at least 1'
+                })
+            
+            cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+            
+            # Check stock
+            if quantity > cart_item.product.stock_quantity:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Sorry, only {cart_item.product.stock_quantity} items available'
+                })
+            
+            cart_item.quantity = quantity
+            cart_item.save()
+            
+            # Get updated cart data
+            cart = cart_item.cart
+            item_subtotal = float(cart_item.subtotal())
+            total_price = float(cart.total_price)  # ✅ Property, no parentheses
+            total_items = cart.total_items  # ✅ Property, no parentheses
+            
+            response_data = {
+                'success': True,
+                'message': 'Cart updated successfully',
+                'item_id': item_id,
+                'item_quantity': quantity,
+                'item_price': float(cart_item.product.price),
+                'item_subtotal': item_subtotal,
+                'cart_summary': {
+                    'total_items': total_items,
+                    'total_price': total_price,
+                },
+            }
             
             return JsonResponse(response_data)
             
@@ -866,91 +1000,105 @@ def update_cart_item(request, item_id):
         'success': False,
         'message': 'Invalid request method'
     })
+
+
 def get_cart_count(request):
+    """Get total items in cart"""
     if request.user.is_authenticated:
         cart, created = Cart.objects.get_or_create(user=request.user)
-        return cart.total_items()
+        return cart.total_items  # ✅ Property, no parentheses
     else:
         cart = request.session.get('cart', {})
-        return sum(item['quantity'] for item in cart.values())
+        return sum(item.get('quantity', 0) for item in cart.values())
+    
 
 
+# ====================== CHECKOUT & ORDERS ======================
 @login_required
 def checkout(request):
+    """Checkout process"""
     cart = get_object_or_404(Cart, user=request.user)
     items = cart.items.select_related('product')
-
+    
     if not items.exists():
         messages.warning(request, "Your cart is empty.")
         return redirect('cart_detail')
-
-    # ✅ Stock check
+    
+    # Stock check
     for item in items:
         if item.quantity > item.product.stock_quantity:
             messages.error(
                 request,
-                f"Not enough stock for {item.product.name}"
+                f"Sorry, only {item.product.stock_quantity} items available for {item.product.name}"
             )
             return redirect('cart_detail')
-
+    
     if request.method == 'POST':
+        # Get or create customer
         customer, _ = Customer.objects.get_or_create(user=request.user)
-
-        subtotal = sum(
-            item.product.price * item.quantity
-            for item in items
-        )
-
+        
+        # Calculate subtotal
+        subtotal = sum(float(item.product.price * item.quantity) for item in items)
+        
+        # Create order
         order = Order.objects.create(
-    customer=request.user,   # ✅ User instance
-    payment_method='cod',
-    shipping_address=request.POST.get('address', ''),
-    subtotal=subtotal,
-    total_amount=subtotal
-)
-
+            customer=request.user,
+            payment_method=request.POST.get('payment_method', 'cod'),
+            shipping_address=request.POST.get('address', ''),
+            phone_number=request.POST.get('phone', ''),
+            email=request.POST.get('email', request.user.email),
+            subtotal=subtotal,
+            total_amount=subtotal,  # Add shipping/discount logic if needed
+            status='pending',
+            is_paid=False,
+        )
+        
+        # Create order items and update stock
         for item in items:
             OrderItem.objects.create(
                 order=order,
                 product=item.product,
                 product_name=item.product.name,
                 unit_price=item.product.price,
-                quantity=item.quantity
+                quantity=item.quantity,
+                total_price=item.product.price * item.quantity
             )
-
+            
             # Reduce stock
             item.product.stock_quantity -= item.quantity
             item.product.save()
-
+        
         # Clear cart
-        items.delete()
-
-        messages.success(request, "Order placed successfully!")
+        cart.items.all().delete()
+        
+        # Send email notifications (if you have email configured)
+        # from .utils import send_order_confirmation_to_customer, send_order_notification_to_admin
+        # send_order_confirmation_to_customer(order)
+        # send_order_notification_to_admin(order)
+        
+        messages.success(request, f"Order #{order.order_number} placed successfully!")
         return redirect('order_success', order_id=order.id)
-
-    return render(request, 'checkout.html', {
+    
+    # GET request - show checkout form
+    context = {
         'cart': cart,
         'items': items,
-        'total': sum(item.product.price * item.quantity for item in items),
-    })
+        'subtotal': sum(float(item.product.price * item.quantity) for item in items),
+        'total': sum(float(item.product.price * item.quantity) for item in items),
+    }
+    return render(request, 'checkout.html', context)
+
 
 @login_required
 def order_success(request, order_id):
-    order = get_object_or_404(
-        Order,
-        id=order_id,
-        customer=request.user      # ✅ FIX
-    )
+    """Order success page"""
+    order = get_object_or_404(Order, id=order_id, customer=request.user)
     return render(request, 'order_success.html', {'order': order})
 
 
-
+@login_required
 def order_history(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-    
-    # Check what field name your Order model has
-    # If it has 'customer' field, use that
+    """User's order history"""
     orders = Order.objects.filter(customer=request.user).order_by('-created_at')
     
     # Calculate counts
@@ -975,13 +1123,11 @@ def order_history(request):
     
     return render(request, 'order_history.html', context)
 
+
 @login_required
 def order_detail(request, order_id):
-    order = get_object_or_404(
-        Order,
-        id=order_id,
-        customer=request.user
-    )
+    """Order details page"""
+    order = get_object_or_404(Order, id=order_id, customer=request.user)
     return render(request, 'order_detail.html', {'order': order})
 
 # ====================== ADMIN ORDERS ======================

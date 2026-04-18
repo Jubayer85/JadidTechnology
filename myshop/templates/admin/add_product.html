@@ -112,24 +112,70 @@
         animation: slideInRight 0.3s ease-out;
     }
     
-    /* Section Icons Gradient */
-    .section-icon-gradient {
+    /* Rich Text Editor */
+    .toolbar-btn {
+        transition: all 0.2s ease;
+    }
+    
+    .toolbar-btn:active {
+        transform: scale(0.95);
+    }
+    
+    #richEditor {
+        min-height: 300px;
+        max-height: 500px;
+        overflow-y: auto;
+        line-height: 1.6;
+    }
+    
+    #richEditor:focus {
+        outline: none;
+    }
+    
+    #richEditor:empty:before {
+        content: attr(placeholder);
+        color: #94a3b8;
+    }
+    
+    #richEditor h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0.75rem 0;
+        color: #0f172a;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 0.5rem;
+    }
+    
+    #richEditor h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+        color: #1e293b;
+    }
+    
+    #richEditor h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+        color: #334155;
+    }
+    
+    #richEditor ul, #richEditor ol {
+        padding-left: 1.5rem;
+        margin: 0.5rem 0;
+    }
+    
+    #richEditor li {
+        margin: 0.25rem 0;
+    }
+    
+    /* SKU Badge */
+    .sku-badge {
         background: linear-gradient(135deg, #6366f1, #8b5cf6);
     }
     
-    /* Stat Card Styles */
-    .stat-card {
-        transition: all 0.3s ease;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-3px);
-    }
-    
-    /* Form Divider */
-    .form-divider {
-        background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
-        height: 1px;
+    .auto-badge {
+        background: linear-gradient(135deg, #10b981, #059669);
     }
 </style>
 {% endblock %}
@@ -161,8 +207,8 @@
                 </div>
                 <div class="flex items-center space-x-3">
                     <div class="hidden sm:flex items-center space-x-2 px-3 py-1.5 bg-emerald-50 rounded-full border border-emerald-200">
-                        <i class="fas fa-check-circle text-emerald-500 text-sm"></i>
-                        <span class="text-emerald-700 text-xs font-medium">SEO Optimized</span>
+                        <i class="fas fa-magic text-emerald-500 text-sm"></i>
+                        <span class="text-emerald-700 text-xs font-medium">Auto SKU & Slug</span>
                     </div>
                     <button onclick="window.history.back()" 
                             class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl border border-slate-300 transition-all duration-300">
@@ -257,18 +303,10 @@
                                 <div class="w-9 h-9 rounded-full {% if form.name.errors or form.category.errors or form.brand.errors %}bg-rose-500 text-white ring-4 ring-rose-200{% else %}bg-indigo-600 text-white{% endif %} flex items-center justify-center font-bold text-sm transition-all">
                                     1
                                 </div>
-                                {% if not forloop.first %}
-                                <div class="absolute top-full left-1/2 transform -translate-x-1/2 w-0.5 h-8 bg-slate-200"></div>
-                                {% endif %}
                             </div>
                             <div class="flex-1">
                                 <p class="font-semibold text-slate-900">Basic Information</p>
                                 <p class="text-xs text-slate-500">Name, Category, Brand</p>
-                                {% if form.name.errors or form.category.errors or form.brand.errors %}
-                                    <p class="text-xs text-rose-500 mt-1 flex items-center gap-1">
-                                        <i class="fas fa-exclamation-circle"></i> Has errors
-                                    </p>
-                                {% endif %}
                             </div>
                             {% if form.name.value and form.category.value and form.brand.value %}
                             <i class="fas fa-check-circle text-emerald-500 text-sm"></i>
@@ -278,18 +316,13 @@
                         <!-- Step 2: Pricing & Stock -->
                         <div class="flex items-start gap-3 group cursor-pointer" onclick="document.getElementById('pricing-section').scrollIntoView({behavior: 'smooth'})">
                             <div class="relative">
-                                <div class="w-9 h-9 rounded-full {% if form.price.errors %}bg-rose-500 text-white ring-4 ring-rose-200{% else %}bg-slate-200 text-slate-500{% endif %} flex items-center justify-center font-bold text-sm transition-all group-hover:bg-indigo-100 group-hover:text-indigo-600">
+                                <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-sm transition-all group-hover:bg-indigo-100 group-hover:text-indigo-600">
                                     2
                                 </div>
                             </div>
                             <div class="flex-1">
                                 <p class="font-medium text-slate-700">Pricing & Stock</p>
                                 <p class="text-xs text-slate-400">Price, quantity, status</p>
-                                {% if form.price.errors %}
-                                    <p class="text-xs text-rose-500 mt-1 flex items-center gap-1">
-                                        <i class="fas fa-exclamation-circle"></i> Has errors
-                                    </p>
-                                {% endif %}
                             </div>
                             {% if form.price.value %}
                             <i class="fas fa-check-circle text-emerald-500 text-sm"></i>
@@ -319,11 +352,6 @@
                             <div class="flex-1">
                                 <p class="font-medium text-slate-700">Description</p>
                                 <p class="text-xs text-slate-400">Product details & features</p>
-                                {% if form.description.errors %}
-                                    <p class="text-xs text-rose-500 mt-1 flex items-center gap-1">
-                                        <i class="fas fa-exclamation-circle"></i> Has errors
-                                    </p>
-                                {% endif %}
                             </div>
                             {% if form.description.value %}
                             <i class="fas fa-check-circle text-emerald-500 text-sm"></i>
@@ -333,18 +361,13 @@
                         <!-- Step 5: Media -->
                         <div class="flex items-start gap-3 group cursor-pointer" onclick="document.getElementById('media-section').scrollIntoView({behavior: 'smooth'})">
                             <div class="relative">
-                                <div class="w-9 h-9 rounded-full {% if form.image.errors or formset.errors %}bg-rose-500 text-white ring-4 ring-rose-200{% else %}bg-slate-200 text-slate-500{% endif %} flex items-center justify-center font-bold text-sm transition-all group-hover:bg-indigo-100 group-hover:text-indigo-600">
+                                <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-sm transition-all group-hover:bg-indigo-100 group-hover:text-indigo-600">
                                     5
                                 </div>
                             </div>
                             <div class="flex-1">
                                 <p class="font-medium text-slate-700">Media</p>
                                 <p class="text-xs text-slate-400">Images & gallery</p>
-                                {% if form.image.errors or formset.errors %}
-                                    <p class="text-xs text-rose-500 mt-1 flex items-center gap-1">
-                                        <i class="fas fa-exclamation-circle"></i> Has errors
-                                    </p>
-                                {% endif %}
                             </div>
                             {% if form.image.value %}
                             <i class="fas fa-check-circle text-emerald-500 text-sm"></i>
@@ -452,7 +475,7 @@
                                             </div>
                                         </div>
                                     {% endif %}
-                                    <button type="button" id="generateSlug" 
+                                    <button type="button" id="generateSlugBtn" 
                                             class="mt-2 text-sm text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center gap-2 transition-colors">
                                         <i class="fas fa-magic"></i> Generate from name
                                     </button>
@@ -461,17 +484,11 @@
                             
                             <!-- Category, SubCategory & Brand -->
                             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                <!-- Category -->
                                 <div>
                                     <div class="flex items-center justify-between mb-2">
                                         <label for="id_category" class="block text-sm font-semibold text-slate-700">
                                             Category <span class="text-rose-500">*</span>
                                         </label>
-                                        <button type="button" 
-                                           onclick="openQuickAddModal('category')"
-                                           class="text-xs text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center gap-1 transition-colors">
-                                            <i class="fas fa-plus-circle"></i> Quick Add
-                                        </button>
                                     </div>
                                     <div class="relative">
                                         <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
@@ -492,30 +509,14 @@
                                             <i class="fas fa-chevron-down"></i>
                                         </div>
                                     </div>
-                                    {% if form.category.errors %}
-                                        <div class="mt-2 flex items-start gap-2 text-rose-500">
-                                            <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
-                                            <div class="text-sm">
-                                                {% for error in form.category.errors %}
-                                                    <p>{{ error }}</p>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                    {% endif %}
                                 </div>
                                 
-                                <!-- SubCategory -->
                                 <div>
                                     <div class="flex items-center justify-between mb-2">
                                         <label for="id_subcategory" class="block text-sm font-semibold text-slate-700">
                                             SubCategory
                                             <span class="text-xs text-slate-400 font-normal ml-1">(Optional)</span>
                                         </label>
-                                        <button type="button" 
-                                           onclick="openQuickAddModal('subcategory')"
-                                           class="text-xs text-amber-600 hover:text-amber-800 font-medium inline-flex items-center gap-1 transition-colors">
-                                            <i class="fas fa-plus-square"></i> Quick Add
-                                        </button>
                                     </div>
                                     <div class="relative">
                                         <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
@@ -535,29 +536,13 @@
                                             <i class="fas fa-chevron-down"></i>
                                         </div>
                                     </div>
-                                    {% if form.subcategory.errors %}
-                                        <div class="mt-2 flex items-start gap-2 text-rose-500">
-                                            <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
-                                            <div class="text-sm">
-                                                {% for error in form.subcategory.errors %}
-                                                    <p>{{ error }}</p>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                    {% endif %}
                                 </div>
                                 
-                                <!-- Brand -->
                                 <div>
                                     <div class="flex items-center justify-between mb-2">
                                         <label for="id_brand" class="block text-sm font-semibold text-slate-700">
                                             Brand <span class="text-rose-500">*</span>
                                         </label>
-                                        <button type="button" 
-                                           onclick="openQuickAddModal('brand')"
-                                           class="text-xs text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center gap-1 transition-colors">
-                                            <i class="fas fa-plus-circle"></i> Quick Add
-                                        </button>
                                     </div>
                                     <div class="relative">
                                         <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
@@ -578,16 +563,48 @@
                                             <i class="fas fa-chevron-down"></i>
                                         </div>
                                     </div>
-                                    {% if form.brand.errors %}
+                                </div>
+                            </div>
+                            
+                            <!-- SKU Field -->
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="id_sku" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        SKU (Stock Keeping Unit)
+                                        <span class="text-xs text-slate-400 font-normal ml-1">(Auto-generated, unique identifier)</span>
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute left-3 top-3.5 text-slate-400">
+                                            <i class="fas fa-barcode"></i>
+                                        </div>
+                                        <input type="text" 
+                                               name="sku" 
+                                               id="id_sku"
+                                               value="{{ form.sku.value|default:'' }}"
+                                               placeholder="Auto-generated SKU"
+                                               class="w-full rounded-xl border-2 border-slate-200 hover:border-indigo-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 input-focus-effect">
+                                    </div>
+                                    {% if form.sku.errors %}
                                         <div class="mt-2 flex items-start gap-2 text-rose-500">
                                             <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
                                             <div class="text-sm">
-                                                {% for error in form.brand.errors %}
+                                                {% for error in form.sku.errors %}
                                                     <p>{{ error }}</p>
                                                 {% endfor %}
                                             </div>
                                         </div>
                                     {% endif %}
+                                    <div class="mt-2 flex items-center gap-2 flex-wrap">
+                                        <button type="button" id="generateSkuBtn" 
+                                                class="text-sm text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center gap-2 transition-colors">
+                                            <i class="fas fa-magic"></i> Generate SKU
+                                        </button>
+                                        <span class="text-xs text-slate-400">|</span>
+                                        <span class="text-xs text-slate-500 flex items-center gap-1">
+                                            <i class="fas fa-info-circle"></i>
+                                            Format: BRD-CAT-TIMESTAMP
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -655,16 +672,6 @@
                                                placeholder="0"
                                                class="w-full rounded-xl border-2 border-slate-200 hover:border-indigo-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 input-focus-effect">
                                     </div>
-                                    {% if form.compare_price.errors %}
-                                        <div class="mt-2 flex items-start gap-2 text-rose-500">
-                                            <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
-                                            <div class="text-sm">
-                                                {% for error in form.compare_price.errors %}
-                                                    <p>{{ error }}</p>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                    {% endif %}
                                     <p class="text-xs text-slate-400 mt-1">Leave empty if no discount</p>
                                 </div>
                                 
@@ -686,71 +693,6 @@
                                                step="1"
                                                class="w-full rounded-xl border-2 border-slate-200 hover:border-indigo-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 input-focus-effect">
                                     </div>
-                                    {% if form.stock_quantity.errors %}
-                                        <div class="mt-2 flex items-start gap-2 text-rose-500">
-                                            <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
-                                            <div class="text-sm">
-                                                {% for error in form.stock_quantity.errors %}
-                                                    <p>{{ error }}</p>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            
-                            <!-- Inventory & Analytics -->
-                            <div class="mt-8 bg-slate-50 rounded-xl p-5 border border-slate-200">
-                                <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-8 h-8 rounded-lg bg-teal-100 text-teal-600 flex items-center justify-center">
-                                        <i class="fas fa-chart-line"></i>
-                                    </div>
-                                    <h3 class="font-semibold text-slate-800">Inventory & Analytics</h3>
-                                </div>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <!-- Low Stock Threshold -->
-                                    <div>
-                                        <label for="id_low_stock_threshold" class="block text-sm font-semibold text-slate-700 mb-2">
-                                            Low Stock Threshold
-                                        </label>
-                                        <div class="relative">
-                                            <div class="absolute left-3 top-3.5 text-slate-400">
-                                                <i class="fas fa-exclamation-triangle"></i>
-                                            </div>
-                                            <input type="number" 
-                                                   name="low_stock_threshold" 
-                                                   id="id_low_stock_threshold"
-                                                   value="{{ form.low_stock_threshold.value|default:'10' }}"
-                                                   min="0"
-                                                   class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 pl-10 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
-                                        </div>
-                                        <p class="text-xs text-slate-400 mt-1">
-                                            <i class="fas fa-bell mr-1"></i> Alert when stock falls below this number
-                                        </p>
-                                    </div>
-                                    
-                                    <!-- Stock Status Indicator -->
-                                    <div>
-                                        <label class="block text-sm font-semibold text-slate-700 mb-2">
-                                            Current Stock Status
-                                        </label>
-                                        <div class="p-3 bg-white rounded-xl border border-slate-200">
-                                            <div class="flex items-center justify-between">
-                                                <span class="text-sm text-slate-600">Status:</span>
-                                                <span id="stockStatusBadge" class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
-                                                    <i class="fas fa-check-circle mr-1"></i> In Stock
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Hidden fields -->
-                                <div class="hidden">
-                                    <input type="number" name="average_rating" id="id_average_rating" value="0" step="0.01" min="0" max="5">
-                                    <input type="number" name="total_reviews" id="id_total_reviews" value="0" min="0">
-                                    <input type="number" name="total_sold" id="id_total_sold" value="0" min="0">
                                 </div>
                             </div>
                             
@@ -782,38 +724,64 @@
                                                 <i class="fas fa-crown mr-1"></i> Featured
                                             </span>
                                         </label>
+                                        
+                                        <label class="custom-checkbox flex items-center justify-between p-3 rounded-xl border-2 border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 transition-all cursor-pointer">
+                                            <div class="flex items-center gap-3">
+                                                <input type="checkbox" name="is_new" id="id_is_new" value="true" {% if form.is_new.value %}checked{% endif %}>
+                                                <span class="checkmark"></span>
+                                                <span class="font-medium text-slate-700">New Arrival</span>
+                                            </div>
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                                                <i class="fas fa-star mr-1"></i> New
+                                            </span>
+                                        </label>
+                                        
+                                        <label class="custom-checkbox flex items-center justify-between p-3 rounded-xl border-2 border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 transition-all cursor-pointer">
+                                            <div class="flex items-center gap-3">
+                                                <input type="checkbox" name="is_best_seller" id="id_is_best_seller" value="true" {% if form.is_best_seller.value %}checked{% endif %}>
+                                                <span class="checkmark"></span>
+                                                <span class="font-medium text-slate-700">Best Seller</span>
+                                            </div>
+                                            <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full">
+                                                <i class="fas fa-trophy mr-1"></i> Best Seller
+                                            </span>
+                                        </label>
                                     </div>
                                 </div>
                                 
-                                <!-- SKU -->
+                                <!-- Stock Status Indicator -->
                                 <div>
-                                    <label for="id_sku" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        SKU (Stock Keeping Unit)
-                                        <span class="text-xs text-slate-400 font-normal ml-1">(Unique identifier)</span>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                        Current Stock Status
                                     </label>
-                                    <div class="relative">
-                                        <div class="absolute left-3 top-3.5 text-slate-400">
-                                            <i class="fas fa-barcode"></i>
+                                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-slate-600">Status:</span>
+                                            <span id="stockStatusBadge" class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
+                                                <i class="fas fa-check-circle mr-1"></i> In Stock
+                                            </span>
                                         </div>
-                                        <input type="text" 
-                                               name="sku" 
-                                               id="id_sku"
-                                               value="{{ form.sku.value|default:'' }}"
-                                               placeholder="e.g., IPH-16-256-BLK"
-                                               class="w-full rounded-xl border-2 border-slate-200 hover:border-indigo-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 input-focus-effect">
-                                    </div>
-                                    {% if form.sku.errors %}
-                                        <div class="mt-2 flex items-start gap-2 text-rose-500">
-                                            <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
-                                            <div class="text-sm">
-                                                {% for error in form.sku.errors %}
-                                                    <p>{{ error }}</p>
-                                                {% endfor %}
+                                        <div class="mt-2">
+                                            <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
+                                                <span>Low Stock Threshold</span>
+                                                <span id="thresholdValue">10</span>
+                                            </div>
+                                            <div class="relative pt-1">
+                                                <div class="overflow-hidden h-2 text-xs flex rounded bg-slate-200">
+                                                    <div id="stockProgressBar" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-emerald-500" style="width: 100%"></div>
+                                                </div>
                                             </div>
                                         </div>
-                                    {% endif %}
-                                    <p class="text-xs text-slate-400 mt-1">Must be unique for each product</p>
+                                    </div>
                                 </div>
+                            </div>
+                            
+                            <!-- Hidden fields -->
+                            <div class="hidden">
+                                <input type="number" name="average_rating" id="id_average_rating" value="0" step="0.01" min="0" max="5">
+                                <input type="number" name="total_reviews" id="id_total_reviews" value="0" min="0">
+                                <input type="number" name="total_sold" id="id_total_sold" value="0" min="0">
+                                <input type="number" name="low_stock_threshold" id="id_low_stock_threshold" value="{{ form.low_stock_threshold.value|default:'10' }}" min="0">
                             </div>
                         </div>
                     </div>
@@ -833,14 +801,60 @@
                         </div>
                         
                         <div class="p-8">
-                            <!-- Display Specifications Row -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                            <!-- Performance -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                <div>
+                                    <label for="id_ram" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-microchip mr-2 text-indigo-500"></i>RAM
+                                    </label>
+                                    <select name="ram" id="id_ram" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
+                                        <option value="">Select RAM</option>
+                                        <option value="4GB" {% if form.ram.value == '4GB' %}selected{% endif %}>4GB</option>
+                                        <option value="6GB" {% if form.ram.value == '6GB' %}selected{% endif %}>6GB</option>
+                                        <option value="8GB" {% if form.ram.value == '8GB' %}selected{% endif %}>8GB</option>
+                                        <option value="12GB" {% if form.ram.value == '12GB' %}selected{% endif %}>12GB</option>
+                                        <option value="16GB" {% if form.ram.value == '16GB' %}selected{% endif %}>16GB</option>
+                                        <option value="24GB" {% if form.ram.value == '24GB' %}selected{% endif %}>24GB</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label for="id_storage" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-hdd mr-2 text-indigo-500"></i>Storage
+                                    </label>
+                                    <select name="storage" id="id_storage" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
+                                        <option value="">Select Storage</option>
+                                        <option value="64GB" {% if form.storage.value == '64GB' %}selected{% endif %}>64GB</option>
+                                        <option value="128GB" {% if form.storage.value == '128GB' %}selected{% endif %}>128GB</option>
+                                        <option value="256GB" {% if form.storage.value == '256GB' %}selected{% endif %}>256GB</option>
+                                        <option value="512GB" {% if form.storage.value == '512GB' %}selected{% endif %}>512GB</option>
+                                        <option value="1TB" {% if form.storage.value == '1TB' %}selected{% endif %}>1TB</option>
+                                        <option value="2TB" {% if form.storage.value == '2TB' %}selected{% endif %}>2TB</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label for="id_processor" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-microchip mr-2 text-indigo-500"></i>Processor
+                                    </label>
+                                    <input type="text" name="processor" id="id_processor" value="{{ form.processor.value|default:'' }}" placeholder="e.g., Snapdragon 8 Gen 3, A18 Pro" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
+                                </div>
+                            </div>
+                            
+                            <!-- Display -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                <div>
+                                    <label for="id_display_size" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-mobile-alt mr-2 text-indigo-500"></i>Display Size
+                                    </label>
+                                    <input type="text" name="display_size" id="id_display_size" value="{{ form.display_size.value|default:'' }}" placeholder="e.g., 6.7 inches" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
+                                </div>
+                                
                                 <div>
                                     <label for="id_display_type" class="block text-sm font-semibold text-slate-700 mb-2">
                                         <i class="fas fa-tv mr-2 text-indigo-500"></i>Display Type
                                     </label>
-                                    <input type="text" name="display_type" id="id_display_type" value="{{ form.display_type.value|default:'' }}" placeholder="e.g., Dynamic AMOLED 2X, Super Retina XDR" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
-                                    <p class="text-xs text-slate-400 mt-1">Display panel technology</p>
+                                    <input type="text" name="display_type" id="id_display_type" value="{{ form.display_type.value|default:'' }}" placeholder="e.g., Dynamic AMOLED 2X" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
                                 </div>
                                 
                                 <div>
@@ -856,73 +870,59 @@
                                         <option value="165Hz" {% if form.refresh_rate.value == '165Hz' %}selected{% endif %}>165Hz</option>
                                     </select>
                                 </div>
-                                
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                 <div>
                                     <label for="id_resolution" class="block text-sm font-semibold text-slate-700 mb-2">
                                         <i class="fas fa-expand-alt mr-2 text-indigo-500"></i>Resolution
                                     </label>
                                     <input type="text" name="resolution" id="id_resolution" value="{{ form.resolution.value|default:'' }}" placeholder="e.g., 2796 x 1290 pixels" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
                                 </div>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                <div>
-                                    <label for="id_display_size" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        <i class="fas fa-mobile-alt mr-2 text-indigo-500"></i>Display Size
-                                    </label>
-                                    <input type="text" name="display_size" id="id_display_size" value="{{ form.display_size.value|default:'' }}" placeholder="e.g., 6.7 inches" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
-                                </div>
                                 
                                 <div>
-                                    <label for="id_display_resolution" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        <i class="fas fa-tv mr-2 text-indigo-500"></i>Display Resolution (Detailed)
+                                    <label for="id_operating_system" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fab fa-android mr-2 text-indigo-500"></i>Operating System
                                     </label>
-                                    <input type="text" name="display_resolution" id="id_display_resolution" value="{{ form.display_resolution.value|default:'' }}" placeholder="e.g., 2796 x 1290 pixels" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
+                                    <select name="operating_system" id="id_operating_system" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
+                                        <option value="">Select OS</option>
+                                        <option value="iOS 18" {% if form.operating_system.value == 'iOS 18' %}selected{% endif %}>iOS 18</option>
+                                        <option value="iOS 17" {% if form.operating_system.value == 'iOS 17' %}selected{% endif %}>iOS 17</option>
+                                        <option value="Android 15" {% if form.operating_system.value == 'Android 15' %}selected{% endif %}>Android 15</option>
+                                        <option value="Android 14" {% if form.operating_system.value == 'Android 14' %}selected{% endif %}>Android 14</option>
+                                        <option value="HarmonyOS" {% if form.operating_system.value == 'HarmonyOS' %}selected{% endif %}>HarmonyOS</option>
+                                    </select>
                                 </div>
                             </div>
                             
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                <div>
-                                    <label for="id_front_camera" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        <i class="fas fa-camera-retro mr-2 text-indigo-500"></i>Front Camera
-                                    </label>
-                                    <input type="text" name="front_camera" id="id_front_camera" value="{{ form.front_camera.value|default:'' }}" placeholder="e.g., 12MP TrueDepth Camera" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
-                                </div>
-                                
-                                <div>
-                                    <label for="id_video_recording" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        <i class="fas fa-video mr-2 text-indigo-500"></i>Video Recording
-                                        <span class="text-rose-500 text-xs ml-1">* (Min 400 chars)</span>
-                                    </label>
-                                    <textarea name="video_recording" id="id_video_recording" rows="4" placeholder="Describe video recording capabilities in detail...
-• 4K video recording at 60fps with HDR10+ support
-• 8K video recording at 30fps for ultra-high resolution
-• 1080p slow-motion video at 240fps
-• Night mode video recording with AI stabilization
-• Cinematic mode with depth-of-field control" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all resize-y">{{ form.video_recording.value|default:'' }}</textarea>
-                                    <div class="mt-2">
-                                        <div class="flex items-center justify-between text-sm mb-1">
-                                            <span class="text-slate-500"><i class="fas fa-keyboard mr-1"></i> Characters:</span>
-                                            <span id="videoCharCount" class="font-mono font-semibold">0</span>
-                                            <span class="text-slate-400">/ 400 minimum</span>
-                                        </div>
-                                        <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                                            <div id="videoCharProgress" class="h-full rounded-full transition-all duration-300" style="width: 0%"></div>
-                                        </div>
-                                        <div id="videoCharWarning" class="hidden text-xs text-amber-600 flex items-center gap-1 mt-1">
-                                            <i class="fas fa-exclamation-triangle"></i>
-                                            <span>Please provide at least 400 characters</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
+                            <!-- Camera -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                 <div>
                                     <label for="id_camera" class="block text-sm font-semibold text-slate-700 mb-2">
                                         <i class="fas fa-camera mr-2 text-indigo-500"></i>Back Camera
                                     </label>
                                     <input type="text" name="camera" id="id_camera" value="{{ form.camera.value|default:'' }}" placeholder="e.g., 50MP Main + 12MP Ultra Wide + 12MP Telephoto" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
+                                </div>
+                                
+                                <div>
+                                    <label for="id_front_camera" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-camera-retro mr-2 text-indigo-500"></i>Front Camera
+                                    </label>
+                                    <input type="text" name="front_camera" id="id_front_camera" value="{{ form.front_camera.value|default:'' }}" placeholder="e.g., 12MP TrueDepth Camera" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label for="id_video_recording" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-video mr-2 text-indigo-500"></i>Video Recording
+                                    </label>
+                                    <textarea name="video_recording" id="id_video_recording" rows="4" placeholder="Describe video recording capabilities...
+• 4K video recording at 60fps with HDR10+ support
+• 8K video recording at 30fps
+• 1080p slow-motion video at 240fps
+• Night mode video recording with AI stabilization
+• Cinematic mode with depth-of-field control" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all resize-y">{{ form.video_recording.value|default:'' }}</textarea>
                                 </div>
                                 
                                 <div>
@@ -942,7 +942,8 @@
                                 </div>
                             </div>
                             
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <!-- Battery & Connectivity -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                                 <div>
                                     <label for="id_battery_capacity" class="block text-sm font-semibold text-slate-700 mb-2">
                                         <i class="fas fa-battery-full mr-2 text-indigo-500"></i>Battery Capacity
@@ -954,46 +955,24 @@
                                     <label for="id_network" class="block text-sm font-semibold text-slate-700 mb-2">
                                         <i class="fas fa-wifi mr-2 text-indigo-500"></i>Network
                                     </label>
-                                    <input type="text" name="network" id="id_network" value="{{ form.network.value|default:'' }}" placeholder="e.g., 5G, 4G LTE, Wi-Fi 7, Bluetooth 5.3" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
-                                </div>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                <div>
-                                    <label for="id_ram" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        <i class="fas fa-microchip mr-2 text-indigo-500"></i>RAM
-                                    </label>
-                                    <select name="ram" id="id_ram" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
-                                        <option value="">Select RAM</option>
-                                        <option value="4GB" {% if form.ram.value == '4GB' %}selected{% endif %}>4GB</option>
-                                        <option value="6GB" {% if form.ram.value == '6GB' %}selected{% endif %}>6GB</option>
-                                        <option value="8GB" {% if form.ram.value == '8GB' %}selected{% endif %}>8GB</option>
-                                        <option value="12GB" {% if form.ram.value == '12GB' %}selected{% endif %}>12GB</option>
-                                        <option value="16GB" {% if form.ram.value == '16GB' %}selected{% endif %}>16GB</option>
-                                    </select>
+                                    <input type="text" name="network" id="id_network" value="{{ form.network.value|default:'' }}" placeholder="e.g., 5G, 4G LTE, Wi-Fi 7" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
                                 </div>
                                 
                                 <div>
-                                    <label for="id_storage" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        <i class="fas fa-hdd mr-2 text-indigo-500"></i>Storage
+                                    <label for="id_sim_type" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-sim-card mr-2 text-indigo-500"></i>SIM Type
                                     </label>
-                                    <select name="storage" id="id_storage" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
-                                        <option value="">Select Storage</option>
-                                        <option value="64GB" {% if form.storage.value == '64GB' %}selected{% endif %}>64GB</option>
-                                        <option value="128GB" {% if form.storage.value == '128GB' %}selected{% endif %}>128GB</option>
-                                        <option value="256GB" {% if form.storage.value == '256GB' %}selected{% endif %}>256GB</option>
-                                        <option value="512GB" {% if form.storage.value == '512GB' %}selected{% endif %}>512GB</option>
-                                        <option value="1TB" {% if form.storage.value == '1TB' %}selected{% endif %}>1TB</option>
-                                    </select>
+                                    <input type="text" name="sim_type" id="id_sim_type" value="{{ form.sim_type.value|default:'' }}" placeholder="e.g., Dual SIM (Nano-SIM, eSIM)" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
                                 </div>
                             </div>
                             
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <!-- Dimensions & Build -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                                 <div>
-                                    <label for="id_processor" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        <i class="fas fa-microchip mr-2 text-indigo-500"></i>Processor
+                                    <label for="id_dimensions" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-arrows-alt mr-2 text-indigo-500"></i>Dimensions
                                     </label>
-                                    <input type="text" name="processor" id="id_processor" value="{{ form.processor.value|default:'' }}" placeholder="e.g., Snapdragon 8 Gen 3, A18 Pro" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
+                                    <input type="text" name="dimensions" id="id_dimensions" value="{{ form.dimensions.value|default:'' }}" placeholder="e.g., 160.9 x 77.8 x 8.3 mm" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
                                 </div>
                                 
                                 <div>
@@ -1002,43 +981,33 @@
                                     </label>
                                     <input type="text" name="weight" id="id_weight" value="{{ form.weight.value|default:'' }}" placeholder="e.g., 221 grams" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
                                 </div>
+                                
+                                <div>
+                                    <label for="id_build_material" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-gem mr-2 text-indigo-500"></i>Build Material
+                                    </label>
+                                    <input type="text" name="build_material" id="id_build_material" value="{{ form.build_material.value|default:'' }}" placeholder="e.g., Titanium frame, Glass back" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
+                                </div>
                             </div>
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                 <div>
-                                    <label for="id_operating_system" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        <i class="fab fa-android mr-2 text-indigo-500"></i>Operating System
+                                    <label for="id_colors" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-palette mr-2 text-indigo-500"></i>Available Colors
                                     </label>
-                                    <select name="operating_system" id="id_operating_system" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
-                                        <option value="">Select Operating System</option>
-                                        <option value="iOS 18" {% if form.operating_system.value == 'iOS 18' %}selected{% endif %}>iOS 18</option>
-                                        <option value="iOS 17" {% if form.operating_system.value == 'iOS 17' %}selected{% endif %}>iOS 17</option>
-                                        <option value="Android 15" {% if form.operating_system.value == 'Android 15' %}selected{% endif %}>Android 15</option>
-                                        <option value="Android 14" {% if form.operating_system.value == 'Android 14' %}selected{% endif %}>Android 14</option>
-                                    </select>
+                                    <input type="text" name="colors" id="id_colors" value="{{ form.colors.value|default:'' }}" placeholder="e.g., Black, White, Blue, Gold, Purple" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
+                                    <p class="text-xs text-slate-400 mt-1">Separate colors with commas</p>
                                 </div>
                                 
                                 <div>
-                                    <label for="id_available_colors" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        <i class="fas fa-palette mr-2 text-indigo-500"></i>Available Colors
+                                    <label for="id_water_resistance" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-tint mr-2 text-indigo-500"></i>Water Resistance
                                     </label>
-                                    <input type="text" name="available_colors" id="id_available_colors" value="{{ form.available_colors.value|default:'' }}" placeholder="e.g., Black, White, Blue, Gold" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
-                                    <p class="text-xs text-slate-400 mt-1">Separate colors with commas</p>
+                                    <input type="text" name="water_resistance" id="id_water_resistance" value="{{ form.water_resistance.value|default:'' }}" placeholder="e.g., IP68 (up to 6m for 30 mins)" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
                                 </div>
                             </div>
                             
-                            <div class="mb-6">
-                                <label for="id_connectivity" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i class="fas fa-wifi mr-2 text-indigo-500"></i>Connectivity Details
-                                </label>
-                                <textarea name="connectivity" id="id_connectivity" rows="3" placeholder="List all connectivity options:
-• 5G (Sub-6 GHz, mmWave)
-• Wi-Fi 7 (802.11be)
-• Bluetooth 5.3
-• NFC
-• USB-C 3.2 Gen 2" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">{{ form.connectivity.value|default:'' }}</textarea>
-                            </div>
-                            
+                            <!-- What's in the Box -->
                             <div class="mb-6">
                                 <label for="id_whats_in_box" class="block text-sm font-semibold text-slate-700 mb-2">
                                     <i class="fas fa-box-open mr-2 text-indigo-500"></i>What's in the Box
@@ -1050,34 +1019,6 @@
 • SIM Ejector Tool
 • User Manual
 • Warranty Card" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">{{ form.whats_in_box.value|default:'' }}</textarea>
-                            </div>
-                            
-                            <!-- Additional Specifications -->
-                            <div class="mt-8 pt-6 border-t-2 border-slate-200">
-                                <h3 class="text-md font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                                    <i class="fas fa-plus-circle text-indigo-500"></i>
-                                    Additional Specifications
-                                </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block text-xs font-medium text-slate-500 mb-1">SIM Type</label>
-                                        <input type="text" name="sim_type" id="id_sim_type" value="{{ form.sim_type.value|default:'' }}" placeholder="e.g., Dual SIM (Nano-SIM, eSIM)" class="w-full rounded-lg border-2 border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 transition-all">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-medium text-slate-500 mb-1">Water Resistance</label>
-                                        <input type="text" name="water_resistance" id="id_water_resistance" value="{{ form.water_resistance.value|default:'' }}" placeholder="e.g., IP68 (up to 6m for 30 mins)" class="w-full rounded-lg border-2 border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 transition-all">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-medium text-slate-500 mb-1">Fingerprint Sensor</label>
-                                        <select name="fingerprint_sensor" id="id_fingerprint_sensor" class="w-full rounded-lg border-2 border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 transition-all">
-                                            <option value="">Select</option>
-                                            <option value="Under Display" {% if form.fingerprint_sensor.value == 'Under Display' %}selected{% endif %}>Under Display</option>
-                                            <option value="Side Mounted" {% if form.fingerprint_sensor.value == 'Side Mounted' %}selected{% endif %}>Side Mounted</option>
-                                            <option value="Rear Mounted" {% if form.fingerprint_sensor.value == 'Rear Mounted' %}selected{% endif %}>Rear Mounted</option>
-                                            <option value="Not Available" {% if form.fingerprint_sensor.value == 'Not Available' %}selected{% endif %}>Not Available</option>
-                                        </select>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -1100,7 +1041,6 @@
                             <div>
                                 <label for="id_description" class="block text-sm font-semibold text-slate-700 mb-2">
                                     Product Description <span class="text-rose-500">*</span>
-                                    <span class="text-xs text-slate-400 font-normal ml-1">(Min 100 characters)</span>
                                 </label>
                                 
                                 <!-- Rich Text Editor Toolbar -->
@@ -1152,10 +1092,10 @@
                                         <i class="fas fa-image"></i>
                                     </button>
                                     <div class="w-px h-6 bg-slate-300 mx-1"></div>
-                                    <button type="button" onclick="formatText('undo')" class="toolbar-btn p-2 hover:bg-slate-200 rounded-lg transition" title="Undo">
+                                    <button type="button" onclick="formatText('undo')" class="toolbar-btn p-2 hover:bg-slate-200 rounded-lg transition" title="Undo (Ctrl+Z)">
                                         <i class="fas fa-undo-alt"></i>
                                     </button>
-                                    <button type="button" onclick="formatText('redo')" class="toolbar-btn p-2 hover:bg-slate-200 rounded-lg transition" title="Redo">
+                                    <button type="button" onclick="formatText('redo')" class="toolbar-btn p-2 hover:bg-slate-200 rounded-lg transition" title="Redo (Ctrl+Y)">
                                         <i class="fas fa-redo-alt"></i>
                                     </button>
                                     <div class="w-px h-6 bg-slate-300 mx-1"></div>
@@ -1169,7 +1109,7 @@
                                 
                                 <textarea name="description" id="id_description" required rows="10" class="hidden w-full rounded-b-xl border-2 border-t-0 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all font-mono text-sm">{{ form.description.value|default:'' }}</textarea>
                                 
-                                <div id="richEditor" contenteditable="true" class="w-full rounded-b-xl border-2 border-t-0 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all min-h-[300px] max-h-[500px] overflow-y-auto prose prose-sm" placeholder="Start writing...">
+                                <div id="richEditor" contenteditable="true" class="w-full rounded-b-xl border-2 border-t-0 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all min-h-[300px] max-h-[500px] overflow-y-auto prose prose-sm" placeholder="Write your product description here...">
                                     {{ form.description.value|default:''|safe }}
                                 </div>
                                 
@@ -1186,7 +1126,7 @@
                                 
                                 <div class="flex items-center justify-between mt-4 text-sm text-slate-500">
                                     <div class="flex items-center gap-4 flex-wrap">
-                                        <span><i class="fas fa-keyboard mr-1"></i> Min. 100 characters</span>
+                                        <span><i class="fas fa-keyboard mr-1"></i> Rich text supported</span>
                                         <span><i class="fas fa-lightbulb mr-1 text-amber-500"></i> Use headings for better structure</span>
                                         <span><i class="fas fa-search mr-1 text-indigo-500"></i> Include SEO keywords</span>
                                     </div>
@@ -1217,11 +1157,12 @@
                                     <i class="fas fa-list-check mr-2 text-indigo-500"></i>Key Features
                                     <span class="text-xs text-slate-400 font-normal ml-1">(One per line)</span>
                                 </label>
-                                <textarea name="features" id="id_features" rows="4" placeholder="List key features (one per line)...
+                                <textarea name="features" id="id_features" rows="5" placeholder="List key features (one per line)...
 • 120Hz ProMotion display
 • A18 Pro chip
 • Titanium design
-• All-day battery life" class="w-full rounded-xl border-2 border-slate-200 hover:border-indigo-300 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">{{ form.features.value|default:'' }}</textarea>
+• All-day battery life
+• 5G connectivity" class="w-full rounded-xl border-2 border-slate-200 hover:border-indigo-300 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">{{ form.features.value|default:'' }}</textarea>
                                 {% if form.features.errors %}
                                     <div class="mt-2 flex items-start gap-2 text-rose-500">
                                         <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
@@ -1266,7 +1207,7 @@
                                         <i class="fas fa-cloud-upload-alt text-5xl text-slate-400 mb-3"></i>
                                         <p class="text-slate-600 font-medium">Click to upload main image</p>
                                         <p class="text-slate-400 text-sm mt-1">JPG, PNG or WebP (Max 5MB)</p>
-                                        <input type="file" name="image" id="id_image" accept="image/*" class="hidden" required>
+                                        <input type="file" name="image" id="id_image" accept="image/*" class="hidden" {% if not form.image.value %}required{% endif %}>
                                     </div>
                                     {% if form.image.errors %}
                                         <div class="mt-2 flex items-start gap-2 text-rose-500">
@@ -1285,7 +1226,10 @@
                                         Preview
                                     </label>
                                     <div class="border-2 rounded-2xl p-4 text-center bg-slate-50">
-                                        <img id="imagePreview" src="{% if form.image.value %}{{ form.image.value.url }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" class="w-40 h-40 object-cover mx-auto rounded-xl shadow-md">
+                                        <img id="imagePreview" src="#" class="w-40 h-40 object-cover mx-auto rounded-xl shadow-md hidden">
+                                        <div id="imagePlaceholder" class="w-40 h-40 bg-slate-200 rounded-xl mx-auto flex items-center justify-center">
+                                            <i class="fas fa-image text-4xl text-slate-400"></i>
+                                        </div>
                                         <p class="text-xs text-slate-400 mt-2">Main product image preview</p>
                                     </div>
                                 </div>
@@ -1332,7 +1276,7 @@
                                                         </button>
                                                     </div>
                                                     {% if form.instance.is_main %}
-                                                        <div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">
+                                                        <div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full shadow-md">
                                                             <i class="fas fa-crown mr-1"></i> Main
                                                         </div>
                                                     {% endif %}
@@ -1367,6 +1311,110 @@
                         </div>
                     </div>
 
+                    <!-- Warranty & Support -->
+                    <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden form-card">
+                        <div class="px-8 py-5 border-b border-slate-200 bg-gradient-to-r from-teal-50 via-white to-slate-50">
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 flex items-center justify-center shadow-md">
+                                    <i class="fas fa-shield-alt text-white text-lg"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-slate-900">Warranty & Support</h2>
+                                    <p class="text-slate-500 text-sm">Set warranty and support information</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label for="id_warranty" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-certificate mr-2 text-indigo-500"></i>Warranty Period
+                                    </label>
+                                    <input type="text" name="warranty" id="id_warranty" value="{{ form.warranty.value|default:'1 Year' }}" placeholder="e.g., 1 Year, 2 Years" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
+                                </div>
+                                
+                                <div>
+                                    <label for="id_warranty_type" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-building mr-2 text-indigo-500"></i>Warranty Type
+                                    </label>
+                                    <select name="warranty_type" id="id_warranty_type" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
+                                        <option value="">Select warranty type</option>
+                                        <option value="Manufacturer" {% if form.warranty_type.value == 'Manufacturer' %}selected{% endif %}>Manufacturer Warranty</option>
+                                        <option value="Seller" {% if form.warranty_type.value == 'Seller' %}selected{% endif %}>Seller Warranty</option>
+                                        <option value="Both" {% if form.warranty_type.value == 'Both' %}selected{% endif %}>Both Manufacturer & Seller</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label for="id_return_policy" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-undo-alt mr-2 text-indigo-500"></i>Return Policy
+                                    </label>
+                                    <input type="text" name="return_policy" id="id_return_policy" value="{{ form.return_policy.value|default:'7 Days Return Policy' }}" placeholder="e.g., 7 Days Return Policy" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEO Section -->
+                    <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden form-card">
+                        <div class="px-8 py-5 border-b border-slate-200 bg-gradient-to-r from-slate-100 via-white to-slate-50">
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-xl bg-gradient-to-r from-slate-600 to-slate-700 flex items-center justify-center shadow-md">
+                                    <i class="fas fa-chart-line text-white text-lg"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-slate-900">SEO & Metadata</h2>
+                                    <p class="text-slate-500 text-sm">Optimize your product for search engines</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8">
+                            <div class="grid grid-cols-1 gap-6">
+                                <div>
+                                    <label for="id_meta_title" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-tag mr-2 text-indigo-500"></i>Meta Title
+                                        <span class="text-xs text-slate-400 font-normal ml-1">(Recommended: 50-60 characters)</span>
+                                    </label>
+                                    <input type="text" name="meta_title" id="id_meta_title" value="{{ form.meta_title.value|default:'' }}" placeholder="Enter SEO title" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
+                                    <div class="mt-2 flex items-center justify-between text-xs">
+                                        <span class="text-slate-500"><i class="fas fa-info-circle mr-1"></i> This appears in search results</span>
+                                        <span id="metaTitleCount" class="font-mono text-indigo-600">0/60</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label for="id_meta_description" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-paragraph mr-2 text-indigo-500"></i>Meta Description
+                                        <span class="text-xs text-slate-400 font-normal ml-1">(Recommended: 150-160 characters)</span>
+                                    </label>
+                                    <textarea name="meta_description" id="id_meta_description" rows="3" placeholder="Write a compelling meta description for search engines" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">{{ form.meta_description.value|default:'' }}</textarea>
+                                    <div class="mt-2 flex items-center justify-between text-xs">
+                                        <span class="text-slate-500"><i class="fas fa-info-circle mr-1"></i> This appears under the title in search results</span>
+                                        <span id="metaDescCount" class="font-mono text-indigo-600">0/160</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label for="id_meta_keywords" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-keyboard mr-2 text-indigo-500"></i>Meta Keywords
+                                        <span class="text-xs text-slate-400 font-normal ml-1">(Comma separated)</span>
+                                    </label>
+                                    <input type="text" name="meta_keywords" id="id_meta_keywords" value="{{ form.meta_keywords.value|default:'' }}" placeholder="smartphone, mobile, phone, gadget, tech" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
+                                </div>
+                                
+                                <div>
+                                    <label for="id_tags" class="block text-sm font-semibold text-slate-700 mb-2">
+                                        <i class="fas fa-hashtag mr-2 text-indigo-500"></i>Product Tags
+                                        <span class="text-xs text-slate-400 font-normal ml-1">(Comma separated)</span>
+                                    </label>
+                                    <input type="text" name="tags" id="id_tags" value="{{ form.tags.value|default:'' }}" placeholder="new, sale, popular, trending" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Form Actions -->
                     <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
                         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -1391,166 +1439,118 @@
     </div>
 </div>
 
-<!-- Rich Text Editor JavaScript -->
 <script>
-// Rich Text Editor Variables
+// ==================== AUTO SLUG GENERATION ====================
+function generateSlugFromName(name) {
+    if (!name) return '';
+    
+    return name
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/--+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .substring(0, 200);
+}
+
+const productNameInput = document.getElementById('id_name');
+const slugInput = document.getElementById('id_slug');
+const generateSlugBtn = document.getElementById('generateSlugBtn');
+
+if (productNameInput && slugInput) {
+    productNameInput.addEventListener('blur', function() {
+        if (!slugInput.value || slugInput.value === '') {
+            const generatedSlug = generateSlugFromName(this.value);
+            if (generatedSlug) {
+                slugInput.value = generatedSlug;
+                showToast('Slug auto-generated from product name', 'success');
+            }
+        }
+    });
+    
+    productNameInput.addEventListener('input', function() {
+        if (slugInput && slugInput.value === '') {
+            slugInput.value = generateSlugFromName(this.value);
+        }
+    });
+}
+
+if (generateSlugBtn) {
+    generateSlugBtn.addEventListener('click', function() {
+        if (productNameInput && productNameInput.value) {
+            const generatedSlug = generateSlugFromName(productNameInput.value);
+            slugInput.value = generatedSlug;
+            showToast('Slug generated successfully', 'success');
+        } else {
+            showToast('Please enter product name first', 'error');
+        }
+    });
+}
+
+// ==================== AUTO SKU GENERATION ====================
+function generateSKU() {
+    const brandSelect = document.getElementById('id_brand');
+    const categorySelect = document.getElementById('id_category');
+    const skuInput = document.getElementById('id_sku');
+    
+    const brand = brandSelect?.options[brandSelect.selectedIndex]?.text || 'PRO';
+    const category = categorySelect?.options[categorySelect.selectedIndex]?.text || 'GEN';
+    const timestamp = Date.now().toString().slice(-8);
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    
+    let brandCode = brand.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, '');
+    let categoryCode = category.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, '');
+    
+    if (brandCode.length < 2) brandCode = 'PRD';
+    if (categoryCode.length < 2) categoryCode = 'GEN';
+    
+    const sku = `${brandCode}-${categoryCode}-${timestamp}-${random}`;
+    
+    if (skuInput) {
+        skuInput.value = sku;
+        showToast('SKU generated successfully', 'success');
+    }
+}
+
+const generateSkuBtn = document.getElementById('generateSkuBtn');
+if (generateSkuBtn) {
+    generateSkuBtn.addEventListener('click', generateSKU);
+}
+
+// Auto-generate SKU when brand or category changes
+const brandSelect = document.getElementById('id_brand');
+const categorySelect = document.getElementById('id_category');
+const skuInput = document.getElementById('id_sku');
+
+if (brandSelect && categorySelect && skuInput) {
+    function autoGenerateSKU() {
+        if (!skuInput.value || skuInput.value === '') {
+            generateSKU();
+        }
+    }
+    
+    brandSelect.addEventListener('change', autoGenerateSKU);
+    categorySelect.addEventListener('change', autoGenerateSKU);
+    
+    // Generate initial SKU if empty
+    if (!skuInput.value) {
+        setTimeout(generateSKU, 500);
+    }
+}
+
+// ==================== RICH TEXT EDITOR ====================
 let isCodeView = false;
 let editorContent = '';
 
-// Initialize Editor
-document.addEventListener('DOMContentLoaded', function() {
-    const richEditor = document.getElementById('richEditor');
-    const textarea = document.getElementById('id_description');
-    const charCount = document.getElementById('charCount');
-    const wordCount = document.getElementById('wordCount');
-    
-    if (richEditor && textarea) {
-        richEditor.innerHTML = textarea.value;
-        updateCounters();
-    }
-    
-    if (richEditor) {
-        richEditor.addEventListener('input', function() {
-            updateCounters();
-            syncToTextarea();
-        });
-        
-        richEditor.addEventListener('keyup', function() {
-            updateCounters();
-            syncToTextarea();
-        });
-        
-        richEditor.addEventListener('paste', function(e) {
-            e.preventDefault();
-            const text = (e.originalEvent || e).clipboardData.getData('text/plain');
-            document.execCommand('insertText', false, text);
-            updateCounters();
-            syncToTextarea();
-        });
-    }
-    
-    function updateCounters() {
-        if (!richEditor) return;
-        const text = richEditor.innerText || '';
-        const charLength = text.length;
-        const wordLength = text.trim().split(/\s+/).filter(word => word.length > 0).length;
-        
-        if (charCount) charCount.textContent = charLength + ' characters';
-        if (wordCount) wordCount.textContent = wordLength + ' words';
-        
-        if (charCount) {
-            if (charLength < 100) {
-                charCount.classList.add('text-amber-500');
-                charCount.classList.remove('text-emerald-600');
-            } else {
-                charCount.classList.remove('text-amber-500');
-                charCount.classList.add('text-emerald-600');
-            }
-        }
-    }
-    
-    function syncToTextarea() {
-        if (textarea && richEditor) {
-            textarea.value = richEditor.innerHTML;
-        }
-    }
-    
-    window.syncToTextarea = syncToTextarea;
-    
-    // Video Recording Validation
-    const videoField = document.getElementById('id_video_recording');
-    if (videoField) {
-        validateVideoRecording(videoField);
-        videoField.addEventListener('input', function() { validateVideoRecording(this); });
-        videoField.addEventListener('blur', function() { validateVideoRecording(this); });
-    }
-    
-    // Stock Status
-    const stockInput = document.getElementById('id_stock_quantity');
-    const thresholdInput = document.getElementById('id_low_stock_threshold');
-    const statusBadge = document.getElementById('stockStatusBadge');
-    
-    function updateStockStatus() {
-        if (!statusBadge) return;
-        const stock = parseInt(stockInput?.value) || 0;
-        const threshold = parseInt(thresholdInput?.value) || 10;
-        
-        if (stock <= 0) {
-            statusBadge.innerHTML = '<i class="fas fa-times-circle mr-1"></i> Out of Stock';
-            statusBadge.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-700';
-        } else if (stock <= threshold) {
-            statusBadge.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i> Low Stock';
-            statusBadge.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700';
-        } else {
-            statusBadge.innerHTML = '<i class="fas fa-check-circle mr-1"></i> In Stock';
-            statusBadge.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700';
-        }
-    }
-    
-    if (stockInput) stockInput.addEventListener('input', updateStockStatus);
-    if (thresholdInput) thresholdInput.addEventListener('input', updateStockStatus);
-    updateStockStatus();
-    
-    // Generate Slug
-    const nameField = document.getElementById('id_name');
-    const slugField = document.getElementById('id_slug');
-    const generateBtn = document.getElementById('generateSlug');
-    
-    if (generateBtn && nameField && slugField) {
-        generateBtn.addEventListener('click', function() {
-            const name = nameField.value;
-            if (name) {
-                const slug = name.toLowerCase()
-                    .replace(/[^\w\s-]/g, '')
-                    .replace(/\s+/g, '-')
-                    .replace(/--+/g, '-')
-                    .trim();
-                slugField.value = slug;
-                showToast('Slug generated successfully', 'success');
-            } else {
-                showToast('Please enter product name first', 'error');
-            }
-        });
-    }
-    
-    // Progress Update
-    updateProgress();
-    document.querySelectorAll('input, textarea, select').forEach(el => {
-        el.addEventListener('input', updateProgress);
-        el.addEventListener('change', updateProgress);
-    });
-    
-    // Main Image Preview
-    const mainImageInput = document.getElementById('id_image');
-    if (mainImageInput) {
-        mainImageInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                if (file.size > 5 * 1024 * 1024) {
-                    showToast('Image size must be less than 5MB', 'error');
-                    this.value = '';
-                    return;
-                }
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('imagePreview').src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-});
-
-// Format Text Functions
 function formatText(command) {
     document.execCommand(command, false, null);
-    document.getElementById('richEditor').focus();
+    document.getElementById('richEditor')?.focus();
     updateCountersAndSync();
 }
 
 function formatHeading(tag) {
     document.execCommand('formatBlock', false, tag);
-    document.getElementById('richEditor').focus();
+    document.getElementById('richEditor')?.focus();
     updateCountersAndSync();
     const dropdown = document.getElementById('headingDropdown');
     if (dropdown) dropdown.classList.add('hidden');
@@ -1558,42 +1558,15 @@ function formatHeading(tag) {
 
 function formatList(type) {
     document.execCommand('insert' + (type === 'ul' ? 'UnorderedList' : 'OrderedList'), false, null);
-    document.getElementById('richEditor').focus();
+    document.getElementById('richEditor')?.focus();
     updateCountersAndSync();
 }
-
-function updateCountersAndSync() {
-    const richEditor = document.getElementById('richEditor');
-    const textarea = document.getElementById('id_description');
-    const charCount = document.getElementById('charCount');
-    const wordCount = document.getElementById('wordCount');
-    
-    if (richEditor) {
-        const text = richEditor.innerText || '';
-        if (charCount) charCount.textContent = text.length + ' characters';
-        if (wordCount) wordCount.textContent = text.trim().split(/\s+/).filter(word => word.length > 0).length + ' words';
-        if (textarea) textarea.value = richEditor.innerHTML;
-    }
-}
-
-function toggleHeadingDropdown() {
-    const dropdown = document.getElementById('headingDropdown');
-    if (dropdown) dropdown.classList.toggle('hidden');
-}
-
-document.addEventListener('click', function(e) {
-    const dropdown = document.getElementById('headingDropdown');
-    const headingBtn = e.target.closest('[onclick="toggleHeadingDropdown()"]');
-    if (dropdown && !headingBtn && !dropdown.contains(e.target)) {
-        dropdown.classList.add('hidden');
-    }
-});
 
 function insertLink() {
     const url = prompt('Enter URL:', 'https://');
     if (url) {
         document.execCommand('createLink', false, url);
-        document.getElementById('richEditor').focus();
+        document.getElementById('richEditor')?.focus();
         updateCountersAndSync();
     }
 }
@@ -1602,7 +1575,7 @@ function insertImage() {
     const url = prompt('Enter Image URL:', 'https://');
     if (url) {
         document.execCommand('insertImage', false, url);
-        document.getElementById('richEditor').focus();
+        document.getElementById('richEditor')?.focus();
         updateCountersAndSync();
     }
 }
@@ -1626,7 +1599,26 @@ function toggleCodeView() {
     }
 }
 
-// Keyboard Shortcuts
+function toggleHeadingDropdown() {
+    const dropdown = document.getElementById('headingDropdown');
+    if (dropdown) dropdown.classList.toggle('hidden');
+}
+
+function updateCountersAndSync() {
+    const richEditor = document.getElementById('richEditor');
+    const textarea = document.getElementById('id_description');
+    const charCount = document.getElementById('charCount');
+    const wordCount = document.getElementById('wordCount');
+    
+    if (richEditor) {
+        const text = richEditor.innerText || '';
+        if (charCount) charCount.textContent = text.length + ' characters';
+        if (wordCount) wordCount.textContent = text.trim().split(/\s+/).filter(word => word.length > 0).length + ' words';
+        if (textarea) textarea.value = richEditor.innerHTML;
+    }
+}
+
+// Keyboard shortcuts
 document.addEventListener('keydown', function(e) {
     const richEditor = document.getElementById('richEditor');
     if (!richEditor || richEditor.classList.contains('hidden')) return;
@@ -1642,44 +1634,157 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Video Recording Validation
-function validateVideoRecording(element) {
-    const text = element.value || '';
-    const charCount = text.length;
-    const minChars = 400;
-    
-    const charCountSpan = document.getElementById('videoCharCount');
-    const progressBar = document.getElementById('videoCharProgress');
-    const warningDiv = document.getElementById('videoCharWarning');
-    
-    if (charCountSpan) charCountSpan.textContent = charCount;
-    
-    let percentage = Math.min(100, (charCount / minChars) * 100);
-    if (progressBar) {
-        progressBar.style.width = percentage + '%';
-        if (charCount >= minChars) {
-            progressBar.classList.remove('bg-amber-500', 'bg-rose-500');
-            progressBar.classList.add('bg-emerald-500');
-            if (warningDiv) warningDiv.classList.add('hidden');
-        } else if (charCount >= 200) {
-            progressBar.classList.remove('bg-rose-500', 'bg-emerald-500');
-            progressBar.classList.add('bg-amber-500');
-            if (warningDiv) {
-                warningDiv.classList.remove('hidden');
-                warningDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Please add ' + (minChars - charCount) + ' more characters';
+// Close dropdown on click outside
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('headingDropdown');
+    const headingBtn = e.target.closest('[onclick="toggleHeadingDropdown()"]');
+    if (dropdown && !headingBtn && !dropdown.contains(e.target)) {
+        dropdown.classList.add('hidden');
+    }
+});
+
+// ==================== IMAGE PREVIEW ====================
+const mainImageInput = document.getElementById('id_image');
+const imagePreview = document.getElementById('imagePreview');
+const imagePlaceholder = document.getElementById('imagePlaceholder');
+
+if (mainImageInput) {
+    mainImageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('Image size must be less than 5MB', 'error');
+                this.value = '';
+                return;
             }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (imagePreview) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                }
+                if (imagePlaceholder) imagePlaceholder.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+// ==================== STOCK STATUS ====================
+const stockInput = document.getElementById('id_stock_quantity');
+const thresholdInput = document.getElementById('id_low_stock_threshold');
+const statusBadge = document.getElementById('stockStatusBadge');
+const stockProgressBar = document.getElementById('stockProgressBar');
+
+function updateStockStatus() {
+    const stock = parseInt(stockInput?.value) || 0;
+    const threshold = parseInt(thresholdInput?.value) || 10;
+    
+    if (statusBadge) {
+        if (stock <= 0) {
+            statusBadge.innerHTML = '<i class="fas fa-times-circle mr-1"></i> Out of Stock';
+            statusBadge.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-700';
+        } else if (stock <= threshold) {
+            statusBadge.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i> Low Stock';
+            statusBadge.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700';
         } else {
-            progressBar.classList.remove('bg-emerald-500', 'bg-amber-500');
-            progressBar.classList.add('bg-rose-500');
-            if (warningDiv) {
-                warningDiv.classList.remove('hidden');
-                warningDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Minimum 400 characters required. ' + (minChars - charCount) + ' more needed.';
-            }
+            statusBadge.innerHTML = '<i class="fas fa-check-circle mr-1"></i> In Stock';
+            statusBadge.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700';
+        }
+    }
+    
+    if (stockProgressBar && threshold > 0) {
+        let percentage = Math.min(100, (stock / threshold) * 100);
+        if (stock <= 0) percentage = 0;
+        stockProgressBar.style.width = percentage + '%';
+        if (stock <= 0) {
+            stockProgressBar.classList.remove('bg-emerald-500', 'bg-amber-500');
+            stockProgressBar.classList.add('bg-rose-500');
+        } else if (stock <= threshold) {
+            stockProgressBar.classList.remove('bg-emerald-500', 'bg-rose-500');
+            stockProgressBar.classList.add('bg-amber-500');
+        } else {
+            stockProgressBar.classList.remove('bg-amber-500', 'bg-rose-500');
+            stockProgressBar.classList.add('bg-emerald-500');
         }
     }
 }
 
-// Gallery Management Functions
+if (stockInput) stockInput.addEventListener('input', updateStockStatus);
+if (thresholdInput) thresholdInput.addEventListener('input', updateStockStatus);
+updateStockStatus();
+
+// ==================== META CHARACTER COUNTERS ====================
+const metaTitle = document.getElementById('id_meta_title');
+const metaDesc = document.getElementById('id_meta_description');
+const metaTitleCount = document.getElementById('metaTitleCount');
+const metaDescCount = document.getElementById('metaDescCount');
+
+if (metaTitle && metaTitleCount) {
+    metaTitle.addEventListener('input', function() {
+        const len = this.value.length;
+        metaTitleCount.textContent = len + '/60';
+        if (len > 60) {
+            metaTitleCount.classList.add('text-rose-500');
+            metaTitleCount.classList.remove('text-indigo-600');
+        } else {
+            metaTitleCount.classList.remove('text-rose-500');
+            metaTitleCount.classList.add('text-indigo-600');
+        }
+    });
+    metaTitleCount.textContent = (metaTitle.value?.length || 0) + '/60';
+}
+
+if (metaDesc && metaDescCount) {
+    metaDesc.addEventListener('input', function() {
+        const len = this.value.length;
+        metaDescCount.textContent = len + '/160';
+        if (len > 160) {
+            metaDescCount.classList.add('text-rose-500');
+            metaDescCount.classList.remove('text-indigo-600');
+        } else {
+            metaDescCount.classList.remove('text-rose-500');
+            metaDescCount.classList.add('text-indigo-600');
+        }
+    });
+    metaDescCount.textContent = (metaDesc.value?.length || 0) + '/160';
+}
+
+// ==================== PROGRESS BAR ====================
+function updateProgress() {
+    const form = document.getElementById('productForm');
+    if (!form) return;
+    
+    const requiredFields = form.querySelectorAll('[required]');
+    let filled = 0;
+    
+    requiredFields.forEach(field => {
+        if (field.type === 'checkbox') {
+            if (field.checked) filled++;
+        } else if (field.type === 'file') {
+            if (field.files && field.files.length > 0) filled++;
+        } else {
+            if (field.value && field.value.trim() !== '') filled++;
+        }
+    });
+    
+    const progress = Math.min(100, Math.round((filled / requiredFields.length) * 100));
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    
+    if (progressBar && progressText) {
+        progressBar.style.width = `${progress}%`;
+        progressText.textContent = `${progress}%`;
+    }
+}
+
+document.querySelectorAll('input, textarea, select').forEach(el => {
+    el.addEventListener('input', updateProgress);
+    el.addEventListener('change', updateProgress);
+});
+updateProgress();
+
+// ==================== GALLERY MANAGEMENT ====================
 let selectedFiles = [];
 let existingImages = [];
 let mainImageIndex = -1;
@@ -1748,7 +1853,7 @@ function getMainNewIndex() {
 
 window.setNewAsMain = function(index) {
     mainImageIndex = existingImages.length + index;
-    document.querySelectorAll('.gallery-item .bg-yellow-500').forEach(badge => badge.remove());
+    document.querySelectorAll('.gallery-item .bg-yellow-500, .new-gallery-item .bg-yellow-500').forEach(badge => badge.remove());
     updateNewImagesPreview();
     updateExistingImagesPreview();
     showToast('Main image updated', 'success');
@@ -1820,26 +1925,7 @@ function updateExistingImagesPreview() {
     });
 }
 
-// Progress and Toast Functions
-function updateProgress() {
-    const form = document.getElementById('productForm');
-    if (!form) return;
-    const requiredFields = form.querySelectorAll('[required]');
-    let filled = 0;
-    requiredFields.forEach(field => {
-        if (field.type === 'checkbox') { if (field.checked) filled++; }
-        else if (field.type === 'file') { if (field.files && field.files.length > 0) filled++; }
-        else { if (field.value && field.value.trim() !== '') filled++; }
-    });
-    const progress = Math.min(100, Math.round((filled / requiredFields.length) * 100));
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
-    if (progressBar && progressText) {
-        progressBar.style.width = `${progress}%`;
-        progressText.textContent = `${progress}%`;
-    }
-}
-
+// ==================== UTILITY FUNCTIONS ====================
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `fixed top-24 right-6 z-50 px-5 py-3 rounded-xl shadow-lg transform transition-all duration-300 translate-x-full ${type === 'success' ? 'bg-emerald-500 text-white' : type === 'error' ? 'bg-rose-500 text-white' : 'bg-blue-500 text-white'}`;
@@ -1857,174 +1943,26 @@ function scrollToFirstError() {
 function resetForm() {
     if (confirm('Reset all form data? All unsaved changes will be lost.')) {
         document.getElementById('productForm').reset();
-        document.getElementById('imagePreview').src = "{% static 'images/placeholder.jpg' %}";
+        if (imagePreview) imagePreview.classList.add('hidden');
+        if (imagePlaceholder) imagePlaceholder.classList.remove('hidden');
         selectedFiles = [];
         updateNewImagesPreview();
-        showToast('Form reset successfully', 'success');
         updateProgress();
+        showToast('Form reset successfully', 'success');
     }
 }
 
-function openQuickAddModal(type) {
-    showToast(`Quick add for ${type} - Implement this feature`, 'info');
-}
-
-{% if form.errors or formset.errors %}
-document.addEventListener('DOMContentLoaded', function() { setTimeout(scrollToFirstError, 500); });
-{% endif %}
+// Initialize rich editor
+document.addEventListener('DOMContentLoaded', function() {
+    const richEditor = document.getElementById('richEditor');
+    const textarea = document.getElementById('id_description');
+    
+    if (richEditor && textarea) {
+        if (!richEditor.innerHTML.trim()) {
+            richEditor.innerHTML = textarea.value || '';
+        }
+        updateCountersAndSync();
+    }
+});
 </script>
-
-<style>
-/* Custom Styles */
-.toolbar-btn {
-    transition: all 0.2s ease;
-}
-
-.toolbar-btn:active {
-    transform: scale(0.95);
-}
-
-#richEditor {
-    min-height: 300px;
-    max-height: 500px;
-    overflow-y: auto;
-    line-height: 1.6;
-}
-
-#richEditor:focus {
-    outline: none;
-}
-
-#richEditor:empty:before {
-    content: attr(placeholder);
-    color: #94a3b8;
-}
-
-#richEditor h1 {
-    font-size: 2rem;
-    font-weight: 800;
-    margin: 0.75rem 0;
-    color: #0f172a;
-    border-bottom: 2px solid #e2e8f0;
-    padding-bottom: 0.5rem;
-}
-
-#richEditor h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin: 0.5rem 0;
-    color: #1e293b;
-}
-
-#richEditor h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin: 0.5rem 0;
-    color: #334155;
-}
-
-#richEditor h4 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin: 0.5rem 0;
-    color: #475569;
-}
-
-#richEditor ul, #richEditor ol {
-    padding-left: 1.5rem;
-    margin: 0.5rem 0;
-}
-
-#richEditor li {
-    margin: 0.25rem 0;
-}
-
-#richEditor blockquote {
-    border-left: 4px solid #6366f1;
-    padding-left: 1rem;
-    margin: 0.5rem 0;
-    color: #475569;
-    font-style: italic;
-}
-
-#richEditor a {
-    color: #6366f1;
-    text-decoration: underline;
-}
-
-#richEditor img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 0.5rem;
-    margin: 0.5rem 0;
-}
-
-.custom-checkbox input {
-    display: none;
-}
-
-.custom-checkbox .checkmark {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #cbd5e1;
-    border-radius: 6px;
-    display: inline-block;
-    position: relative;
-    transition: all 0.2s ease;
-}
-
-.custom-checkbox input:checked + .checkmark {
-    background: #6366f1;
-    border-color: #6366f1;
-}
-
-.custom-checkbox input:checked + .checkmark:after {
-    content: '\f00c';
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 10px;
-}
-
-.gallery-item, .new-gallery-item {
-    transition: all 0.3s ease;
-}
-
-.gallery-item:hover, .new-gallery-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fadeIn {
-    animation: fadeIn 0.3s ease-out;
-}
-
-.progress-fill {
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.input-focus-effect:focus {
-    transform: scale(1.01);
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-}
-
-.form-card {
-    transition: all 0.3s ease;
-    animation: fadeIn 0.5s ease-out;
-}
-
-.form-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
-}
-</style>
 {% endblock %}

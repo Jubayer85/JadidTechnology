@@ -1,0 +1,153 @@
+<!-- templates/emails/customer_order_confirmation.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .header p {
+            margin: 10px 0 0;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .order-info {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+            background: #f1f5f9;
+        }
+        .total {
+            text-align: right;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .button {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .footer {
+            background: #f8fafc;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ Order Confirmed!</h1>
+            <p>Thank you for your purchase</p>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                <p>Dear {{ customer_name }},</p>
+                <p>Thank you for shopping with {{ site_name }}! Your order has been received and is being processed.</p>
+            </div>
+            
+            <div class="order-info">
+                <p><strong>Order Number:</strong> #{{ order.order_number }}</p>
+                <p><strong>Order Date:</strong> {{ order.created_at|date:"F j, Y, g:i a" }}</p>
+                <p><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
+            </div>
+            
+            <h3>Order Summary</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order_items %}
+                    <tr>
+                        <td>{{ item.product_name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>৳{{ item.unit_price|floatformat:2 }}</td>
+                        <td>৳{{ item.total_price|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <div class="total">
+                <p><strong>Total Amount:</strong> ৳{{ order.total_amount|floatformat:2 }}</p>
+            </div>
+            
+            <div class="shipping-info">
+                <h3>Shipping Address</h3>
+                <p>{{ order.shipping_address|linebreaks }}</p>
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="{{ order_tracking_url }}" class="button">Track Your Order</a>
+            </div>
+            
+            <p style="margin-top: 30px; font-size: 14px; color: #666;">
+                You will receive another email when your order is shipped.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; {{ site_name }} - All rights reserved.</p>
+            <p>Need help? Contact us at support@jadidtechnology.com</p>
+        </div>
+    </div>
+</body>
+</html>

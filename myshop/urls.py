@@ -36,7 +36,7 @@ urlpatterns = [
     path('dashboard/', views.user_dashboard, name='user_dashboard'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('orders/', views.order_history, name='order_history'),
-    path('orders/<int:order_id>/', views.order_history, name='order_history'),
+   # path('orders/<int:order_id>/', views.order_history, name='order_history'),
     
    
 
@@ -62,7 +62,7 @@ urlpatterns = [
      path('admin-dashboard/duplicate-product/<int:product_id>/', views.duplicate_product, name='duplicate_product'),
 
 
-# PBrand URLs
+# Brand URLs
     path('brands/', views.all_brands, name='admin_brand_list'),
     path('brands/<slug:slug>/', views.brand_products, name='brand_products'),
     path('brands/<slug:slug>/filter/', views.brand_products_filter, name='brand_products_filter'),
@@ -76,16 +76,26 @@ urlpatterns = [
    # path('cart/update/<int:item_id>/', views.update_cart_item, name='update_cart_item'),
     path('cart/remove/<int:item_id>/', views.remove_from_cart, name='remove_from_cart'),
     path('cart/clear/', views.clear_cart, name='clear_cart'),
-    
+    path('cart/update/<int:item_id>/', views.update_cart_item, name='update_cart_item'),
+
     # Checkout and Orders
     path('checkout/', views.checkout, name='checkout'),
     path('order-success/<int:order_id>/', views.order_success, name='order_success'),
+    path('orders/', views.order_history, name='order_history'),
+    path('orders/<int:order_id>/', views.order_detail, name='order_detail'),
     
 
     # wishlist URLs
     path('wishlist/', views.wishlist_view, name='wishlist'),
     path('wishlist/add/<int:product_id>/', views.add_to_wishlist, name='add_to_wishlist'),
     path('wishlist/remove/<int:item_id>/', views.remove_from_wishlist, name='remove_from_wishlist'),
+    path('wishlist/clear/', views.clear_wishlist, name='clear_wishlist'),
+
+    # Compare URLs
+    path('compare/', views.compare_view, name='compare_view'),
+    path('compare/add/<int:product_id>/', views.add_to_compare, name='add_to_compare'),
+    path('compare/remove/<int:product_id>/', views.remove_from_compare, name='remove_from_compare'),
+    path('compare/clear/', views.clear_compare, name='clear_compare'),
 
     # NEW: Footer required URLs
     path('shop/', views.shop_all, name='shop_all'),
