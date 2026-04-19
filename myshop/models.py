@@ -21,9 +21,9 @@ class HeroSlide(models.Model):
     """Individual hero slide for slider"""
     
     # Existing fields...
-    title = models.CharField(max_length=200, default='Premium Smartphones', verbose_name="Slide Title")
-    highlight_text = models.CharField(max_length=100, blank=True, verbose_name="Highlight Text")
-    subtitle = models.TextField(default='Cutting-edge technology with exceptional performance.', verbose_name="Subtitle")
+    title = models.CharField(max_length=200, default='Premium Smartphones', blank=True, null=True, verbose_name="Slide Title")
+    highlight_text = models.CharField(max_length=100, blank=True, null=True, verbose_name="Highlight Text")
+    subtitle = models.TextField(default='Cutting-edge technology with exceptional performance.', blank=True, null=True, verbose_name="Subtitle")
     
     # Font Size Controls
     title_font_size = models.IntegerField(default=48, help_text="Title font size in pixels", verbose_name="Title Font Size")
@@ -31,13 +31,13 @@ class HeroSlide(models.Model):
     subtitle_font_size = models.IntegerField(default=20, help_text="Subtitle font size in pixels", verbose_name="Subtitle Font Size")
     
     # Badge
-    badge_text = models.CharField(max_length=100, blank=True, verbose_name="Badge Text")
-    badge_icon = models.CharField(max_length=50, default='fire', verbose_name="Badge Icon")
-    badge_color = models.CharField(max_length=50, default='accent', verbose_name="Badge Color")
-    badge_color_2 = models.CharField(max_length=50, default='brand', verbose_name="Badge Color 2")
+    badge_text = models.CharField(max_length=100, blank=True, null=True, verbose_name="Badge Text")
+    badge_icon = models.CharField(max_length=50, default='fire', blank=True, null=True, verbose_name="Badge Icon")
+    badge_color = models.CharField(max_length=50, default='accent', blank=True, null=True, verbose_name="Badge Color")
+    badge_color_2 = models.CharField(max_length=50, default='brand', blank=True, null=True, verbose_name="Badge Color 2")
     
     # Images
-    image = models.ImageField(upload_to='hero/slides/', blank=True, null=True, verbose_name="Slide Image")
+    image = models.ImageField(upload_to='hero/slides/', verbose_name="Slide Image")
     
     # ========== IMAGE SIZE & STYLE CONTROLS ==========
     
@@ -70,6 +70,7 @@ class HeroSlide(models.Model):
         ('450px', '450px'),
         ('500px', '500px'),
         ('100%', '100%'),
+        ('100vh', '100vh (Full Screen)'),
     ]
     
     IMAGE_FIT_CHOICES = [
@@ -104,59 +105,60 @@ class HeroSlide(models.Model):
         ('right bottom', 'Bottom Right'),
     ]
     
-    image_width = models.CharField(max_length=20, choices=IMAGE_WIDTH_CHOICES, default='auto', verbose_name="Image Width")
-    image_height = models.CharField(max_length=20, choices=IMAGE_HEIGHT_CHOICES, default='auto', verbose_name="Image Height")
+    image_width = models.CharField(max_length=20, choices=IMAGE_WIDTH_CHOICES, default='100%', verbose_name="Image Width")
+    image_height = models.CharField(max_length=20, choices=IMAGE_HEIGHT_CHOICES, default='100vh', verbose_name="Image Height")
     image_object_fit = models.CharField(max_length=20, choices=IMAGE_FIT_CHOICES, default='cover', verbose_name="Object Fit")
-    image_border_radius = models.CharField(max_length=20, choices=IMAGE_BORDER_CHOICES, default='1rem', verbose_name="Border Radius")
+    image_border_radius = models.CharField(max_length=20, choices=IMAGE_BORDER_CHOICES, default='0', verbose_name="Border Radius")
     image_position = models.CharField(max_length=30, choices=IMAGE_POSITION_CHOICES, default='center center', verbose_name="Image Position")
-    image_shadow = models.BooleanField(default=True, verbose_name="Add Shadow Effect")
-    image_shadow_size = models.CharField(max_length=20, default='lg', choices=[
+    image_shadow = models.BooleanField(default=False, verbose_name="Add Shadow Effect")
+    image_shadow_size = models.CharField(max_length=20, default='none', choices=[
         ('sm', 'Small Shadow'),
         ('md', 'Medium Shadow'),
         ('lg', 'Large Shadow'),
         ('xl', 'Extra Large Shadow'),
         ('none', 'No Shadow'),
     ], verbose_name="Shadow Size")
-    image_hover_effect = models.BooleanField(default=True, verbose_name="Hover Scale Effect")
+    image_hover_effect = models.BooleanField(default=False, verbose_name="Hover Scale Effect")
     image_hover_scale = models.DecimalField(max_digits=3, decimal_places=2, default=1.05, help_text="1.05 = 5% zoom", verbose_name="Hover Scale")
     image_opacity = models.IntegerField(default=100, help_text="0 to 100", verbose_name="Image Opacity (%)")
-    image_custom_class = models.CharField(max_length=100, blank=True, verbose_name="Custom CSS Class")
+    image_custom_class = models.CharField(max_length=100, blank=True, null=True, verbose_name="Custom CSS Class")
     
     # Mobile specific image settings
-    image_mobile_width = models.CharField(max_length=20, choices=IMAGE_WIDTH_CHOICES, default='80%', verbose_name="Mobile Image Width")
+    image_mobile_width = models.CharField(max_length=20, choices=IMAGE_WIDTH_CHOICES, default='100%', verbose_name="Mobile Image Width")
     image_mobile_height = models.CharField(max_length=20, choices=IMAGE_HEIGHT_CHOICES, default='auto', verbose_name="Mobile Image Height")
     
     # Buttons
-    button1_text = models.CharField(max_length=50, default='Shop Now', verbose_name="Button 1 Text")
-    button1_url = models.CharField(max_length=200, default='/shop/', verbose_name="Button 1 URL")
-    button1_icon = models.CharField(max_length=50, default='shopping-cart', verbose_name="Button 1 Icon")
-    button1_color = models.CharField(max_length=50, default='brand', verbose_name="Button 1 Color")
-    button1_color_2 = models.CharField(max_length=50, default='brand-dark', verbose_name="Button 1 Color 2")
+    button1_text = models.CharField(max_length=50, default='Shop Now', blank=True, null=True, verbose_name="Button 1 Text")
+    button1_url = models.CharField(max_length=200, default='/shop/', blank=True, null=True, verbose_name="Button 1 URL")
+    button1_icon = models.CharField(max_length=50, default='shopping-cart', blank=True, null=True, verbose_name="Button 1 Icon")
+    button1_color = models.CharField(max_length=50, default='brand', blank=True, null=True, verbose_name="Button 1 Color")
+    button1_color_2 = models.CharField(max_length=50, default='brand-dark', blank=True, null=True, verbose_name="Button 1 Color 2")
     
-    button2_text = models.CharField(max_length=50, blank=True, verbose_name="Button 2 Text")
-    button2_url = models.CharField(max_length=200, blank=True, verbose_name="Button 2 URL")
-    button2_icon = models.CharField(max_length=50, default='star', verbose_name="Button 2 Icon")
-    button2_color = models.CharField(max_length=50, default='accent', verbose_name="Button 2 Color")
+    button2_text = models.CharField(max_length=50, blank=True, null=True, verbose_name="Button 2 Text")
+    button2_url = models.CharField(max_length=200, blank=True, null=True, verbose_name="Button 2 URL")
+    button2_icon = models.CharField(max_length=50, default='star', blank=True, null=True, verbose_name="Button 2 Icon")
+    button2_color = models.CharField(max_length=50, default='accent', blank=True, null=True, verbose_name="Button 2 Color")
     
     # Price Tag
-    price_tag = models.CharField(max_length=50, blank=True, verbose_name="Price Tag")
-    price_label = models.CharField(max_length=50, default='From', verbose_name="Price Label")
-    price_tag_color = models.CharField(max_length=50, default='brand', verbose_name="Price Tag Color")
-    price_tag_color_2 = models.CharField(max_length=50, default='brand-dark', verbose_name="Price Tag Color 2")
+    price_tag = models.CharField(max_length=50, blank=True, null=True, verbose_name="Price Tag")
+    price_label = models.CharField(max_length=50, default='From', blank=True, null=True, verbose_name="Price Label")
+    price_tag_color = models.CharField(max_length=50, default='brand', blank=True, null=True, verbose_name="Price Tag Color")
+    price_tag_color_2 = models.CharField(max_length=50, default='brand-dark', blank=True, null=True, verbose_name="Price Tag Color 2")
     
     # Badge (corner badge)
-    badge = models.CharField(max_length=100, blank=True, verbose_name="Corner Badge")
+    badge = models.CharField(max_length=100, blank=True, null=True, verbose_name="Corner Badge")
     
     # Rating
     rating = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True, verbose_name="Rating")
     
     # Features (JSON field for multiple features)
-    features = models.JSONField(default=list, blank=True, verbose_name="Features")
+    features = models.JSONField(default=list, blank=True, null=True, verbose_name="Features")
     
     # ========== NEW FIELDS FOR INDIVIDUAL SLIDE DESIGN ==========
     
-    # Layout & Design Styles
+    # Layout & Design Styles - UPDATED WITH IMAGE ONLY
     LAYOUT_CHOICES = [
+        ('image_only', '🎯 Image Only Slider (Full Screen Image)'),
         ('default', 'Default (Original Design)'),
         ('centered', 'Centered Layout'),
         ('split', 'Split Screen (Image + Text)'),
@@ -212,7 +214,7 @@ class HeroSlide(models.Model):
     background_pattern = models.CharField(max_length=100, blank=True, null=True, verbose_name="Background Pattern")
     
     # Custom CSS Class
-    custom_css_class = models.CharField(max_length=100, blank=True, verbose_name="Custom CSS Class")
+    custom_css_class = models.CharField(max_length=100, blank=True, null=True, verbose_name="Custom CSS Class")
     
     # Animation Delays for different elements
     title_delay = models.IntegerField(default=100, help_text="Delay in ms", verbose_name="Title Animation Delay")
@@ -232,7 +234,9 @@ class HeroSlide(models.Model):
         verbose_name_plural = "Hero Slides"
     
     def __str__(self):
-        return self.title
+        if self.layout_style == 'image_only':
+            return f"Image Slide {self.id} - {self.image.name if self.image else 'No Image'}"
+        return self.title if self.title else f"Slide {self.id}"
     
     def get_feature_list(self):
         """Get features as list of dicts"""
@@ -244,11 +248,20 @@ class HeroSlide(models.Model):
         """Get image container style as string"""
         styles = []
         
-        if self.image_width != 'auto':
-            styles.append(f"width: {self.image_width}")
-        
-        if self.image_height != 'auto':
-            styles.append(f"height: {self.image_height}")
+        # For image only layout, force full screen
+        if self.layout_style == 'image_only':
+            styles.append("width: 100%")
+            styles.append("height: 100vh")
+            styles.append("object-fit: cover")
+        else:
+            if self.image_width != 'auto':
+                styles.append(f"width: {self.image_width}")
+            
+            if self.image_height != 'auto':
+                styles.append(f"height: {self.image_height}")
+            
+            if self.image_object_fit:
+                styles.append(f"object-fit: {self.image_object_fit}")
         
         if self.image_border_radius != '0':
             styles.append(f"border-radius: {self.image_border_radius}")
@@ -256,13 +269,16 @@ class HeroSlide(models.Model):
         if self.image_opacity < 100:
             styles.append(f"opacity: {self.image_opacity / 100}")
         
+        if self.image_position and self.layout_style != 'image_only':
+            styles.append(f"object-position: {self.image_position}")
+        
         return '; '.join(styles)
     
     def get_image_class(self):
         """Get image CSS classes"""
         classes = []
         
-        if self.image_shadow:
+        if self.image_shadow and self.layout_style != 'image_only':
             shadow_map = {
                 'sm': 'shadow-sm',
                 'md': 'shadow-md',
@@ -273,11 +289,15 @@ class HeroSlide(models.Model):
             if self.image_shadow_size in shadow_map and shadow_map[self.image_shadow_size]:
                 classes.append(shadow_map[self.image_shadow_size])
         
-        if self.image_hover_effect:
+        if self.image_hover_effect and self.layout_style != 'image_only':
             classes.append('hover-scale')
         
         if self.image_custom_class:
             classes.append(self.image_custom_class)
+        
+        # Add full screen class for image only
+        if self.layout_style == 'image_only':
+            classes.append('w-full h-screen object-cover')
         
         return ' '.join(classes)
     
@@ -319,11 +339,25 @@ class HeroSlide(models.Model):
     
     def get_mobile_image_width(self):
         """Get mobile image width"""
+        if self.layout_style == 'image_only':
+            return '100%'
         return self.image_mobile_width if self.image_mobile_width else self.image_width
     
     def get_mobile_image_height(self):
         """Get mobile image height"""
+        if self.layout_style == 'image_only':
+            return '100vh'
         return self.image_mobile_height if self.image_mobile_height else self.image_height
+    
+    def is_image_only(self):
+        """Check if slide is image only mode"""
+        return self.layout_style == 'image_only'
+    
+    def get_container_class(self):
+        """Get container CSS class based on layout"""
+        if self.layout_style == 'image_only':
+            return 'hero-slide-image-only'
+        return 'hero-slide-default'
 
 
 class SiteSettings(models.Model):
