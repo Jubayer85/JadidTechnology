@@ -35,7 +35,7 @@
                     <i class="fas fa-bars text-gray-700 text-lg group-hover:text-indigo-600 transition-colors"></i>
                 </button>
 
-                <!-- Logo (Dynamic Height) -->
+                <!-- Logo -->
                 <a href="{% url 'home' %}" class="flex items-center gap-2 lg:gap-3 group shrink-0">
                     <div class="relative">
                         {% if site_settings.site_logo %}
@@ -77,12 +77,10 @@
 
                 <!-- Action Buttons -->
                 <div class="flex items-center gap-1 lg:gap-2 shrink-0">
-                    <!-- Mobile Search Button -->
                     <button id="mobile-search-button" class="lg:hidden relative w-10 h-10 rounded-xl hover:bg-gray-100 transition-all">
                         <i class="fas fa-search text-gray-600 text-base"></i>
                     </button>
 
-                    <!-- Wishlist Button -->
                     <a href="{% url 'wishlist' %}" class="relative group">
                         <div class="w-10 h-10 rounded-xl hover:bg-gray-100 transition-all flex items-center justify-center">
                             <i class="far fa-heart text-gray-600 text-base lg:text-lg group-hover:text-rose-500 transition-colors"></i>
@@ -95,7 +93,6 @@
                         </div>
                     </a>
 
-                    <!-- Cart Button -->
                     <a href="{% url 'cart_detail' %}" class="relative group">
                         <div class="w-10 h-10 rounded-xl hover:bg-gray-100 transition-all flex items-center justify-center">
                             <i class="fas fa-shopping-bag text-gray-600 text-base lg:text-lg transition-colors"></i>
@@ -108,7 +105,6 @@
                         </div>
                     </a>
 
-                    <!-- User Menu -->
                     {% if user.is_authenticated %}
                     <div class="relative group ml-1">
                         <button class="flex items-center gap-1 lg:gap-2 p-1 rounded-xl hover:bg-gray-100 transition-all">
@@ -176,195 +172,419 @@
         </div>
     </div>
 
-    <!-- ===== 3. NAVIGATION BAR (Categories & Links) ===== -->
-    {% if site_settings.show_nav_bar %}
-    <nav class="nav-header border-y border-gray-100 hidden lg:block transition-all duration-300"
-         style="background-color: {{ site_settings.nav_bar_bg_color|default:'#ffffff' }}; height: {{ site_settings.nav_bar_height|default:'48' }}px;">
-        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
-            <div class="flex items-center justify-between h-full">
-                <div class="flex items-center gap-1">
-                    {% for category in nav_categories|slice:":8" %}
-                    <div class="relative group">
-                        <a href="{% url 'category_products' category.slug %}"
-                           class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-                           style="color: {{ site_settings.nav_link_color|default:'#374151' }};"
-                           onmouseover="this.style.color='{{ site_settings.nav_hover_color|default:'#4f46e5' }}'"
-                           onmouseout="this.style.color='{{ site_settings.nav_link_color|default:'#374151' }}'">
-                            <span>{{ category.name }}</span>
-                            {% if category.subcategories.all %}
-                            <i class="fas fa-chevron-down text-xs transition-colors" style="color: {{ site_settings.nav_link_color|default:'#374151' }};"></i>
-                            {% endif %}
-                        </a>
-                        {% if category.subcategories.all %}
-                        <div class="absolute left-0 top-full mt-1 w-64 bg-white border border-gray-100 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                            <div class="p-2 max-h-80 overflow-y-auto">
-                                {% for sub in category.subcategories.all|slice:":8" %}
-                                <a href="{% url 'subcategory_products' category.slug sub.slug %}"
-                                   class="flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg transition-colors"
-                                   style="color: {{ site_settings.nav_link_color|default:'#374151' }};"
-                                   onmouseover="this.style.color='{{ site_settings.nav_hover_color|default:'#4f46e5' }}'; this.style.backgroundColor='#f3f4f6'"
-                                   onmouseout="this.style.color='{{ site_settings.nav_link_color|default:'#374151' }}'; this.style.backgroundColor='transparent'">
-                                    <i class="fas fa-chevron-right text-xs w-3" style="color: {{ site_settings.nav_link_color|default:'#374151' }};"></i>
-                                    <span>{{ sub.name }}</span>
-                                    <span class="ml-auto text-xs text-gray-400">({{ sub.product_count }})</span>
-                                </a>
-                                {% endfor %}
+ <!-- ===== 3. NAVIGATION BAR (Enhanced Colorful Mega Menu with Icons) ===== -->
+{% if site_settings.show_nav_bar %}
+<nav class="desktop-nav hidden lg:block transition-all duration-300"
+     style="background-color: {{ site_settings.nav_bar_bg_color|default:'#ffffff' }}; min-height: {{ site_settings.nav_bar_height|default:'48' }}px;">
+    <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-full">
+            <div class="flex items-center gap-1">
+                <!-- All Categories Mega Menu Button -->
+                <div class="relative mega-menu-trigger">
+                    <button class="all-categories-btn flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
+                            style="background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899); color: white;">
+                        <i class="fas fa-th-large text-sm"></i>
+                        <span>All Categories</span>
+                        <i class="fas fa-chevron-down text-xs ml-1 transition-transform duration-300"></i>
+                    </button>
+                    
+                    <!-- Colorful Mega Menu Dropdown -->
+                    <div class="mega-menu absolute left-0 top-full mt-2 w-[950px] bg-white rounded-2xl shadow-2xl opacity-0 invisible transition-all duration-300 z-50 overflow-hidden">
+                        <!-- Header with gradient -->
+                        <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-6 py-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-white font-bold text-lg">Browse Categories</h3>
+                                    <p class="text-white/80 text-sm">Find exactly what you're looking for</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <span class="px-3 py-1 bg-white/20 rounded-full text-white text-xs">🔥 Trending</span>
+                                    <span class="px-3 py-1 bg-white/20 rounded-full text-white text-xs">✨ New</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Categories Grid with Icons -->
+                        <div class="grid grid-cols-4 gap-5 p-6 bg-gradient-to-br from-white to-gray-50">
+                            {% for category in nav_categories %}
+                            <div class="category-card group relative">
                                 <a href="{% url 'category_products' category.slug %}" 
-                                   class="block px-3 py-2 mt-2 text-xs text-center rounded-lg transition-colors"
-                                   style="color: {{ site_settings.nav_hover_color|default:'#4f46e5' }};"
-                                   onmouseover="this.style.backgroundColor='#e0e7ff'"
-                                   onmouseout="this.style.backgroundColor='transparent'">
-                                    View All {{ category.subcategories.count }} Subcategories →
+                                   class="category-main-link block p-3 rounded-xl transition-all duration-300 hover:shadow-lg"
+                                   style="background: linear-gradient(135deg, white, #f8fafc); border-left: 3px solid {{ site_settings.primary_color|default:'#6366f1' }};">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <!-- Category Icon with gradient background -->
+                                        <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-transform group-hover:scale-110 duration-300"
+                                             style="background: linear-gradient(135deg, {{ site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#8b5cf6' }});">
+                                            {% if category.icon %}
+                                            <i class="{{ category.icon }} text-white text-lg"></i>
+                                            {% else %}
+                                            <i class="fas fa-folder-open text-white text-lg"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-gray-800 group-hover:text-indigo-600 transition">{{ category.name }}</h4>
+                                            <p class="text-xs text-gray-400">{{ category.product_count }} products</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                <!-- Subcategories with icons -->
+                                <div class="subcategory-list mt-2 ml-12 space-y-1">
+                                    {% for sub in category.subcategories.all|slice:":4" %}
+                                    <a href="{% url 'subcategory_products' category.slug sub.slug %}"
+                                       class="subcategory-link flex items-center gap-2 text-sm py-1.5 px-2 rounded-lg transition-all duration-200 hover:translate-x-1"
+                                       style="color: #4b5563;">
+                                        {% if sub.icon %}
+                                        <i class="{{ sub.icon }} text-indigo-400 text-xs w-4"></i>
+                                        {% else %}
+                                        <i class="fas fa-chevron-right text-indigo-400 text-xs"></i>
+                                        {% endif %}
+                                        <span>{{ sub.name }}</span>
+                                        <span class="ml-auto text-xs text-gray-400">({{ sub.product_count }})</span>
+                                    </a>
+                                    {% endfor %}
+                                    {% if category.subcategories.count > 4 %}
+                                    <a href="{% url 'category_products' category.slug %}"
+                                       class="text-xs font-medium mt-1 block pl-2 transition-colors"
+                                       style="color: {{ site_settings.primary_color|default:'#6366f1' }};">
+                                        +{{ category.subcategories.count|add:"-4" }} more →
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if forloop.counter|divisibleby:4 %}
+                        </div>
+                        <div class="grid grid-cols-4 gap-5 p-6 pt-0 bg-gradient-to-br from-gray-50 to-white">
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Bottom Banner with image -->
+                        <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                                        <i class="fas fa-gift text-white text-2xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-white font-bold">🎉 Special Offer</p>
+                                        <p class="text-white/80 text-sm">Get up to 50% off on first order</p>
+                                    </div>
+                                </div>
+                                <a href="{% url 'special_offers' %}" 
+                                   class="px-5 py-2 bg-white text-indigo-600 text-sm font-semibold rounded-lg hover:shadow-lg transition-all hover:scale-105">
+                                    Claim Offer <i class="fas fa-arrow-right ml-1"></i>
                                 </a>
                             </div>
                         </div>
-                        {% endif %}
                     </div>
-                    {% endfor %}
-                    <a href="{% url 'special_offers' %}" class="ml-2 px-4 py-2 text-sm font-medium text-white rounded-lg shadow-sm hover:shadow-md transition-all flex items-center gap-2 group relative overflow-hidden"
-                       style="background: linear-gradient(135deg, #ef4444, #f97316)">
-                        <i class="fas fa-bolt text-xs"></i><span>Hot Offers</span>
-                        <span class="absolute right-2 top-1/2 transform -translate-y-1/2 animate-ping opacity-75">🔥</span>
+                </div>
+                
+                <!-- Regular Category Links with Icons -->
+                {% for category in nav_categories|slice:":6" %}
+                <div class="relative group">
+                    <a href="{% url 'category_products' category.slug %}"
+                       class="category-link flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
+                       style="color: {{ site_settings.nav_link_color|default:'#374151' }};">
+                        <div class="w-6 h-6 rounded-lg flex items-center justify-center"
+                             style="background: linear-gradient(135deg, {{ site_settings.primary_color|default:'#6366f1' }}, {{ site_settings.secondary_color|default:'#8b5cf6' }});">
+                            {% if category.icon %}
+                            <i class="{{ category.icon }} text-white text-xs"></i>
+                            {% else %}
+                            <i class="fas fa-folder text-white text-xs"></i>
+                            {% endif %}
+                        </div>
+                        <span>{{ category.name }}</span>
+                        {% if category.subcategories.all %}
+                        <i class="fas fa-chevron-down text-xs transition-transform duration-300 group-hover:rotate-180"></i>
+                        {% endif %}
                     </a>
+                    
+                    {% if category.subcategories.all %}
+                    <div class="absolute left-0 top-full mt-1 w-80 bg-white rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden">
+                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-3 border-b">
+                            <a href="{% url 'category_products' category.slug %}" class="font-semibold text-gray-800 hover:text-indigo-600 transition flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-lg flex items-center justify-center"
+                                     style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                                    <i class="fas fa-eye text-white text-xs"></i>
+                                </div>
+                                Browse All {{ category.name }}
+                                <i class="fas fa-arrow-right text-xs"></i>
+                            </a>
+                        </div>
+                        <div class="p-3 max-h-96 overflow-y-auto">
+                            <div class="grid grid-cols-2 gap-1">
+                                {% for sub in category.subcategories.all %}
+                                <a href="{% url 'subcategory_products' category.slug sub.slug %}"
+                                   class="sub-dropdown-link flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-all duration-200 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50">
+                                    {% if sub.icon %}
+                                    <i class="{{ sub.icon }} text-indigo-400 text-xs w-4"></i>
+                                    {% else %}
+                                    <i class="fas fa-chevron-right text-indigo-400 text-xs"></i>
+                                    {% endif %}
+                                    <span>{{ sub.name }}</span>
+                                    <span class="ml-auto text-xs bg-gray-100 px-1.5 py-0.5 rounded-full">{{ sub.product_count }}</span>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
-                <div class="flex items-center gap-3">
-                    <a href="{% url 'new_arrivals' %}" 
-                       class="text-sm transition-colors duration-200"
-                       style="color: {{ site_settings.nav_link_color|default:'#374151' }};"
-                       onmouseover="this.style.color='{{ site_settings.nav_hover_color|default:'#4f46e5' }}'"
-                       onmouseout="this.style.color='{{ site_settings.nav_link_color|default:'#374151' }}'">New Arrivals</a>
-                    <a href="{% url 'best_sellers' %}" 
-                       class="text-sm transition-colors duration-200"
-                       style="color: {{ site_settings.nav_link_color|default:'#374151' }};"
-                       onmouseover="this.style.color='{{ site_settings.nav_hover_color|default:'#4f46e5' }}'"
-                       onmouseout="this.style.color='{{ site_settings.nav_link_color|default:'#374151' }}'">Best Sellers</a>
-                    <a href="{% url 'brand_list' %}" 
-                       class="text-sm transition-colors duration-200"
-                       style="color: {{ site_settings.nav_link_color|default:'#374151' }};"
-                       onmouseover="this.style.color='{{ site_settings.nav_hover_color|default:'#4f46e5' }}'"
-                       onmouseout="this.style.color='{{ site_settings.nav_link_color|default:'#374151' }}'">Brands</a>
+                {% endfor %}
+                
+                <!-- More Categories -->
+                {% if nav_categories|length > 6 %}
+                <div class="relative group">
+                    <button class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
+                            style="color: {{ site_settings.nav_link_color|default:'#374151' }};">
+                        <div class="w-6 h-6 rounded-lg flex items-center justify-center bg-gradient-to-r from-gray-400 to-gray-500">
+                            <i class="fas fa-ellipsis-h text-white text-xs"></i>
+                        </div>
+                        <span>More</span>
+                        <i class="fas fa-chevron-down text-xs transition-transform duration-300 group-hover:rotate-180"></i>
+                    </button>
+                    
+                    <div class="absolute left-0 top-full mt-1 w-72 bg-white rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-3 rounded-t-xl">
+                            <p class="font-semibold text-gray-800">More Categories</p>
+                        </div>
+                        <div class="p-2 max-h-96 overflow-y-auto">
+                            {% for category in nav_categories|slice:"6:" %}
+                            <div class="relative more-sub-group">
+                                <a href="{% url 'category_products' category.slug %}"
+                                   class="flex items-center justify-between px-3 py-2.5 text-sm rounded-lg transition-all duration-200 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-lg flex items-center justify-center"
+                                             style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                                            {% if category.icon %}
+                                            <i class="{{ category.icon }} text-white text-xs"></i>
+                                            {% else %}
+                                            <i class="fas fa-folder text-white text-xs"></i>
+                                            {% endif %}
+                                        </div>
+                                        <span>{{ category.name }}</span>
+                                    </div>
+                                    {% if category.subcategories.all %}
+                                    <i class="fas fa-chevron-right text-xs text-gray-400"></i>
+                                    {% endif %}
+                                </a>
+                                {% if category.subcategories.all %}
+                                <div class="absolute left-full top-0 mt-0 w-64 bg-white rounded-xl shadow-xl opacity-0 invisible more-sub-group-hover:opacity-100 more-sub-group-hover:visible transition-all duration-300 z-50">
+                                    <div class="p-2 max-h-96 overflow-y-auto">
+                                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 px-3 py-2 rounded-lg mb-2">
+                                            <a href="{% url 'category_products' category.slug %}" class="font-semibold text-gray-800 hover:text-indigo-600 text-sm flex items-center gap-2">
+                                                <i class="fas fa-eye text-indigo-500"></i> All {{ category.name }}
+                                            </a>
+                                        </div>
+                                        {% for sub in category.subcategories.all %}
+                                        <a href="{% url 'subcategory_products' category.slug sub.slug %}"
+                                           class="flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-all duration-200 hover:bg-gray-50">
+                                            {% if sub.icon %}
+                                            <i class="{{ sub.icon }} text-indigo-400 text-xs w-4"></i>
+                                            {% else %}
+                                            <i class="fas fa-chevron-right text-indigo-400 text-xs"></i>
+                                            {% endif %}
+                                            <span>{{ sub.name }}</span>
+                                            <span class="ml-auto text-xs text-gray-400">({{ sub.product_count }})</span>
+                                        </a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
+                {% endif %}
+                
+                <!-- Hot Offers Button -->
+                <a href="{% url 'special_offers' %}" 
+                   class="hot-offers-btn ml-2 px-5 py-2 text-sm font-semibold text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 overflow-hidden relative"
+                   style="background: linear-gradient(135deg, #ef4444, #f97316, #f59e0b);">
+                    <i class="fas fa-bolt text-xs animate-pulse"></i>
+                    <span>Hot Offers</span>
+                    <span class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
+                </a>
+            </div>
+            
+            <!-- Right Side Links -->
+            <div class="flex items-center gap-5">
+                <a href="{% url 'new_arrivals' %}" 
+                   class="flex items-center gap-2 text-sm transition-all duration-300 hover:scale-105 group"
+                   style="color: {{ site_settings.nav_link_color|default:'#374151' }};">
+                    <div class="w-7 h-7 rounded-lg flex items-center justify-center bg-gradient-to-r from-yellow-400 to-yellow-500 shadow-md group-hover:shadow-lg transition">
+                        <i class="fas fa-star text-white text-xs"></i>
+                    </div>
+                    <span>New Arrivals</span>
+                </a>
+                <a href="{% url 'best_sellers' %}" 
+                   class="flex items-center gap-2 text-sm transition-all duration-300 hover:scale-105 group"
+                   style="color: {{ site_settings.nav_link_color|default:'#374151' }};">
+                    <div class="w-7 h-7 rounded-lg flex items-center justify-center bg-gradient-to-r from-amber-400 to-amber-500 shadow-md group-hover:shadow-lg transition">
+                        <i class="fas fa-crown text-white text-xs"></i>
+                    </div>
+                    <span>Best Sellers</span>
+                </a>
+                <a href="{% url 'brand_list' %}" 
+                   class="flex items-center gap-2 text-sm transition-all duration-300 hover:scale-105 group"
+                   style="color: {{ site_settings.nav_link_color|default:'#374151' }};">
+                    <div class="w-7 h-7 rounded-lg flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-500 shadow-md group-hover:shadow-lg transition">
+                        <i class="fas fa-tag text-white text-xs"></i>
+                    </div>
+                    <span>Brands</span>
+                </a>
             </div>
         </div>
-    </nav>
-    {% endif %}
-    
-    <!-- Debug Info (Remove in production) -->
-    {% if debug %}
-    <div style="display: none;" class="debug-info">
-        <!-- Nav Bar BG: {{ site_settings.nav_bar_bg_color }} -->
-        <!-- Nav Link Color: {{ site_settings.nav_link_color }} -->
-        <!-- Nav Hover Color: {{ site_settings.nav_hover_color }} -->
-        <!-- Show Nav Bar: {{ site_settings.show_nav_bar }} -->
-        <!-- Logo Height: {{ site_settings.logo_height }} -->
-        <!-- Top Bar Text: {{ site_settings.top_bar_text }} -->
     </div>
-    {% endif %}
+</nav>
+{% endif %}
 </header>
 
-<!-- ===== MOBILE SIDEBAR MENU ===== -->
-<div id="mobile-menu-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden lg:hidden"></div>
-<div id="mobile-menu-sidebar" class="fixed left-0 top-0 h-full w-80 bg-white shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 ease-out lg:hidden overflow-y-auto">
-    <!-- Sidebar Header -->
-    <div class="relative bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
-        <div class="flex items-center justify-between mb-6">
+<!-- ===== MOBILE SIDEBAR MENU (FIXED - Now Working) ===== -->
+<div id="mobile-menu-overlay" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 hidden"></div>
+
+<div id="mobile-menu-sidebar" class="fixed left-0 top-0 h-full w-[85%] max-w-[320px] bg-white shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 ease-out overflow-y-auto">
+    
+    <!-- Sidebar Header with Gradient -->
+    <div class="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-5">
+        <div class="flex items-center justify-between mb-5">
             <div class="flex items-center gap-3">
                 {% if site_settings.site_logo %}
-                <img src="{{ site_settings.site_logo.url }}" class="w-10 h-10 rounded-xl" style="height: 40px; width: auto;">
+                <img src="{{ site_settings.site_logo.url }}" class="w-10 h-10 rounded-xl shadow-lg" style="height: 40px; width: auto;">
                 {% else %}
                 <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
                     <i class="fas fa-mobile-alt text-white text-xl"></i>
                 </div>
                 {% endif %}
                 <div>
-                    <p class="font-bold text-white">{{ site_settings.site_name|default:'Jadid Technology' }}</p>
-                    <p class="text-xs text-white/80">{{ site_settings.site_tagline|default:'Premium Store' }}</p>
+                    <p class="font-bold text-white text-sm">{{ site_settings.site_name|default:'Jadid Technology' }}</p>
+                    <p class="text-xs text-white/70">{{ site_settings.site_tagline|default:'Premium Store' }}</p>
                 </div>
             </div>
-            <button id="mobile-menu-close" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center">
-                <i class="fas fa-times text-white"></i>
+            <button id="mobile-menu-close" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all hover:rotate-90">
+                <i class="fas fa-times text-white text-sm"></i>
             </button>
         </div>
         
         {% if user.is_authenticated %}
-        <div class="flex items-center gap-3 pt-4 border-t border-white/20">
+        <div class="flex items-center gap-3 pt-3 border-t border-white/20">
             <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                 <i class="fas fa-user-circle text-white text-xl"></i>
             </div>
             <div>
-                <p class="text-white font-semibold">{{ user.username }}</p>
-                <p class="text-white/70 text-xs">{{ user.email }}</p>
+                <p class="text-white font-semibold text-sm">{{ user.username }}</p>
+                <p class="text-white/60 text-xs">{{ user.email }}</p>
             </div>
         </div>
         {% else %}
-        <div class="flex gap-2 pt-4 border-t border-white/20">
-            <a href="{% url 'login' %}" class="flex-1 text-center px-3 py-2 bg-white/20 rounded-lg text-white text-sm">Sign In</a>
-            <a href="{% url 'register' %}" class="flex-1 text-center px-3 py-2 bg-white rounded-lg text-indigo-600 text-sm font-medium">Sign Up</a>
+        <div class="flex gap-2 pt-3 border-t border-white/20">
+            <a href="{% url 'login' %}" class="flex-1 text-center px-3 py-2 bg-white/20 rounded-lg text-white text-sm font-medium hover:bg-white/30 transition">Sign In</a>
+            <a href="{% url 'register' %}" class="flex-1 text-center px-3 py-2 bg-white rounded-lg text-indigo-600 text-sm font-medium hover:bg-gray-100 transition">Sign Up</a>
         </div>
         {% endif %}
     </div>
     
-    <div class="p-4 border-b border-gray-100">
+    <!-- Mobile Search -->
+    <div class="p-4 border-b border-gray-100 bg-gray-50">
         <form method="GET" action="{% url 'shop_all' %}" class="relative">
-            <input type="text" name="q" placeholder="Search products..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm">
+            <input type="text" name="q" placeholder="Search products..." class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
             <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
         </form>
     </div>
     
+    <!-- Mobile Menu Items -->
     <div class="p-4 space-y-1">
-        <a href="{% url 'home' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
-            <i class="fas fa-home w-5 text-gray-500"></i><span>Home</span>
-        </a>
-        <a href="{% url 'shop_all' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
-            <i class="fas fa-store w-5 text-gray-500"></i><span>Shop All</span>
+        <a href="{% url 'home' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200">
+            <i class="fas fa-home w-5 text-indigo-500"></i>
+            <span class="text-gray-700 font-medium">Home</span>
         </a>
         
+        <a href="{% url 'shop_all' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200">
+            <i class="fas fa-store w-5 text-indigo-500"></i>
+            <span class="text-gray-700 font-medium">Shop All</span>
+        </a>
+        
+        <!-- Categories Accordion -->
         <div class="category-accordion">
-            <button class="category-header flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-gray-100 transition">
+            <button class="category-header flex items-center justify-between w-full px-3 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200">
                 <div class="flex items-center gap-3">
-                    <i class="fas fa-folder w-5 text-gray-500"></i><span>Categories</span>
+                    <i class="fas fa-folder w-5 text-indigo-500"></i>
+                    <span class="text-gray-700 font-medium">Categories</span>
                 </div>
-                <i class="fas fa-chevron-down category-arrow text-gray-400 text-xs"></i>
+                <i class="fas fa-chevron-down category-arrow text-gray-400 text-xs transition-transform duration-300"></i>
             </button>
-            <div class="category-content hidden ml-8 mt-1 space-y-1">
-                {% for category in nav_categories|slice:":10" %}
-                <a href="{% url 'category_products' category.slug %}" class="block px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg">
-                    {{ category.name }}
-                </a>
+            <div class="category-content hidden ml-8 mt-2 space-y-1">
+                {% for category in nav_categories %}
+                <div class="mobile-sub-category">
+                    <a href="{% url 'category_products' category.slug %}" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-indigo-600 rounded-lg hover:bg-gray-50 transition-all duration-200">
+                        {% if category.icon %}
+                        <i class="{{ category.icon }} text-indigo-400 text-xs w-4"></i>
+                        {% else %}
+                        <i class="fas fa-folder-open text-indigo-400 text-xs w-4"></i>
+                        {% endif %}
+                        <span>{{ category.name }}</span>
+                        <span class="ml-auto text-xs text-gray-400">({{ category.product_count }})</span>
+                    </a>
+                    {% if category.subcategories.all %}
+                    <div class="ml-6 mt-1 space-y-1">
+                        {% for sub in category.subcategories.all|slice:":5" %}
+                        <a href="{% url 'subcategory_products' category.slug sub.slug %}" class="flex items-center gap-2 px-3 py-1.5 text-xs text-gray-500 hover:text-indigo-600 rounded-lg hover:bg-gray-50 transition-all">
+                            <i class="fas fa-chevron-right text-indigo-300 text-xs"></i>
+                            <span>{{ sub.name }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
                 {% endfor %}
             </div>
         </div>
         
-        <a href="{% url 'new_arrivals' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
-            <i class="fas fa-sparkle w-5 text-gray-500"></i><span>New Arrivals</span>
+        <a href="{% url 'new_arrivals' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200">
+            <i class="fas fa-sparkle w-5 text-yellow-500"></i>
+            <span class="text-gray-700 font-medium">New Arrivals</span>
         </a>
-        <a href="{% url 'best_sellers' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
-            <i class="fas fa-crown w-5 text-gray-500"></i><span>Best Sellers</span>
+        
+        <a href="{% url 'best_sellers' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200">
+            <i class="fas fa-crown w-5 text-amber-500"></i>
+            <span class="text-gray-700 font-medium">Best Sellers</span>
         </a>
-        <a href="{% url 'special_offers' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
-            <i class="fas fa-fire w-5 text-rose-500"></i><span>Special Offers</span>
+        
+        <a href="{% url 'special_offers' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gradient-to-r from-red-50 to-orange-50 transition-all duration-200">
+            <i class="fas fa-fire w-5 text-red-500"></i>
+            <span class="text-red-600 font-semibold">Special Offers</span>
         </a>
-        <a href="{% url 'brand_list' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
-            <i class="fas fa-tag w-5 text-gray-500"></i><span>Brands</span>
+        
+        <a href="{% url 'brand_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200">
+            <i class="fas fa-tag w-5 text-indigo-500"></i>
+            <span class="text-gray-700 font-medium">Brands</span>
         </a>
         
         <div class="h-px bg-gray-100 my-3"></div>
         
         {% if user.is_authenticated %}
-        <a href="{% url 'profile' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
-            <i class="fas fa-user w-5 text-gray-500"></i><span>My Profile</span>
+        <a href="{% url 'profile' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200">
+            <i class="fas fa-user w-5 text-indigo-500"></i>
+            <span class="text-gray-700 font-medium">My Profile</span>
         </a>
-        <a href="{% url 'order_history' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
-            <i class="fas fa-box w-5 text-gray-500"></i><span>My Orders</span>
+        <a href="{% url 'order_history' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200">
+            <i class="fas fa-box w-5 text-indigo-500"></i>
+            <span class="text-gray-700 font-medium">My Orders</span>
         </a>
-        <a href="{% url 'wishlist' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
-            <i class="far fa-heart w-5 text-gray-500"></i><span>Wishlist</span>
-            {% if wishlist_count %}<span class="ml-auto bg-rose-100 text-rose-600 text-xs px-2 py-0.5 rounded-full">{{ wishlist_count }}</span>{% endif %}
+        <a href="{% url 'wishlist' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200">
+            <i class="far fa-heart w-5 text-rose-500"></i>
+            <span class="text-gray-700 font-medium">Wishlist</span>
+            {% if wishlist_count %}
+            <span class="ml-auto bg-rose-100 text-rose-600 text-xs px-2 py-0.5 rounded-full">{{ wishlist_count }}</span>
+            {% endif %}
         </a>
         <form method="post" action="{% url 'logout' %}" class="mt-2">
             {% csrf_token %}
-            <button type="submit" class="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-red-50 text-red-600 transition">
-                <i class="fas fa-sign-out-alt w-5"></i><span>Sign Out</span>
+            <button type="submit" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl hover:bg-red-50 text-red-600 transition-all duration-200">
+                <i class="fas fa-sign-out-alt w-5"></i>
+                <span class="font-medium">Sign Out</span>
             </button>
         </form>
         {% endif %}
@@ -372,25 +592,148 @@
 </div>
 
 <style>
-    @keyframes shimmer {
-        0% { transform: translateX(-100%) skewX(-45deg); }
-        100% { transform: translateX(100%) skewX(-45deg); }
+    /* Desktop Mega Menu Styles */
+    .desktop-nav .mega-menu-trigger:hover .mega-menu {
+        opacity: 1;
+        visibility: visible;
     }
-    .animate-shimmer { animation: shimmer 3s infinite; }
     
-    .category-arrow { transition: transform 0.2s ease; }
-    .category-header.open .category-arrow { transform: rotate(180deg); }
-    .category-content { overflow: hidden; transition: max-height 0.3s ease; }
+    .desktop-nav .mega-menu-trigger:hover .fa-chevron-down {
+        transform: rotate(180deg);
+    }
     
-    /* Smooth transitions for nav links */
-    .nav-header a {
-        transition: all 0.2s ease-in-out;
+    .desktop-nav .group:hover .group-hover\:visible {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .desktop-nav .group:hover .fa-chevron-down {
+        transform: rotate(180deg);
+    }
+    
+    .desktop-nav .more-sub-group {
+        position: relative;
+    }
+    
+    .desktop-nav .more-sub-group:hover .more-sub-group-hover\:visible {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    /* Category Link Hover Effects */
+    .desktop-nav .category-link:hover {
+        background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.1));
+        transform: translateY(-1px);
+    }
+    
+    /* Subcategory Link Hover */
+    .desktop-nav .sub-dropdown-link:hover {
+        background: linear-gradient(135deg, #f3f4f6, #e0e7ff);
+        transform: translateX(3px);
+    }
+    
+    /* Mega Menu Animation */
+    .mega-menu {
+        transform-origin: top center;
+        animation: megaMenuFade 0.25s ease-out;
+    }
+    
+    @keyframes megaMenuFade {
+        from {
+            opacity: 0;
+            transform: translateY(-15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Category Group Hover */
+    .category-group .category-header-link {
+        transition: all 0.3s ease;
+    }
+    
+    .category-group:hover .category-header-link {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white !important;
+        padding-left: 8px;
+    }
+    
+    .category-group:hover .category-header-link i {
+        color: white !important;
+    }
+    
+    /* Subcategory Links */
+    .subcategory-link {
+        transition: all 0.2s ease;
+    }
+    
+    /* Scrollbar */
+    .max-h-96::-webkit-scrollbar {
+        width: 4px;
+    }
+    
+    .max-h-96::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .max-h-96::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        border-radius: 10px;
+    }
+    
+    /* Hot Offers Button Animation */
+    .hot-offers-btn {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hot-offers-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .hot-offers-btn:hover::before {
+        left: 100%;
+    }
+    
+    /* Mobile Menu Styles */
+    .category-arrow {
+        transition: transform 0.3s ease;
+    }
+    
+    .category-header.open .category-arrow {
+        transform: rotate(180deg);
+    }
+    
+    .category-content {
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+    
+    .mobile-sub-category {
+        margin-bottom: 4px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .desktop-nav {
+            display: none;
+        }
     }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Mobile Menu Toggle
+    // ==================== MOBILE MENU TOGGLE ====================
     const menuBtn = document.getElementById('mobile-menu-button');
     const menuClose = document.getElementById('mobile-menu-close');
     const menuSidebar = document.getElementById('mobile-menu-sidebar');
@@ -408,9 +751,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.style.overflow = '';
     }
     
-    menuBtn?.addEventListener('click', openMenu);
-    menuClose?.addEventListener('click', closeMenu);
-    menuOverlay?.addEventListener('click', closeMenu);
+    if (menuBtn) menuBtn.addEventListener('click', openMenu);
+    if (menuClose) menuClose.addEventListener('click', closeMenu);
+    if (menuOverlay) menuOverlay.addEventListener('click', closeMenu);
     
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && menuSidebar && !menuSidebar.classList.contains('-translate-x-full')) {
@@ -418,18 +761,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Mobile Search Toggle
+    // ==================== MOBILE SEARCH TOGGLE ====================
     const searchBtn = document.getElementById('mobile-search-button');
     const searchContainer = document.getElementById('mobile-search-container');
     
-    searchBtn?.addEventListener('click', () => {
-        searchContainer?.classList.toggle('hidden');
-        if (!searchContainer?.classList.contains('hidden')) {
-            searchContainer.querySelector('input')?.focus();
-        }
-    });
+    if (searchBtn && searchContainer) {
+        searchBtn.addEventListener('click', () => {
+            searchContainer.classList.toggle('hidden');
+            if (!searchContainer.classList.contains('hidden')) {
+                searchContainer.querySelector('input')?.focus();
+            }
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!searchContainer.classList.contains('hidden')) {
+                if (!searchContainer.contains(e.target) && !searchBtn.contains(e.target)) {
+                    searchContainer.classList.add('hidden');
+                }
+            }
+        });
+    }
     
-    // Category Accordion in Sidebar
+    // ==================== MOBILE CATEGORY ACCORDION ====================
     const categoryHeaders = document.querySelectorAll('.category-header');
     categoryHeaders.forEach(header => {
         header.addEventListener('click', function(e) {
@@ -449,13 +802,161 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Close search on outside click
-    document.addEventListener('click', (e) => {
-        if (searchContainer && !searchContainer.classList.contains('hidden')) {
-            if (!searchContainer.contains(e.target) && !searchBtn?.contains(e.target)) {
-                searchContainer.classList.add('hidden');
-            }
-        }
-    });
+    // ==================== MEGA MENU HOVER FIX ====================
+    const megaTrigger = document.querySelector('.mega-menu-trigger');
+    const megaMenu = document.querySelector('.mega-menu');
+    
+    if (megaTrigger && megaMenu) {
+        megaTrigger.addEventListener('mouseenter', () => {
+            megaMenu.style.opacity = '1';
+            megaMenu.style.visibility = 'visible';
+        });
+        
+        megaTrigger.addEventListener('mouseleave', () => {
+            megaMenu.style.opacity = '0';
+            megaMenu.style.visibility = 'hidden';
+        });
+        
+        megaMenu.addEventListener('mouseenter', () => {
+            megaMenu.style.opacity = '1';
+            megaMenu.style.visibility = 'visible';
+        });
+        
+        megaMenu.addEventListener('mouseleave', () => {
+            megaMenu.style.opacity = '0';
+            megaMenu.style.visibility = 'hidden';
+        });
+    }
 });
+
+
+
+/* Category Card Hover Effects */
+.category-card {
+    transition: all 0.3s ease;
+}
+
+.category-card:hover .category-main-link {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.2);
+}
+
+/* Subcategory Links */
+.subcategory-link {
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.subcategory-link:hover {
+    color: #6366f1 !important;
+    background: linear-gradient(135deg, #e0e7ff, #ede9fe);
+}
+
+/* Mega Menu Animation */
+.mega-menu {
+    transform-origin: top center;
+    animation: megaMenuDrop 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes megaMenuDrop {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scaleY(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scaleY(1);
+    }
+}
+
+/* Category Link Hover */
+.category-link {
+    position: relative;
+    overflow: hidden;
+}
+
+.category-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.category-link:hover::before {
+    width: 80%;
+}
+
+/* Hot Offers Button Pulse Animation */
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+}
+
+.hot-offers-btn {
+    animation: pulseGlow 2s infinite;
+}
+
+/* Dropdown Item Hover */
+.sub-dropdown-link {
+    transition: all 0.2s ease;
+}
+
+.sub-dropdown-link:hover {
+    transform: translateX(5px);
+}
+
+/* More Sub Group */
+.more-sub-group {
+    position: relative;
+}
+
+.more-sub-group:hover .more-sub-group-hover\:visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Scrollbar Styling */
+.max-h-96::-webkit-scrollbar {
+    width: 5px;
+}
+
+.max-h-96::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.max-h-96::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 10px;
+}
+
+.max-h-96::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+}
+
+/* Icon Circle Effects */
+.w-10.h-10, .w-6.h-6, .w-7.h-7 {
+    transition: all 0.2s ease;
+}
+
+.group:hover .w-10.h-10 {
+    transform: scale(1.05);
+}
+
+/* Gradient Text */
+.gradient-text {
+    background: linear-gradient(135deg, #6366f1, #ec4899);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
 </script>

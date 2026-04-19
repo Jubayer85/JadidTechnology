@@ -561,6 +561,7 @@ class Category(models.Model):
     order = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    icon = models.CharField(max_length=50, blank=True, null=True, default='fas fa-folder')
 
     class Meta:
         verbose_name_plural = "Categories"
@@ -582,6 +583,10 @@ class Category(models.Model):
     @property
     def product_count(self):
         return self.products.filter(is_active=True).count()
+    
+    
+   
+
 
 
 class SubCategory(models.Model):
@@ -597,6 +602,7 @@ class SubCategory(models.Model):
     order = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    icon = models.CharField(max_length=50, blank=True, null=True, default='fas fa-tag')
     
     class Meta:
         verbose_name_plural = "Sub Categories"
