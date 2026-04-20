@@ -15,6 +15,20 @@
                 {% if hero_slides %}
                     <!-- Dynamic Slides from Database with Individual Designs -->
                     {% for slide in hero_slides %}
+                    
+                    <!-- ==================== IMAGE ONLY SLIDER (NEW) ==================== -->
+                    {% if slide.layout_style == 'image_only' %}
+                    <div class="slide min-w-full relative h-full" style="background: none !important;">
+                        {% if slide.image %}
+                        <img src="{{ slide.image.url }}" 
+                             alt="Slide {{ forloop.counter }}"
+                             class="w-full h-full object-cover"
+                             style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                        {% endif %}
+                    </div>
+                    
+                    <!-- ==================== EXISTING SLIDERS (UNCHANGED) ==================== -->
+                    {% else %}
                     <div class="slide min-w-full relative flex items-center hero-slide-{{ slide.id }} {{ slide.custom_css_class|default:'' }}"
                          style="background: {% if slide.image %}url('{{ slide.image.url }}'){% endif %} no-repeat center center / cover; {% if slide.slide_bg_color %}background-color: {{ slide.slide_bg_color }};{% endif %}">
                         
@@ -492,6 +506,7 @@
                             </div>
                         {% endif %}
                     </div>
+                    {% endif %}
                     {% endfor %}
                     
                 {% else %}
@@ -578,6 +593,12 @@
         position: relative;
     }
     
+    /* Image Only Slider - Full Screen Fix */
+    .slide img {
+        max-width: 100%;
+        display: block;
+    }
+    
     /* Image hover effects */
     .hover-scale {
         transition: transform 0.3s ease;
@@ -593,12 +614,6 @@
         --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
         --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-    }
-    
-    /* Ensure images display properly */
-    .slide img {
-        max-width: 100%;
-        display: block;
     }
     
     /* Split layout image fix */
@@ -785,12 +800,6 @@
         
         .slider-prev i, .slider-next i {
             font-size: 12px;
-        }
-        
-        /* Mobile image size overrides */
-        .slide img {
-            width: {{ slide.image_mobile_width|default:'90%' }} !important;
-            height: {{ slide.image_mobile_height|default:'auto' }} !important;
         }
     }
     

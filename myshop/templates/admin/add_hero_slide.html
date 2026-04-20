@@ -4,103 +4,19 @@
 {% block title %}Add New Hero Slide - Admin{% endblock %}
 
 {% block extra_css %}
+{{ block.super }}
 <style>
-    .design-preview {
-        border: 2px solid #e5e7eb;
-        border-radius: 1rem;
-        padding: 1rem;
-        transition: all 0.3s;
-        cursor: pointer;
-    }
-    .design-preview:hover {
-        border-color: #4f46e5;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .design-preview.selected {
-        border-color: #4f46e5;
-        background: #eef2ff;
-    }
-    .preview-box {
-        min-height: 150px;
-        border-radius: 0.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 1rem;
-    }
-    .form-section {
-        background: #f9fafb;
-        border-radius: 0.75rem;
-        padding: 1.25rem;
-        margin-bottom: 1.5rem;
-    }
-    .current-image {
-        position: relative;
-        display: inline-block;
-    }
-    .current-image img {
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-        border-radius: 0.5rem;
-        border: 1px solid #e5e7eb;
-    }
-    .feature-item {
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
-    .animation-demo {
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-    }
-    .color-preview {
-        width: 40px;
-        height: 40px;
-        border-radius: 0.5rem;
-        border: 2px solid white;
-        box-shadow: 0 0 0 1px #e5e7eb;
-    }
-    .image-preview-box {
-        border: 2px dashed #e5e7eb;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        text-align: center;
-        transition: all 0.3s;
-    }
-    .image-preview-box:hover {
-        border-color: #4f46e5;
-        background: #f9fafb;
-    }
-    .range-slider {
-        width: 100%;
-        height: 6px;
-        border-radius: 5px;
-        background: #e5e7eb;
-        outline: none;
-        -webkit-appearance: none;
-    }
-    .range-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #4f46e5;
-        cursor: pointer;
-        border: none;
-    }
-    .hidden-section {
-        display: none;
-    }
+    /* Additional styles for Image Only feature */
     .image-only-warning {
         background: #dbeafe;
         border-left: 4px solid #3b82f6;
         padding: 12px 16px;
         border-radius: 8px;
         margin-bottom: 20px;
+        display: none;
+    }
+    .image-only-warning.show {
+        display: block;
     }
     .image-only-warning i {
         color: #3b82f6;
@@ -109,6 +25,42 @@
     .image-only-warning span {
         color: #1e40af;
         font-size: 14px;
+    }
+    .fullscreen-info {
+        margin-top: 8px;
+        padding: 8px 12px;
+        background: #e0e7ff;
+        border-radius: 6px;
+        font-size: 12px;
+        color: #3730a3;
+        display: none;
+    }
+    .fullscreen-info.show {
+        display: block;
+    }
+    .fullscreen-info i {
+        margin-right: 6px;
+    }
+    .image-preview-box.image-only-active {
+        border-color: #4f46e5;
+        background: #eef2ff;
+    }
+    .hidden-section {
+        display: none;
+    }
+
+    /* FIX 1: feature-item needs flex display so inputs line up side by side */
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    /* FIX 6: hoverScaleDiv disabled state */
+    #hoverScaleDiv.disabled {
+        opacity: 0.5;
+        pointer-events: none;
     }
 </style>
 {% endblock %}
@@ -129,10 +81,10 @@
         <form method="POST" enctype="multipart/form-data" id="slideForm">
             {% csrf_token %}
             
-            <!-- Image Only Slider Warning Message (Hidden by default) -->
-            <div id="imageOnlyWarning" class="image-only-warning hidden">
+            <!-- Image Only Slider Warning Message -->
+            <div id="imageOnlyWarning" class="image-only-warning">
                 <i class="fas fa-image"></i>
-                <span><strong>Image Only Slider Mode:</strong> Only the main image will be displayed as full-screen slider. All other settings (title, colors, animations, buttons, etc.) will be ignored.</span>
+                <span><strong>Image Only Slider Mode:</strong> Only the main image will be displayed as full-screen slider. All other settings will be ignored.</span>
             </div>
             
             <!-- ==================== BASIC INFORMATION ==================== -->
@@ -142,48 +94,48 @@
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium mb-1">Title <span class="text-red-500">*</span></label>
-                        <input type="text" name="title" required value="" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                        <label class="block text-sm font-medium mb-1" for="title_input">Title <span class="text-red-500">*</span></label>
+                        <input type="text" name="title" id="title_input" required value="" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
                         <p class="text-xs text-gray-400 mt-1">Main headline of the slide</p>
                     </div>
                     
                     <!-- Title Font Size Control -->
                     <div>
-                        <label class="block text-sm font-medium mb-1">Title Font Size (px)</label>
+                        <label class="block text-sm font-medium mb-1" for="title_font_size">Title Font Size (px)</label>
                         <div class="flex items-center gap-3">
-                            <input type="range" name="title_font_size_range" min="24" max="96" value="48" class="range-slider flex-1" onchange="document.querySelector('input[name=\'title_font_size\']').value = this.value">
-                            <input type="number" name="title_font_size" value="48" min="24" max="96" step="2" class="w-20 border rounded-lg px-2 py-2 text-center">
+                            <input type="range" name="title_font_size_range" id="title_font_size_range" min="24" max="96" value="48" class="range-slider flex-1">
+                            <input type="number" name="title_font_size" id="title_font_size" value="48" min="24" max="96" step="2" class="w-20 border rounded-lg px-2 py-2 text-center">
                         </div>
                         <p class="text-xs text-gray-400 mt-1">Recommended: 36-72px</p>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium mb-1">Highlight Text</label>
-                        <input type="text" name="highlight_text" value="" class="w-full border rounded-lg px-3 py-2">
+                        <label class="block text-sm font-medium mb-1" for="highlight_text_input">Highlight Text</label>
+                        <input type="text" name="highlight_text" id="highlight_text_input" value="" class="w-full border rounded-lg px-3 py-2">
                         <p class="text-xs text-gray-400 mt-1">Optional colored text (e.g., "Limited Offer")</p>
                     </div>
                     
                     <!-- Highlight Text Font Size Control -->
                     <div>
-                        <label class="block text-sm font-medium mb-1">Highlight Font Size (px)</label>
+                        <label class="block text-sm font-medium mb-1" for="highlight_font_size">Highlight Font Size (px)</label>
                         <div class="flex items-center gap-3">
-                            <input type="range" name="highlight_font_size_range" min="16" max="80" value="36" class="range-slider flex-1" onchange="document.querySelector('input[name=\'highlight_font_size\']').value = this.value">
-                            <input type="number" name="highlight_font_size" value="36" min="16" max="80" step="2" class="w-20 border rounded-lg px-2 py-2 text-center">
+                            <input type="range" name="highlight_font_size_range" id="highlight_font_size_range" min="16" max="80" value="36" class="range-slider flex-1">
+                            <input type="number" name="highlight_font_size" id="highlight_font_size" value="36" min="16" max="80" step="2" class="w-20 border rounded-lg px-2 py-2 text-center">
                         </div>
                         <p class="text-xs text-gray-400 mt-1">Recommended: 28-52px</p>
                     </div>
                     
                     <div class="col-span-2">
-                        <label class="block text-sm font-medium mb-1">Subtitle</label>
-                        <textarea name="subtitle" rows="2" class="w-full border rounded-lg px-3 py-2"></textarea>
+                        <label class="block text-sm font-medium mb-1" for="subtitle_input">Subtitle</label>
+                        <textarea name="subtitle" id="subtitle_input" rows="2" class="w-full border rounded-lg px-3 py-2"></textarea>
                     </div>
                     
                     <!-- Subtitle Font Size Control -->
                     <div>
-                        <label class="block text-sm font-medium mb-1">Subtitle Font Size (px)</label>
+                        <label class="block text-sm font-medium mb-1" for="subtitle_font_size">Subtitle Font Size (px)</label>
                         <div class="flex items-center gap-3">
-                            <input type="range" name="subtitle_font_size_range" min="12" max="48" value="18" class="range-slider flex-1" onchange="document.querySelector('input[name=\'subtitle_font_size\']').value = this.value">
-                            <input type="number" name="subtitle_font_size" value="18" min="12" max="48" step="2" class="w-20 border rounded-lg px-2 py-2 text-center">
+                            <input type="range" name="subtitle_font_size_range" id="subtitle_font_size_range" min="12" max="48" value="18" class="range-slider flex-1">
+                            <input type="number" name="subtitle_font_size" id="subtitle_font_size" value="18" min="12" max="48" step="2" class="w-20 border rounded-lg px-2 py-2 text-center">
                         </div>
                         <p class="text-xs text-gray-400 mt-1">Recommended: 14-24px</p>
                     </div>
@@ -196,7 +148,7 @@
                     <i class="fas fa-palette text-indigo-500 mr-2"></i> Design Style
                 </h3>
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
-                    <!-- NEW: Image Only Slider Option -->
+                    <!-- Image Only Slider Option -->
                     <div class="design-preview" data-layout="image_only" onclick="selectDesign(this, 'image_only')">
                         <div class="preview-box bg-white border">
                             <div class="text-center">
@@ -332,32 +284,33 @@
                 <p class="text-xs text-gray-400 mb-3">Leave empty to use theme defaults</p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm font-medium mb-1">Background Color</label>
+                        <label class="block text-sm font-medium mb-1" for="slide_bg_color">Background Color</label>
                         <div class="flex items-center gap-2">
-                            <input type="color" name="slide_bg_color" value="#000000" class="w-16 h-10 border rounded cursor-pointer">
-                            <input type="text" name="slide_bg_color_text" value="" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="#hex or rgba()">
+                            <!-- FIX 8: color picker syncs to the actual form field (slide_bg_color), text box is display only -->
+                            <input type="color" id="slide_bg_color_picker" value="#000000" class="w-16 h-10 border rounded cursor-pointer">
+                            <input type="text" name="slide_bg_color" id="slide_bg_color" value="" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="#hex or rgba()">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Text Color</label>
+                        <label class="block text-sm font-medium mb-1" for="slide_text_color">Text Color</label>
                         <div class="flex items-center gap-2">
-                            <input type="color" name="slide_text_color" value="#ffffff" class="w-16 h-10 border rounded cursor-pointer">
-                            <input type="text" name="slide_text_color_text" value="" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="#hex or rgba()">
+                            <input type="color" id="slide_text_color_picker" value="#ffffff" class="w-16 h-10 border rounded cursor-pointer">
+                            <input type="text" name="slide_text_color" id="slide_text_color" value="" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="#hex or rgba()">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Accent Color</label>
+                        <label class="block text-sm font-medium mb-1" for="slide_accent_color">Accent Color</label>
                         <div class="flex items-center gap-2">
-                            <input type="color" name="slide_accent_color" value="#f59e0b" class="w-16 h-10 border rounded cursor-pointer">
-                            <input type="text" name="slide_accent_color_text" value="" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="#hex or rgba()">
+                            <input type="color" id="slide_accent_color_picker" value="#f59e0b" class="w-16 h-10 border rounded cursor-pointer">
+                            <input type="text" name="slide_accent_color" id="slide_accent_color" value="" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="#hex or rgba()">
                         </div>
                     </div>
                 </div>
                 <div class="mt-3">
-                    <label class="block text-sm font-medium mb-1">Overlay Opacity (0 to 1)</label>
+                    <label class="block text-sm font-medium mb-1" for="slide_overlay_opacity">Overlay Opacity (0 to 1)</label>
                     <div class="flex items-center gap-3">
-                        <input type="range" name="slide_overlay_opacity_range" min="0" max="1" step="0.1" value="0.5" class="range-slider flex-1" onchange="document.querySelector('input[name=\'slide_overlay_opacity\']').value = this.value">
-                        <input type="number" name="slide_overlay_opacity" value="0.5" min="0" max="1" step="0.1" class="w-20 border rounded-lg px-2 py-2 text-center">
+                        <input type="range" name="slide_overlay_opacity_range" id="slide_overlay_opacity_range" min="0" max="1" step="0.1" value="0.5" class="range-slider flex-1">
+                        <input type="number" name="slide_overlay_opacity" id="slide_overlay_opacity" value="0.5" min="0" max="1" step="0.1" class="w-20 border rounded-lg px-2 py-2 text-center">
                     </div>
                 </div>
             </div>
@@ -393,8 +346,8 @@
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium mb-1">Animation Type</label>
-                        <select name="animation_effect" class="w-full border rounded-lg px-3 py-2" onchange="previewAnimation(this.value)">
+                        <label class="block text-sm font-medium mb-1" for="animation_effect">Animation Type</label>
+                        <select name="animation_effect" id="animation_effect" class="w-full border rounded-lg px-3 py-2" onchange="previewAnimation(this.value)">
                             <option value="fadeInUp" selected>✨ Fade In Up</option>
                             <option value="fadeIn">🌊 Fade In</option>
                             <option value="zoomIn">🔍 Zoom In</option>
@@ -414,16 +367,16 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
                     <div>
-                        <label class="block text-sm font-medium mb-1">Title Delay (ms)</label>
-                        <input type="number" name="title_delay" value="100" class="w-full border rounded-lg px-3 py-2">
+                        <label class="block text-sm font-medium mb-1" for="title_delay">Title Delay (ms)</label>
+                        <input type="number" name="title_delay" id="title_delay" value="100" class="w-full border rounded-lg px-3 py-2">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Subtitle Delay (ms)</label>
-                        <input type="number" name="subtitle_delay" value="200" class="w-full border rounded-lg px-3 py-2">
+                        <label class="block text-sm font-medium mb-1" for="subtitle_delay">Subtitle Delay (ms)</label>
+                        <input type="number" name="subtitle_delay" id="subtitle_delay" value="200" class="w-full border rounded-lg px-3 py-2">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Button Delay (ms)</label>
-                        <input type="number" name="button_delay" value="300" class="w-full border rounded-lg px-3 py-2">
+                        <label class="block text-sm font-medium mb-1" for="button_delay">Button Delay (ms)</label>
+                        <input type="number" name="button_delay" id="button_delay" value="300" class="w-full border rounded-lg px-3 py-2">
                     </div>
                 </div>
             </div>
@@ -437,11 +390,14 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Left: Image Upload -->
                     <div>
-                        <label class="block text-sm font-medium mb-2">Main Image <span class="text-red-500">*</span></label>
-                        <input type="file" name="image" accept="image/*" class="w-full border rounded-lg px-3 py-2" onchange="previewImage(this, 'mainImagePreview')" required>
+                        <label class="block text-sm font-medium mb-2" for="main_image_input">Main Image <span class="text-red-500">*</span></label>
+                        <input type="file" name="image" id="main_image_input" accept="image/*" class="w-full border rounded-lg px-3 py-2" onchange="previewImage(this, 'mainImagePreview')" required>
                         <div id="mainImagePreview" class="mt-3 hidden image-preview-box">
                             <img src="" alt="Preview" class="max-w-full h-auto rounded-lg mx-auto" style="max-height: 200px;">
                             <p class="text-xs text-gray-500 mt-2">Preview</p>
+                        </div>
+                        <div id="fullscreenInfo" class="fullscreen-info">
+                            <i class="fas fa-expand"></i> <strong>Full Screen Mode:</strong> This image will be displayed as FULL SCREEN slider when "Image Only" is selected!
                         </div>
                         <p class="text-xs text-gray-400 mt-2">Recommended: 1920x1080px for full screen slider (JPG, PNG, WebP)</p>
                     </div>
@@ -454,12 +410,12 @@
                             <div class="space-y-3">
                                 <!-- Width Control -->
                                 <div>
-                                    <label class="block text-sm font-medium mb-1">Image Width</label>
-                                    <select name="image_width" class="w-full border rounded-lg px-3 py-2">
-                                        <option value="100%" selected>Full Width (100%)</option>
+                                    <label class="block text-sm font-medium mb-1" for="image_width">Image Width</label>
+                                    <select name="image_width" id="image_width" class="w-full border rounded-lg px-3 py-2">
                                         <option value="auto">Auto (Original)</option>
+                                        <option value="100%">Full Width (100%)</option>
                                         <option value="90%">90%</option>
-                                        <option value="80%">80%</option>
+                                        <option value="80%" selected>80%</option>
                                         <option value="70%">70%</option>
                                         <option value="60%">60%</option>
                                         <option value="50%">50%</option>
@@ -471,8 +427,8 @@
                                 
                                 <!-- Height Control -->
                                 <div>
-                                    <label class="block text-sm font-medium mb-1">Image Height</label>
-                                    <select name="image_height" class="w-full border rounded-lg px-3 py-2">
+                                    <label class="block text-sm font-medium mb-1" for="image_height">Image Height</label>
+                                    <select name="image_height" id="image_height" class="w-full border rounded-lg px-3 py-2">
                                         <option value="auto" selected>Auto (Original)</option>
                                         <option value="100vh">Full Screen (100vh)</option>
                                         <option value="250px">250px</option>
@@ -486,8 +442,8 @@
                                 
                                 <!-- Object Fit -->
                                 <div>
-                                    <label class="block text-sm font-medium mb-1">Object Fit</label>
-                                    <select name="image_object_fit" class="w-full border rounded-lg px-3 py-2">
+                                    <label class="block text-sm font-medium mb-1" for="image_object_fit">Object Fit</label>
+                                    <select name="image_object_fit" id="image_object_fit" class="w-full border rounded-lg px-3 py-2">
                                         <option value="cover" selected>Cover (Fill & Crop)</option>
                                         <option value="contain">Contain (Keep Ratio)</option>
                                         <option value="fill">Fill (Stretch)</option>
@@ -498,8 +454,8 @@
                                 
                                 <!-- Border Radius -->
                                 <div>
-                                    <label class="block text-sm font-medium mb-1">Border Radius</label>
-                                    <select name="image_border_radius" class="w-full border rounded-lg px-3 py-2">
+                                    <label class="block text-sm font-medium mb-1" for="image_border_radius">Border Radius</label>
+                                    <select name="image_border_radius" id="image_border_radius" class="w-full border rounded-lg px-3 py-2">
                                         <option value="0" selected>None (Sharp)</option>
                                         <option value="0.5rem">Small (8px)</option>
                                         <option value="1rem">Medium (16px)</option>
@@ -511,8 +467,8 @@
                                 
                                 <!-- Image Position -->
                                 <div>
-                                    <label class="block text-sm font-medium mb-1">Image Position</label>
-                                    <select name="image_position" class="w-full border rounded-lg px-3 py-2">
+                                    <label class="block text-sm font-medium mb-1" for="image_position">Image Position</label>
+                                    <select name="image_position" id="image_position" class="w-full border rounded-lg px-3 py-2">
                                         <option value="center center" selected>Center</option>
                                         <option value="center top">Top Center</option>
                                         <option value="center bottom">Bottom Center</option>
@@ -525,17 +481,17 @@
                                 
                                 <!-- Opacity -->
                                 <div>
-                                    <label class="block text-sm font-medium mb-1">Image Opacity (%)</label>
+                                    <label class="block text-sm font-medium mb-1" for="image_opacity">Image Opacity (%)</label>
                                     <div class="flex items-center gap-3">
-                                        <input type="range" name="image_opacity_range" min="0" max="100" value="100" class="range-slider flex-1" onchange="document.querySelector('input[name=\'image_opacity\']').value = this.value">
-                                        <input type="number" name="image_opacity" value="100" min="0" max="100" class="w-20 border rounded-lg px-2 py-2 text-center">
+                                        <input type="range" name="image_opacity_range" id="image_opacity_range" min="0" max="100" value="100" class="range-slider flex-1">
+                                        <input type="number" name="image_opacity" id="image_opacity" value="100" min="0" max="100" class="w-20 border rounded-lg px-2 py-2 text-center">
                                     </div>
                                 </div>
                                 
                                 <!-- Shadow Effect -->
                                 <div class="flex items-center justify-between">
-                                    <label class="text-sm font-medium">Shadow Effect</label>
-                                    <select name="image_shadow_size" class="w-32 border rounded-lg px-2 py-1">
+                                    <label class="text-sm font-medium" for="image_shadow_size">Shadow Effect</label>
+                                    <select name="image_shadow_size" id="image_shadow_size" class="w-32 border rounded-lg px-2 py-1">
                                         <option value="none" selected>No Shadow</option>
                                         <option value="sm">Small</option>
                                         <option value="md">Medium</option>
@@ -550,12 +506,12 @@
                                     <label for="image_hover_effect" class="text-sm font-medium">Enable Hover Scale Effect</label>
                                 </div>
                                 
-                                <!-- Hover Scale Amount -->
-                                <div id="hoverScaleDiv">
-                                    <label class="block text-sm font-medium mb-1">Hover Scale Amount</label>
+                                <!-- FIX 6: hoverScaleDiv starts disabled since checkbox is unchecked on load -->
+                                <div id="hoverScaleDiv" class="disabled">
+                                    <label class="block text-sm font-medium mb-1" for="image_hover_scale">Hover Scale Amount</label>
                                     <div class="flex items-center gap-3">
-                                        <input type="range" name="image_hover_scale_range" min="1" max="1.2" step="0.01" value="1.05" class="range-slider flex-1">
-                                        <input type="number" name="image_hover_scale" value="1.05" min="1" max="1.2" step="0.01" class="w-20 border rounded-lg px-2 py-2 text-center">
+                                        <input type="range" name="image_hover_scale_range" id="image_hover_scale_range" min="1" max="1.2" step="0.01" value="1.05" class="range-slider flex-1" disabled>
+                                        <input type="number" name="image_hover_scale" id="image_hover_scale" value="1.05" min="1" max="1.2" step="0.01" class="w-20 border rounded-lg px-2 py-2 text-center" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -571,8 +527,8 @@
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium mb-2">Side Image</label>
-                        <input type="file" name="side_image" accept="image/*" class="w-full border rounded-lg px-3 py-2" onchange="previewImage(this, 'sideImagePreview')">
+                        <label class="block text-sm font-medium mb-2" for="side_image_input">Side Image</label>
+                        <input type="file" name="side_image" id="side_image_input" accept="image/*" class="w-full border rounded-lg px-3 py-2" onchange="previewImage(this, 'sideImagePreview')">
                         <div id="sideImagePreview" class="mt-3 hidden image-preview-box">
                             <img src="" alt="Preview" class="max-w-full h-auto rounded-lg mx-auto" style="max-height: 150px;">
                             <p class="text-xs text-gray-500 mt-2">Preview</p>
@@ -608,17 +564,17 @@
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm font-medium mb-1">Badge Text</label>
-                        <input type="text" name="badge_text" value="" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., Limited Offer">
+                        <label class="block text-sm font-medium mb-1" for="badge_text_input">Badge Text</label>
+                        <input type="text" name="badge_text" id="badge_text_input" value="" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., Limited Offer">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Badge Icon</label>
-                        <input type="text" name="badge_icon" value="fire" class="w-full border rounded-lg px-3 py-2" placeholder="fa-icon name">
+                        <label class="block text-sm font-medium mb-1" for="badge_icon_input">Badge Icon</label>
+                        <input type="text" name="badge_icon" id="badge_icon_input" value="fire" class="w-full border rounded-lg px-3 py-2" placeholder="fa-icon name">
                         <p class="text-xs text-gray-400 mt-1">Font Awesome icon name</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Corner Badge</label>
-                        <input type="text" name="badge" value="" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., HOT, SALE">
+                        <label class="block text-sm font-medium mb-1" for="badge_input">Corner Badge</label>
+                        <input type="text" name="badge" id="badge_input" value="" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., HOT, SALE">
                     </div>
                 </div>
             </div>
@@ -630,20 +586,20 @@
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium mb-1">Button 1 Text</label>
-                        <input type="text" name="button1_text" value="Shop Now" class="w-full border rounded-lg px-3 py-2">
+                        <label class="block text-sm font-medium mb-1" for="button1_text_input">Button 1 Text</label>
+                        <input type="text" name="button1_text" id="button1_text_input" value="Shop Now" class="w-full border rounded-lg px-3 py-2">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Button 1 URL</label>
-                        <input type="text" name="button1_url" value="/shop/" class="w-full border rounded-lg px-3 py-2">
+                        <label class="block text-sm font-medium mb-1" for="button1_url_input">Button 1 URL</label>
+                        <input type="text" name="button1_url" id="button1_url_input" value="/shop/" class="w-full border rounded-lg px-3 py-2">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Button 1 Icon</label>
-                        <input type="text" name="button1_icon" value="shopping-cart" class="w-full border rounded-lg px-3 py-2">
+                        <label class="block text-sm font-medium mb-1" for="button1_icon_input">Button 1 Icon</label>
+                        <input type="text" name="button1_icon" id="button1_icon_input" value="shopping-cart" class="w-full border rounded-lg px-3 py-2">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Button 1 Color</label>
-                        <select name="button1_color" class="w-full border rounded-lg px-3 py-2">
+                        <label class="block text-sm font-medium mb-1" for="button1_color_select">Button 1 Color</label>
+                        <select name="button1_color" id="button1_color_select" class="w-full border rounded-lg px-3 py-2">
                             <option value="brand">Brand Color</option>
                             <option value="accent" selected>Accent Color</option>
                             <option value="white">White</option>
@@ -653,20 +609,20 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                     <div>
-                        <label class="block text-sm font-medium mb-1">Button 2 Text (Optional)</label>
-                        <input type="text" name="button2_text" value="" class="w-full border rounded-lg px-3 py-2">
+                        <label class="block text-sm font-medium mb-1" for="button2_text_input">Button 2 Text (Optional)</label>
+                        <input type="text" name="button2_text" id="button2_text_input" value="" class="w-full border rounded-lg px-3 py-2">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Button 2 URL</label>
-                        <input type="text" name="button2_url" value="" class="w-full border rounded-lg px-3 py-2">
+                        <label class="block text-sm font-medium mb-1" for="button2_url_input">Button 2 URL</label>
+                        <input type="text" name="button2_url" id="button2_url_input" value="" class="w-full border rounded-lg px-3 py-2">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Button 2 Icon</label>
-                        <input type="text" name="button2_icon" value="star" class="w-full border rounded-lg px-3 py-2">
+                        <label class="block text-sm font-medium mb-1" for="button2_icon_input">Button 2 Icon</label>
+                        <input type="text" name="button2_icon" id="button2_icon_input" value="star" class="w-full border rounded-lg px-3 py-2">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Button 2 Color</label>
-                        <select name="button2_color" class="w-full border rounded-lg px-3 py-2">
+                        <label class="block text-sm font-medium mb-1" for="button2_color_select">Button 2 Color</label>
+                        <select name="button2_color" id="button2_color_select" class="w-full border rounded-lg px-3 py-2">
                             <option value="accent" selected>Accent Color</option>
                             <option value="brand">Brand Color</option>
                             <option value="white">White</option>
@@ -683,16 +639,16 @@
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm font-medium mb-1">Price Label</label>
-                        <input type="text" name="price_label" value="From" class="w-full border rounded-lg px-3 py-2">
+                        <label class="block text-sm font-medium mb-1" for="price_label_input">Price Label</label>
+                        <input type="text" name="price_label" id="price_label_input" value="From" class="w-full border rounded-lg px-3 py-2">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Price Tag</label>
-                        <input type="text" name="price_tag" value="" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., $999">
+                        <label class="block text-sm font-medium mb-1" for="price_tag_input">Price Tag</label>
+                        <input type="text" name="price_tag" id="price_tag_input" value="" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., $999">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Rating</label>
-                        <input type="number" name="rating" step="0.1" min="0" max="5" value="" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., 4.5">
+                        <label class="block text-sm font-medium mb-1" for="rating_input">Rating</label>
+                        <input type="number" name="rating" id="rating_input" step="0.1" min="0" max="5" value="" class="w-full border rounded-lg px-3 py-2" placeholder="e.g., 4.5">
                     </div>
                 </div>
             </div>
@@ -703,6 +659,7 @@
                     <i class="fas fa-list-check text-indigo-500 mr-2"></i> Features
                 </h3>
                 <div id="features-container">
+                    <!-- FIX 1: feature-item now has flex display via CSS above -->
                     <div class="feature-item">
                         <input type="text" name="feature_text[]" class="flex-1 border rounded-lg px-3 py-2" placeholder="Feature text">
                         <input type="text" name="feature_icon[]" class="w-32 border rounded-lg px-3 py-2" placeholder="Icon name" value="check">
@@ -719,8 +676,8 @@
             <!-- ==================== ORDER & STATUS ==================== -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
-                    <label class="block text-sm font-medium mb-1">Display Order</label>
-                    <input type="number" name="order" value="0" class="w-full border rounded-lg px-3 py-2">
+                    <label class="block text-sm font-medium mb-1" for="order_input">Display Order</label>
+                    <input type="number" name="order" id="order_input" value="0" class="w-full border rounded-lg px-3 py-2">
                     <p class="text-xs text-gray-400 mt-1">Lower numbers appear first</p>
                 </div>
                 <div class="flex items-center gap-3 mt-6">
@@ -740,7 +697,7 @@
             
             <!-- Submit Buttons -->
             <div class="flex justify-end gap-3 pt-4 border-t">
-                <a href="{% url 'site_settings' %}" class="px-4 py-2 border rounded-lg hover:bg-gray-50 transition">
+                <a href="{% url 'site_settings' %}" class="px-4 py-2 border rounded-lg hover:bg-gray-50 transition" role="button">
                     <i class="fas fa-times"></i> Cancel
                 </a>
                 <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2">
@@ -752,7 +709,14 @@
 </div>
 
 <script>
-    // Design selection
+    // FIX 3: Select the correct default layout ('default', not the first child which is 'image_only')
+    function initDefaultSelection() {
+        const defaultPreview = document.querySelector('.design-preview[data-layout="default"]');
+        if (defaultPreview) {
+            defaultPreview.classList.add('selected');
+        }
+    }
+
     function selectDesign(element, layout) {
         document.querySelectorAll('.design-preview').forEach(el => {
             el.classList.remove('selected');
@@ -760,87 +724,92 @@
         element.classList.add('selected');
         document.getElementById('layout_style').value = layout;
         
-        // Show/Hide sections based on layout
         const isImageOnly = (layout === 'image_only');
         
-        // Get all sections that should be hidden in image only mode
-        const sectionsToHide = [
-            'basicInfoSection',
-            'themeSection', 
-            'customColorsSection',
-            'alignmentSection',
-            'animationSection',
-            'sideImageSection',
-            'badgesSection',
-            'buttonsSection',
-            'priceSection',
-            'featuresSection',
-            'customCssSection'
+        const sectionsToToggle = [
+            'basicInfoSection', 'themeSection', 'customColorsSection', 
+            'alignmentSection', 'animationSection', 'sideImageSection',
+            'badgesSection', 'buttonsSection', 'priceSection', 
+            'featuresSection', 'customCssSection'
         ];
         
-        // Show/Hide sections
-        sectionsToHide.forEach(sectionId => {
+        sectionsToToggle.forEach(sectionId => {
             const section = document.getElementById(sectionId);
             if (section) {
                 section.style.display = isImageOnly ? 'none' : 'block';
             }
         });
         
-        // Show/Hide warning message
         const warning = document.getElementById('imageOnlyWarning');
-        if (warning) {
-            warning.classList.toggle('hidden', !isImageOnly);
-        }
+        if (warning) warning.classList.toggle('show', isImageOnly);
         
-        // Update image width default for image only mode
+        const fullscreenInfo = document.getElementById('fullscreenInfo');
+        if (fullscreenInfo) fullscreenInfo.classList.toggle('show', isImageOnly);
+        
         const imageWidthSelect = document.querySelector('select[name="image_width"]');
-        if (imageWidthSelect && isImageOnly) {
-            imageWidthSelect.value = '100%';
+        const imageHeightSelect = document.querySelector('select[name="image_height"]');
+        const imageObjectFit = document.querySelector('select[name="image_object_fit"]');
+        const imageBorderRadius = document.querySelector('select[name="image_border_radius"]');
+        
+        if (isImageOnly) {
+            if (imageWidthSelect) imageWidthSelect.value = '100%';
+            if (imageHeightSelect) imageHeightSelect.value = '100vh';
+            if (imageObjectFit) imageObjectFit.value = 'cover';
+            if (imageBorderRadius) imageBorderRadius.value = '0';
+            
+            const titleInput = document.querySelector('input[name="title"]');
+            if (titleInput) titleInput.required = false;
+        } else {
+            if (imageWidthSelect) imageWidthSelect.value = '80%';
+            if (imageHeightSelect) imageHeightSelect.value = 'auto';
+            if (imageObjectFit) imageObjectFit.value = 'cover';
+            // FIX 4: reset to '0' (sharp) which exists in options, not '1rem'
+            if (imageBorderRadius) imageBorderRadius.value = '0';
+            
+            const titleInput = document.querySelector('input[name="title"]');
+            if (titleInput) titleInput.required = true;
         }
         
-        // Update image height default for image only mode
-        const imageHeightSelect = document.querySelector('select[name="image_height"]');
-        if (imageHeightSelect && isImageOnly) {
-            imageHeightSelect.value = '100vh';
+        const imagePreview = document.getElementById('mainImagePreview');
+        if (imagePreview) {
+            imagePreview.classList.toggle('image-only-active', isImageOnly);
         }
     }
     
-    // Animation preview
+    // FIX 12: Improved animation preview with proper cleanup
     function previewAnimation(animation) {
+        const preview = document.getElementById('animationPreview');
+        if (!preview) return;
         if (animation === 'none') {
-            document.getElementById('animationPreview').style.animation = 'none';
+            preview.style.animation = 'none';
             return;
         }
-        const preview = document.getElementById('animationPreview');
         preview.style.animation = 'none';
-        setTimeout(() => {
-            preview.style.animation = `${animation} 0.6s ease`;
-        }, 10);
+        // Force reflow so removing & re-adding animation works
+        void preview.offsetWidth;
+        preview.style.animation = `${animation} 0.6s ease forwards`;
         setTimeout(() => {
             preview.style.animation = '';
-        }, 600);
+        }, 700);
     }
     
-    // Image preview
     function previewImage(input, previewId) {
         const preview = document.getElementById(previewId);
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = preview.querySelector('img');
-                if (img) {
-                    img.src = e.target.result;
-                }
+                if (img) img.src = e.target.result;
                 preview.classList.remove('hidden');
-            }
+            };
             reader.readAsDataURL(input.files[0]);
         }
     }
     
-    // Features management
     function addFeature() {
         const container = document.getElementById('features-container');
         const newFeature = document.createElement('div');
+        // FIX 1: feature-item class has flex display from CSS
         newFeature.className = 'feature-item';
         newFeature.innerHTML = `
             <input type="text" name="feature_text[]" class="flex-1 border rounded-lg px-3 py-2" placeholder="Feature text">
@@ -856,74 +825,70 @@
         button.closest('.feature-item').remove();
     }
     
-    // Sync range inputs with number inputs
+    // FIX 7: Unified range <-> number sync - removed inline onchange attributes from HTML, 
+    // all syncing handled here to avoid double-firing
     document.querySelectorAll('input[type="range"]').forEach(range => {
         range.addEventListener('input', function() {
             const targetName = this.name.replace('_range', '');
             const targetInput = document.querySelector(`input[name="${targetName}"]`);
-            if (targetInput) {
-                targetInput.value = this.value;
-            }
+            if (targetInput) targetInput.value = this.value;
         });
     });
     
     document.querySelectorAll('input[type="number"]').forEach(number => {
         number.addEventListener('change', function() {
-            const rangeName = this.name + '_range';
-            const rangeInput = document.querySelector(`input[name="${rangeName}"]`);
-            if (rangeInput) {
-                rangeInput.value = this.value;
-            }
+            const rangeInput = document.querySelector(`input[name="${this.name}_range"]`);
+            if (rangeInput) rangeInput.value = this.value;
         });
     });
     
-    // Color input sync with text input
-    document.querySelectorAll('input[type="color"]').forEach(colorInput => {
-        colorInput.addEventListener('change', function() {
-            const textInput = this.nextElementSibling;
-            if (textInput && textInput.tagName === 'INPUT') {
-                textInput.value = this.value;
-            }
-        });
+    // FIX 8: Color picker syncs value to the corresponding text input (actual form field)
+    document.getElementById('slide_bg_color_picker').addEventListener('input', function() {
+        document.getElementById('slide_bg_color').value = this.value;
+    });
+    document.getElementById('slide_text_color_picker').addEventListener('input', function() {
+        document.getElementById('slide_text_color').value = this.value;
+    });
+    document.getElementById('slide_accent_color_picker').addEventListener('input', function() {
+        document.getElementById('slide_accent_color').value = this.value;
+    });
+    // Allow manual text entry to sync back to color picker
+    document.getElementById('slide_bg_color').addEventListener('input', function() {
+        if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) {
+            document.getElementById('slide_bg_color_picker').value = this.value;
+        }
+    });
+    document.getElementById('slide_text_color').addEventListener('input', function() {
+        if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) {
+            document.getElementById('slide_text_color_picker').value = this.value;
+        }
+    });
+    document.getElementById('slide_accent_color').addEventListener('input', function() {
+        if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) {
+            document.getElementById('slide_accent_color_picker').value = this.value;
+        }
     });
     
-    // Hover effect toggle
+    // FIX 6: Hover effect toggle - properly enables/disables inputs
     const hoverCheckbox = document.getElementById('image_hover_effect');
     const hoverScaleDiv = document.getElementById('hoverScaleDiv');
     
     if (hoverCheckbox) {
         hoverCheckbox.addEventListener('change', function() {
             if (hoverScaleDiv) {
-                hoverScaleDiv.style.opacity = this.checked ? '1' : '0.5';
                 const inputs = hoverScaleDiv.querySelectorAll('input');
-                inputs.forEach(input => input.disabled = !this.checked);
+                if (this.checked) {
+                    hoverScaleDiv.classList.remove('disabled');
+                    inputs.forEach(input => input.disabled = false);
+                } else {
+                    hoverScaleDiv.classList.add('disabled');
+                    inputs.forEach(input => input.disabled = true);
+                }
             }
         });
     }
     
-    // Make sure default design is selected (default layout)
-    document.querySelector('.design-preview[data-layout="default"]').classList.add('selected');
-    
-    // Font size sync
-    const titleFontRange = document.querySelector('input[name="title_font_size_range"]');
-    const titleFontNumber = document.querySelector('input[name="title_font_size"]');
-    if (titleFontRange && titleFontNumber) {
-        titleFontRange.addEventListener('input', () => titleFontNumber.value = titleFontRange.value);
-        titleFontNumber.addEventListener('change', () => titleFontRange.value = titleFontNumber.value);
-    }
-    
-    const highlightFontRange = document.querySelector('input[name="highlight_font_size_range"]');
-    const highlightFontNumber = document.querySelector('input[name="highlight_font_size"]');
-    if (highlightFontRange && highlightFontNumber) {
-        highlightFontRange.addEventListener('input', () => highlightFontNumber.value = highlightFontRange.value);
-        highlightFontNumber.addEventListener('change', () => highlightFontRange.value = highlightFontNumber.value);
-    }
-    
-    const subtitleFontRange = document.querySelector('input[name="subtitle_font_size_range"]');
-    const subtitleFontNumber = document.querySelector('input[name="subtitle_font_size"]');
-    if (subtitleFontRange && subtitleFontNumber) {
-        subtitleFontRange.addEventListener('input', () => subtitleFontNumber.value = subtitleFontRange.value);
-        subtitleFontNumber.addEventListener('change', () => subtitleFontRange.value = subtitleFontNumber.value);
-    }
+    // FIX 3: Initialize with correct default ('default' layout, not first child)
+    initDefaultSelection();
 </script>
 {% endblock %}
