@@ -1,40 +1,30 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.utils import timezone
-from django.http import HttpResponse, JsonResponse
-from django.views.decorators.http import require_http_methods
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.views.decorators.http import require_http_methods, require_POST
 from django.contrib import messages
 from django.core.mail import send_mail
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Count, Q, Max as MaxDB, Prefetch
+from django.db.models.functions import TruncDate
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
-from django.forms import ModelForm
-from django.db.models import Count
+from django.forms import ModelForm, inlineformset_factory
 from django.utils.text import slugify
-from django.http import HttpResponse, HttpResponseBadRequest
-from django.conf import settings 
+from django.conf import settings
 from django.core.paginator import Paginator
-from django.db.models import Q
-from django.db.models import Count, Q
-from .forms import CategoryForm, SubCategoryForm, BrandForm
-from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import ( Product, Brand, Category,SubCategory,ProductImage,Cart, CartItem,Order, OrderItem, Customer, Wishlist)
-from .forms import ProductForm, ProductImageFormSet
-from .models import Order, OrderItem
-from django.views.decorators.http import require_POST
 from django.db import models
-from django.db.models.functions import TruncDate
 from django.utils.timezone import now, timedelta
-from django.db.models import Q, Count, Prefetch
 import json
-from django.db.models import Max as MaxDB
-from .forms import BrandForm 
-from .models import SiteSettings
-from django.forms import inlineformset_factory
-from .models import SiteSettings, HeroSlide
+from .forms import CategoryForm, SubCategoryForm, BrandForm, ProductForm, ProductImageFormSet
+from .models import (
+    Product, Brand, Category, SubCategory, ProductImage,
+    Cart, CartItem, Order, OrderItem, Customer, Wishlist,
+    SiteSettings, HeroSlide
+)
 
 
 ProductImageFormSet = inlineformset_factory(
@@ -84,31 +74,6 @@ def home(request):
     }
     
     return render(request, 'home.html', context)
-
-
-@staff_member_required
-def upload_logo(request):
-    """Admin view to upload site logo"""
-    site_settings = SiteSettings.objects.first()
-    
-    if request.method == 'POST':
-        if request.FILES.get('logo'):
-            if site_settings:
-                site_settings.logo = request.FILES['logo']
-                site_settings.save()
-            else:
-                site_settings = SiteSettings.objects.create(logo=request.FILES['logo'])
-            messages.success(request, 'Logo uploaded successfully!')
-        elif request.POST.get('remove_logo') == 'true':
-            if site_settings and site_settings.logo:
-                site_settings.logo.delete()
-                site_settings.save()
-                messages.success(request, 'Logo removed successfully!')
-        return redirect('upload_logo')
-    
-    return render(request, 'admin/upload_logo.html', {
-        'site_settings': site_settings
-    })
 
 
 # ====================== ALL BRANDS VIEW ======================
@@ -167,59 +132,6 @@ def all_brands(request):
         'current_sort': sort_by,
     }
     return render(request, 'admin/all_brands.html', context)
-
-# ====================== BRAND PRODUCTS VIEW ======================
-def brand_products(request, slug):
-    """Display all products for a specific brand"""
-    # Get the brand
-    brand = get_object_or_404(Brand, slug=slug, is_active=True)
-    
-    # Get all active products for this brand - removed is_available
-    products = Product.objects.filter(
-        brand=brand,
-        is_active=True,
-        stock_quantity__gt=0  # Only show products in stock
-    ).select_related('category').prefetch_related('gallery')
-    
-    # Annotate with rating and review count (if you have reviews model)
-    # products = products.annotate(
-    #     average_rating=Avg('reviews__rating'),
-    #     review_count=Count('reviews')
-    # )
-    
-    # Get max price for slider
-    max_price = products.aggregate(max_price=MaxDB('price'))['max_price'] or 10000
-    
-    # Get categories for filtering
-    categories = Category.objects.filter(
-        products__in=products,
-        is_active=True
-    ).distinct()
-    
-    # Create categories JSON for JavaScript
-    categories_dict = {str(cat.id): cat.name for cat in categories}
-    categories_json = json.dumps(categories_dict)
-    
-    # Get total count
-    total_products = products.count()
-    
-    # Pagination (optional)
-    paginator = Paginator(products, 12)  # Show 12 products per page
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    
-    context = {
-        'brand': brand,
-        'products': page_obj,
-        'total_products': total_products,
-        'max_price': max_price,
-        'categories': categories,
-        'categories_json': categories_json,
-        'is_paginated': paginator.num_pages > 1,
-        'page_obj': page_obj,
-    }
-    return render(request, 'products/brand_products.html', context)
-
 
 # ====================== BRAND PRODUCTS FILTER API ======================
 def brand_products_filter(request, slug):
@@ -292,24 +204,6 @@ def brand_products_filter(request, slug):
     
     return JsonResponse({'products': products_data, 'count': len(products_data)})
 
-
-# ====================== PRODUCT DETAIL VIEW ======================
-def product_detail(request, slug):
-    """Display product detail page"""
-    product = get_object_or_404(Product, slug=slug, is_active=True)
-    
-    # Get related products (same brand or category)
-    related_products = Product.objects.filter(
-        Q(brand=product.brand) | Q(category=product.category),
-        is_active=True,
-        stock_quantity__gt=0
-    ).exclude(id=product.id)[:8]
-    
-    context = {
-        'product': product,
-        'related_products': related_products,
-    }
-    return render(request, 'products/product_detail.html', context)
 
 # ====================== AUTH ======================
 def register(request):
@@ -451,6 +345,7 @@ def add_product(request):
         'brands': brands,
     })
 
+@staff_member_required
 def edit_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
     
@@ -801,14 +696,7 @@ def clear_compare(request):
 
 
 # ====================== CART ======================
-def get_cart_count(request):
-    """Get total items in cart"""
-    if request.user.is_authenticated:
-        cart, created = Cart.objects.get_or_create(user=request.user)
-        return cart.total_items()
-    else:
-        cart = request.session.get('cart', {})
-        return sum(item.get('quantity', 0) for item in cart.values())
+# get_cart_count is defined below after add_to_cart (de-duplicated)
 
 
 @login_required
@@ -1318,59 +1206,6 @@ def add_category(request):
 
 @login_required
 @user_passes_test(is_admin)
-def edit_category(request, pk):
-    category = get_object_or_404(Category, pk=pk)
-    
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        description = request.POST.get('description')
-        is_active = request.POST.get('is_active') == 'true'
-        icon = request.POST.get('icon', 'fas fa-boxes')
-        
-        if not name:
-            messages.error(request, 'Category name is required.')
-            return redirect('manage_categories')
-        
-        category.name = name
-        category.description = description
-        category.is_active = is_active
-        category.icon = icon
-        category.save()
-        
-        messages.success(request, f'Category "{name}" updated successfully!')
-        return redirect('manage_categories')
-    
-    return render(request, 'admin/edit_category.html', {'category': category})
-
-@login_required
-@user_passes_test(is_admin)
-def delete_category(request, pk):
-    category = get_object_or_404(Category, pk=pk)
-    
-    if request.method == 'POST':
-        category_name = category.name
-        category.delete()
-        messages.success(request, f'Category "{category_name}" deleted successfully!')
-        return redirect('manage_categories')
-    
-    return render(request, 'admin/confirm_delete.html', {
-        'object': category,
-        'object_type': 'category'
-    })
-
-@login_required
-@user_passes_test(is_admin)
-def toggle_category_status(request, pk):
-    category = get_object_or_404(Category, pk=pk)
-    category.is_active = not category.is_active
-    category.save()
-    
-    status = "activated" if category.is_active else "deactivated"
-    messages.success(request, f'Category "{category.name}" {status} successfully!')
-    return redirect('manage_categories')
-
-@login_required
-@user_passes_test(is_admin)
 def toggle_category_status(request, pk):
     category = get_object_or_404(Category, pk=pk)
     
@@ -1510,54 +1345,6 @@ def add_subcategory(request):
 
 @login_required
 @user_passes_test(is_admin)
-def edit_subcategory(request, pk):
-    subcategory = get_object_or_404(SubCategory, pk=pk)
-    categories = Category.objects.filter(is_active=True)
-    
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        description = request.POST.get('description')
-        category_id = request.POST.get('category')
-        is_active = request.POST.get('is_active') == 'true'
-        
-        if not name or not category_id:
-            messages.error(request, 'Subcategory name and parent category are required.')
-            return redirect('manage_categories')
-        
-        category = get_object_or_404(Category, pk=category_id)
-        
-        subcategory.name = name
-        subcategory.description = description
-        subcategory.category = category
-        subcategory.is_active = is_active
-        subcategory.save()
-        
-        messages.success(request, f'Subcategory "{name}" updated successfully!')
-        return redirect('manage_categories')
-    
-    return render(request, 'admin/edit_subcategory.html', {
-        'subcategory': subcategory,
-        'categories': categories
-    })
-
-@login_required
-@user_passes_test(is_admin)
-def delete_subcategory(request, pk):
-    subcategory = get_object_or_404(SubCategory, pk=pk)
-    
-    if request.method == 'POST':
-        subcategory_name = subcategory.name
-        subcategory.delete()
-        messages.success(request, f'Subcategory "{subcategory_name}" deleted successfully!')
-        return redirect('manage_categories')
-    
-    return render(request, 'admin/confirm_delete.html', {
-        'object': subcategory,
-        'object_type': 'subcategory'
-    })
-
-@login_required
-@user_passes_test(is_admin)
 def toggle_subcategory_status(request, pk):
     subcategory = get_object_or_404(SubCategory, pk=pk)
     subcategory.is_active = not subcategory.is_active
@@ -1623,61 +1410,6 @@ def add_brand(request):
     
     # GET request - show form
     return render(request, 'admin/add_brand.html')
-
-@login_required
-@user_passes_test(is_admin)
-def edit_brand(request, pk):
-    brand = get_object_or_404(Brand, pk=pk)
-    categories = Category.objects.filter(is_active=True)
-    
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        description = request.POST.get('description')
-        logo_initials = request.POST.get('logo_initials', name[:2].upper())
-        tier = request.POST.get('tier', 'standard')
-        is_active = request.POST.get('is_active') == 'true'
-        category_ids = request.POST.getlist('categories')
-        
-        if not name:
-            messages.error(request, 'Brand name is required.')
-            return redirect('manage_categories')
-        
-        brand.name = name
-        brand.description = description
-        brand.logo_initials = logo_initials
-        brand.tier = tier
-        brand.is_active = is_active
-        brand.save()
-        
-        if category_ids:
-            categories = Category.objects.filter(id__in=category_ids)
-            brand.categories.set(categories)
-        else:
-            brand.categories.clear()
-        
-        messages.success(request, f'Brand "{name}" updated successfully!')
-        return redirect('manage_categories')
-    
-    return render(request, 'admin/edit_brand.html', {
-        'brand': brand,
-        'categories': categories
-    })
-
-@login_required
-@user_passes_test(is_admin)
-def delete_brand(request, pk):
-    brand = get_object_or_404(Brand, pk=pk)
-    
-    if request.method == 'POST':
-        brand_name = brand.name
-        brand.delete()
-        messages.success(request, f'Brand "{brand_name}" deleted successfully!')
-        return redirect('manage_categories')
-    
-    return render(request, 'admin/confirm_delete.html', {
-        'object': brand,
-        'object_type': 'brand'
-    })
 
 @login_required
 @user_passes_test(is_admin)
@@ -1776,12 +1508,44 @@ def category_products(request, slug):
     sort_by = request.GET.get('sort', 'newest')
     search_query = request.GET.get('q', '')
     
-    # Apply filters...
-    # ... rest of your filtering code
-    
+    # Apply filters
+    if selected_brands:
+        products = products.filter(brand__slug__in=selected_brands)
+    if selected_subcategories:
+        products = products.filter(subcategory__slug__in=selected_subcategories)
+    if min_price:
+        try:
+            products = products.filter(price__gte=float(min_price))
+        except (ValueError, TypeError):
+            pass
+    if max_price:
+        try:
+            products = products.filter(price__lte=float(max_price))
+        except (ValueError, TypeError):
+            pass
+    if search_query:
+        products = products.filter(
+            Q(name__icontains=search_query) | Q(description__icontains=search_query)
+        )
+    if sort_by == 'price_low':
+        products = products.order_by('price')
+    elif sort_by == 'price_high':
+        products = products.order_by('-price')
+    elif sort_by == 'name':
+        products = products.order_by('name')
+    else:
+        products = products.order_by('-created_at')
+
+    # Pagination
+    paginator = Paginator(products, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     context = {
         'category': category,
-        'products': products,
+        'products': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': paginator.num_pages > 1,
         'subcategories': subcategories,
         'brands': brands,
         'selected_brands': selected_brands,
@@ -1985,29 +1749,6 @@ def brand_products(request, slug):
         'product_count': products.count(),
     }
     return render(request, 'products/brand_products.html', context)
-
-def product_detail(request, slug):
-    """Product detail view"""
-    product = get_object_or_404(Product, slug=slug, is_active=True)
-    
-    # Get related products (same category)
-    related_products = Product.objects.filter(
-        category=product.category,
-        is_active=True
-    ).exclude(id=product.id)[:8]
-    
-    # Get other products from same brand
-    same_brand_products = Product.objects.filter(
-        brand=product.brand,
-        is_active=True
-    ).exclude(id=product.id)[:4]
-    
-    context = {
-        'product': product,
-        'related_products': related_products,
-        'same_brand_products': same_brand_products,
-    }
-    return render(request, 'products/product_detail.html', context)
 
 def search_products(request):
     """Search products across all categories"""
@@ -2223,51 +1964,6 @@ def newsletter_subscribe(request):
     return HttpResponse('Method not allowed', status=405)
 
 
-@login_required
-def wishlist_view(request):
-    wishlist_items = Wishlist.objects.filter(user=request.user)
-    context = {
-        'wishlist_items': wishlist_items,
-    }
-    return render(request, 'wishlist.html', context)
-
-@login_required
-def add_to_wishlist(request, product_id):
-    if request.method == 'POST':
-        product = get_object_or_404(Product, id=product_id)
-        
-        # Check if already in wishlist
-        wishlist_item, created = Wishlist.objects.get_or_create(
-            user=request.user,
-            product=product
-        )
-        
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'success': True,
-                'message': f'{product.name} added to wishlist',
-                'wishlist_count': Wishlist.objects.filter(user=request.user).count()
-            })
-        
-        return redirect('wishlist')
-    return redirect('product_detail', slug=product.slug)
-
-@login_required
-def remove_from_wishlist(request, item_id):
-    if request.method == 'POST':
-        wishlist_item = get_object_or_404(Wishlist, id=item_id, user=request.user)
-        wishlist_item.delete()
-        
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'success': True,
-                'message': 'Item removed from wishlist',
-                'wishlist_count': Wishlist.objects.filter(user=request.user).count()
-            })
-        
-        return redirect('wishlist')
-    return redirect('wishlist')
-
 # Context processor to get wishlist count
 def wishlist_count(request):
     if request.user.is_authenticated:
@@ -2418,14 +2114,13 @@ def edit_category(request, pk):
         icon = request.POST.get('icon', 'fas fa-boxes')
         
         if name:
+            # Update slug when name changes (must check before assigning)
+            if category.name != name:
+                category.slug = slugify(name)
             category.name = name
             category.description = description
             category.is_active = is_active
             category.icon = icon
-            
-            # Update slug if name changed
-            if category.name != name:
-                category.slug = slugify(name)
             
             category.save()
             messages.success(request, f'Category "{name}" updated successfully.')
@@ -2541,51 +2236,9 @@ def product_detail_by_id(request, id):
     product = get_object_or_404(Product, id=id, is_active=True)
     return render(request, 'product_detail.html', {'product': product})
 
-# ====================== UPDATE CART ITEM ======================
-@login_required
-def update_cart_item(request, item_id):
-    """Update cart item quantity"""
-    if request.method == 'POST':
-        try:
-            quantity = int(request.POST.get('quantity', 1))
-            
-            if request.user.is_authenticated:
-                cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
-                
-                if quantity > 0 and quantity <= cart_item.product.stock_quantity:
-                    cart_item.quantity = quantity
-                    cart_item.save()
-                    messages.success(request, 'Cart updated successfully.')
-                elif quantity <= 0:
-                    cart_item.delete()
-                    messages.success(request, 'Item removed from cart.')
-                else:
-                    messages.error(request, f'Only {cart_item.product.stock_quantity} items available.')
-            
-            else:
-                # Session cart
-                cart = request.session.get('cart', {})
-                item_id_str = str(item_id)
-                if item_id_str in cart:
-                    if quantity > 0:
-                        cart[item_id_str]['quantity'] = quantity
-                        messages.success(request, 'Cart updated successfully.')
-                    else:
-                        del cart[item_id_str]
-                        messages.success(request, 'Item removed from cart.')
-                    request.session['cart'] = cart
-                    request.session.modified = True
-            
-            return redirect('cart_detail')
-            
-        except Exception as e:
-            messages.error(request, f'Error updating cart: {str(e)}')
-    
-    return redirect('cart_detail')
-
 # ==================== SITE SETTINGS VIEW ====================
 @staff_member_required
-def site_settings_view(request):
+def site_settings(request):
     """Admin view for site settings"""
     settings = SiteSettings.objects.first()
     hero_slides = HeroSlide.objects.all().order_by('order')
@@ -2614,7 +2267,7 @@ def site_settings_view(request):
             try:
                 logo_height = request.POST.get('logo_height', '50')
                 settings.logo_height = int(logo_height) if logo_height and logo_height.isdigit() else 50
-            except:
+            except (ValueError, TypeError):
                 settings.logo_height = 50
             
             settings.logo_alignment = request.POST.get('logo_alignment', 'left') or 'left'
@@ -2632,7 +2285,7 @@ def site_settings_view(request):
             try:
                 header_padding_y = request.POST.get('header_padding_y', '12')
                 settings.header_padding_y = int(header_padding_y) if header_padding_y and header_padding_y.isdigit() else 12
-            except:
+            except (ValueError, TypeError):
                 settings.header_padding_y = 12
             
             settings.header_sticky = request.POST.get('header_sticky') == 'on'
@@ -2648,7 +2301,7 @@ def site_settings_view(request):
             try:
                 nav_bar_height = request.POST.get('nav_bar_height', '48')
                 settings.nav_bar_height = int(nav_bar_height) if nav_bar_height and nav_bar_height.isdigit() else 48
-            except:
+            except (ValueError, TypeError):
                 settings.nav_bar_height = 48
             
             settings.nav_layout = request.POST.get('nav_layout', 'left') or 'left'
@@ -2661,7 +2314,7 @@ def site_settings_view(request):
             try:
                 header_height = request.POST.get('header_height', '70')
                 settings.header_height = int(header_height) if header_height and header_height.isdigit() else 70
-            except:
+            except (ValueError, TypeError):
                 settings.header_height = 70
             
             settings.header_layout = request.POST.get('header_layout', 'standard') or 'standard'
@@ -2679,13 +2332,13 @@ def site_settings_view(request):
             try:
                 hero_height = request.POST.get('hero_height', '500')
                 settings.hero_height = int(hero_height) if hero_height and hero_height.isdigit() else 500
-            except:
+            except (ValueError, TypeError):
                 settings.hero_height = 500
             
             try:
                 slideshow_speed = request.POST.get('hero_slideshow_speed', '5000')
                 settings.hero_slideshow_speed = int(slideshow_speed) if slideshow_speed and slideshow_speed.isdigit() else 5000
-            except:
+            except (ValueError, TypeError):
                 settings.hero_slideshow_speed = 5000
             
             # Hero Background Image
@@ -2811,15 +2464,15 @@ def add_hero_slide(request):
             # ========== FONT SIZES ==========
             try:
                 slide.title_font_size = int(request.POST.get('title_font_size', 48))
-            except:
+            except (ValueError, TypeError):
                 slide.title_font_size = 48
             try:
                 slide.highlight_font_size = int(request.POST.get('highlight_font_size', 36))
-            except:
+            except (ValueError, TypeError):
                 slide.highlight_font_size = 36
             try:
                 slide.subtitle_font_size = int(request.POST.get('subtitle_font_size', 20))
-            except:
+            except (ValueError, TypeError):
                 slide.subtitle_font_size = 20
             
             # ========== DESIGN STYLE ==========
@@ -2833,32 +2486,26 @@ def add_hero_slide(request):
             slide.slide_text_color = request.POST.get('slide_text_color') or None
             slide.slide_accent_color = request.POST.get('slide_accent_color') or None
             
-            # Get from text input if color picker is empty
-            if not slide.slide_bg_color and request.POST.get('slide_bg_color_text'):
-                slide.slide_bg_color = request.POST.get('slide_bg_color_text')
-            if not slide.slide_text_color and request.POST.get('slide_text_color_text'):
-                slide.slide_text_color = request.POST.get('slide_text_color_text')
-            if not slide.slide_accent_color and request.POST.get('slide_accent_color_text'):
-                slide.slide_accent_color = request.POST.get('slide_accent_color_text')
+            # Colors come directly from text inputs (synced via JS)
             
             # ========== OVERLAY OPACITY ==========
             try:
                 slide.slide_overlay_opacity = float(request.POST.get('slide_overlay_opacity', 0.5))
-            except:
+            except (ValueError, TypeError):
                 slide.slide_overlay_opacity = 0.5
             
             # ========== ANIMATION DELAYS ==========
             try:
                 slide.title_delay = int(request.POST.get('title_delay', 100))
-            except:
+            except (ValueError, TypeError):
                 slide.title_delay = 100
             try:
                 slide.subtitle_delay = int(request.POST.get('subtitle_delay', 200))
-            except:
+            except (ValueError, TypeError):
                 slide.subtitle_delay = 200
             try:
                 slide.button_delay = int(request.POST.get('button_delay', 300))
-            except:
+            except (ValueError, TypeError):
                 slide.button_delay = 300
             
             # ========== BADGES ==========
@@ -2897,13 +2544,13 @@ def add_hero_slide(request):
             slide.image_hover_effect = request.POST.get('image_hover_effect') == 'on'
             try:
                 slide.image_hover_scale = float(request.POST.get('image_hover_scale', 1.05))
-            except:
+            except (ValueError, TypeError):
                 slide.image_hover_scale = 1.05
             
             # Opacity
             try:
                 slide.image_opacity = int(request.POST.get('image_opacity', 100))
-            except:
+            except (ValueError, TypeError):
                 slide.image_opacity = 100
             
             # Custom CSS Class
@@ -2942,7 +2589,7 @@ def add_hero_slide(request):
             # ========== ORDER & STATUS ==========
             try:
                 slide.order = int(request.POST.get('order', HeroSlide.objects.count() + 1))
-            except:
+            except (ValueError, TypeError):
                 slide.order = HeroSlide.objects.count() + 1
             slide.is_active = request.POST.get('is_active') == 'on'
             
@@ -2975,15 +2622,15 @@ def edit_hero_slide(request, slide_id):
             # ========== FONT SIZES ==========
             try:
                 slide.title_font_size = int(request.POST.get('title_font_size', 48))
-            except:
+            except (ValueError, TypeError):
                 slide.title_font_size = 48
             try:
                 slide.highlight_font_size = int(request.POST.get('highlight_font_size', 36))
-            except:
+            except (ValueError, TypeError):
                 slide.highlight_font_size = 36
             try:
                 slide.subtitle_font_size = int(request.POST.get('subtitle_font_size', 20))
-            except:
+            except (ValueError, TypeError):
                 slide.subtitle_font_size = 20
             
             # ========== DESIGN STYLE ==========
@@ -2997,32 +2644,26 @@ def edit_hero_slide(request, slide_id):
             slide.slide_text_color = request.POST.get('slide_text_color') or None
             slide.slide_accent_color = request.POST.get('slide_accent_color') or None
             
-            # Get from text input if color picker is empty
-            if not slide.slide_bg_color and request.POST.get('slide_bg_color_text'):
-                slide.slide_bg_color = request.POST.get('slide_bg_color_text')
-            if not slide.slide_text_color and request.POST.get('slide_text_color_text'):
-                slide.slide_text_color = request.POST.get('slide_text_color_text')
-            if not slide.slide_accent_color and request.POST.get('slide_accent_color_text'):
-                slide.slide_accent_color = request.POST.get('slide_accent_color_text')
+            # Colors come directly from text inputs (synced via JS)
             
             # ========== OVERLAY OPACITY ==========
             try:
                 slide.slide_overlay_opacity = float(request.POST.get('slide_overlay_opacity', 0.5))
-            except:
+            except (ValueError, TypeError):
                 slide.slide_overlay_opacity = 0.5
             
             # ========== ANIMATION DELAYS ==========
             try:
                 slide.title_delay = int(request.POST.get('title_delay', 100))
-            except:
+            except (ValueError, TypeError):
                 slide.title_delay = 100
             try:
                 slide.subtitle_delay = int(request.POST.get('subtitle_delay', 200))
-            except:
+            except (ValueError, TypeError):
                 slide.subtitle_delay = 200
             try:
                 slide.button_delay = int(request.POST.get('button_delay', 300))
-            except:
+            except (ValueError, TypeError):
                 slide.button_delay = 300
             
             # ========== BADGES ==========
@@ -3061,13 +2702,13 @@ def edit_hero_slide(request, slide_id):
             slide.image_hover_effect = request.POST.get('image_hover_effect') == 'on'
             try:
                 slide.image_hover_scale = float(request.POST.get('image_hover_scale', 1.05))
-            except:
+            except (ValueError, TypeError):
                 slide.image_hover_scale = 1.05
             
             # Opacity
             try:
                 slide.image_opacity = int(request.POST.get('image_opacity', 100))
-            except:
+            except (ValueError, TypeError):
                 slide.image_opacity = 100
             
             # Custom CSS Class
@@ -3110,7 +2751,7 @@ def edit_hero_slide(request, slide_id):
             # ========== ORDER & STATUS ==========
             try:
                 slide.order = int(request.POST.get('order', slide.order))
-            except:
+            except (ValueError, TypeError):
                 pass
             slide.is_active = request.POST.get('is_active') == 'on'
             
