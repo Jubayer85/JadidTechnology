@@ -1728,15 +1728,22 @@ def brand_products(request, slug):
     else:  # newest
         products = products.order_by('-created_at')
     
-    # Get other brands in same categories
+    # Get other brands in same categories (✅ ইন্ডেন্টেশন ঠিক করা হয়েছে)
     other_brands = Brand.objects.filter(
-        categories__in=categories,
+        products__category__in=categories,
         is_active=True
     ).exclude(id=brand.id).distinct()[:10]
     
+    # Add pagination (optional but recommended)
+    paginator = Paginator(products, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
     context = {
         'brand': brand,
-        'products': products,
+        'products': page_obj,  # Use paginated products
+        'page_obj': page_obj,
+        'is_paginated': paginator.num_pages > 1,
         'categories': categories,
         'subcategories': subcategories,
         'other_brands': other_brands,
